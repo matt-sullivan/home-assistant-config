@@ -17,12 +17,17 @@ logger:
     homeassistant.core: info
     homeassistant.components.cast: info
     homeassistant.components.cast.media_player: info
+    homeassistant.components.recorder: info
     pychromecast: info
     pychromecast.discovery: info
     pychromecast.socket_client: info
     homeassistant.components.zeroconf: info
     custom_components.spotcast: info
     zeroconf: info
+
+recorder:
+  commit_interval: 30
+  purge_keep_days: 31
 
 binary_sensor:
   - platform: workday
