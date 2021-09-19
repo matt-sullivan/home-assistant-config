@@ -1,0 +1,101 @@
+- id: '1626483577201'
+  name: Sleep Time
+  entities:
+    light.kids_short_rgb:
+      supported_color_modes:
+      - hs
+      color_mode: hs
+      brightness: 38
+      hs_color:
+      - 195.059
+      - 100
+      rgb_color:
+      - 0
+      - 190
+      - 255
+      xy_color:
+      - 0.146
+      - 0.237
+      friendly_name: Kids Short Coloured Strip
+      supported_features: 57
+      state: 'on'
+    light.kids_short_w:
+      supported_color_modes:
+      - brightness
+      friendly_name: Kids Short White Strip
+      supported_features: 41
+      state: 'off'
+    light.emily_reading:
+      supported_color_modes:
+      - brightness
+      friendly_name: Emilys Reading Light
+      supported_features: 41
+      state: 'off'
+    light.kids_long_rgb:
+      effect_list:
+      - None
+      - Pulse
+      - Random
+      - Strobe
+      supported_color_modes:
+      - hs
+      friendly_name: Kids Coloured Lights
+      supported_features: 61
+      state: 'off'
+    light.kids_long_w:
+      supported_color_modes:
+      - brightness
+      friendly_name: Kids White Strip
+      supported_features: 41
+      state: 'off'
+    light.toby_reading:
+      supported_color_modes:
+      - brightness
+      friendly_name: Tobys Reading Light
+      supported_features: 41
+      state: 'off'
+- id: '1626768736357'
+  name: Reading Time
+  entities:
+    light.kids_short_rgb:
+      supported_color_modes:
+      - hs
+      friendly_name: Kids Short Coloured Strip
+      supported_features: 57
+      state: 'off'
+    light.kids_short_w:
+      supported_color_modes:
+      - brightness
+      friendly_name: Kids Short White Strip
+      supported_features: 41
+      state: 'off'
+    light.emily_reading:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 186
+      friendly_name: Emilys Reading Light
+      supported_features: 41
+      state: 'on'
+    light.kids_long_rgb:
+      supported_color_modes:
+      - hs
+      friendly_name: Kids Coloured Lights
+      supported_features: 57
+      state: 'off'
+    light.kids_long_w:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 71
+      friendly_name: Kids White Strip
+      supported_features: 41
+      state: 'on'
+    light.toby_reading:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 189
+      friendly_name: Tobys Reading Light
+      supported_features: 41
+      state: 'on'

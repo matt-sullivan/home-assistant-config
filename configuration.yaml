@@ -1,0 +1,42 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+homeassistant:
+  customize: !include customize.yaml
+  packages: !include_dir_named packages
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+logger:
+  default: info
+  logs:
+    homeassistant.components.automation: debug
+    homeassistant.core: info
+    homeassistant.components.cast: info
+    homeassistant.components.cast.media_player: info
+    pychromecast: info
+    pychromecast.discovery: info
+    pychromecast.socket_client: info
+    homeassistant.components.zeroconf: info
+    custom_components.spotcast: info
+    zeroconf: info
+
+binary_sensor:
+  - platform: workday
+    country: AU
+    province: QLD
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+spotify:
+  client_id: !secret spotify_client_id
+  client_secret: !secret spotify_client_secret
+
+spotcast:
+  sp_dc: !secret spotcast_sp_dc
+  sp_key: !secret spotcast_sp_key

@@ -1,0 +1,10 @@
+secrets.yaml
+*.log
+*.xml
+*.db*
+*.sqlite
+.storage/
+/.mr.sullivan@gmail.com.august.conf
+/.cloud/
+__pycache__
+/tts

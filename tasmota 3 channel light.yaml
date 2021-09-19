@@ -1,0 +1,86 @@
+light:
+  - platform: mqtt
+    schema: template
+    name: "ledstrip_test"
+    unique_id: "tasmota_CF171D/ledstrip1"
+    command_topic: "cmnd/tasmota_CF171D/Backlog"
+    command_on_template: >-
+      {%- if flash is defined -%}
+        {% if flash == "short" %}Blinktime 5; Blinkcount 15; Power 3{% else %}Blinktime 10; Blinkcount 15; Power 3{% endif %}; 
+      {% else %}
+        {%- if transition is defined -%}
+        Speed {% if transition < 21 %}{{ transition * 2 }}{% else %}40{% endif %}; Fade 1; 
+        {%- endif -%}
+        {%- if state is defined -%}
+        Power1 1; Power2 1; Power3 1;
+        {%- endif -%}
+        {# Figure out the RGB based on available colour and brightness info.
+           Both inputs are 0-255, colour sent to device needs to be 0-255.
+        #}
+        {%- if red is defined and green is defined and blue is defined -%}
+          {%- set rgb = [red, green, blue] -%}
+          {%- if brightness is defined -%}
+            {%- set brightadj = brightness/255 -%}
+          {%- elif state_attr('light.ledstrip1', 'brightness') -%}
+            {%- set brightadj = state_attr('light.ledstrip1', 'brightness') / 255 -%}
+          {%- else -%}
+            {%- set brightadj = 1.0 -%}
+          {%- endif -%}
+          Color {{ "%02X" | format((rgb[0] * brightadj) | int) }}{{ "%02X" | format((rgb[1] * brightadj) | int) }}{{ "%02X" | format((rgb[2] * brightadj) | int) }}=; 
+        {%- elif brightness is defined -%}
+          {%- set brightadj = brightness/255 -%}
+          {%- if state_attr('light.ledstrip1', 'rgb_color') -%}
+            {%- set rgb = state_attr('light.ledstrip1', 'rgb_color') -%}
+          {%- else -%}
+            {%- set rgb = [255,255,255] -%}
+          {%- endif -%}
+          Color {{ "%02X" | format((rgb[0] * brightadj) | int) }}{{ "%02X" | format((rgb[1] * brightadj) | int) }}{{ "%02X" | format((rgb[2] * brightadj) | int) }}=; 
+        {%- endif -%}
+        {%- if effect is defined -%}
+        Scheme {% if effect == "None" %}0{% elif effect == "Wakeup" %}1{% elif effect == "Color Cycle" %}2{% elif effect == "Reverse Cycle" %}3{% elif effect == "Random" %}4{% endif %}; 
+        {%- endif -%}
+        {%- if transition is defined -%}
+        Delay {% if transition < 21 %}{{ transition * 11 }}{% else %}210{% endif %}; Fade 0; Speed 0
+        {%- endif -%}
+        State
+      {%- endif -%}
+    command_off_template: "Power1 0; Power2 0; Power3 0; State"
+    state_topic: "stat/tasmota_CF171D/RESULT"
+    state_template: '{% if value_json.POWER1 == "ON" or value_json.POWER2 == "ON" or value_json.POWER3 == "ON" %}on{% else %}off{% endif %}'
+    availability_topic: "tele/tasmota_CF171D/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    brightness_template: "{{ ((value_json.Channel1 + value_json.Channel2 + value_json.Channel3) * 2.55 / 3) | int }}"
+    red_template: "{{ value_json.Color[0:2] | int(base=16) }}"
+    green_template: "{{ value_json.Color[2:4] | int(base=16) }}"
+    blue_template: "{{ value_json.Color[4:6] | int(base=16) }}"
+    #    rgb_command_topic: "cmnd/tasmota_CF171D/Color2"
+    #    rgb_state_topic: "tele/tasmota_CF171D/STATE"
+    #    rgb_value_template: "{{ value_json.Color.split(',')[0:3]|join(',') }}"
+    #    effect_command_topic: "cmnd/tasmota_CF171D/Scheme"
+    #    effect_state_topic: "tele/tasmota_CF171D/STATE"
+    #    effect_value_template: "{{ value_json.Scheme }}"
+    effect_list:
+      - "None"
+      - "Wakeup"
+      - "Color Cycle"
+      - "Reverse Cycle"
+      - "Random"
+    effect_template: >-
+      {% if value_json.Scheme == 0 %}
+      None
+      {% elif value_json.Scheme == 1 %}
+      Wakeup
+      {% elif value_json.Scheme == 2 %}
+      Color Cycle 
+      {% elif value_json.Scheme == 3 %}
+      Reverse Cycle 
+      {% elif value_json.Scheme == 4 %}
+      Random
+      {% endif %}
+    json_attributes_topic: "tele/tasmota_CF171D/STATE"
+    json_attributes_template: "{{ value_json.Wifi | tojson }}"
+    #    payload_on: "ON"
+    #    payload_off: "OFF"
+    qos: 1
+#    retain: false

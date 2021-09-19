@@ -1,0 +1,23 @@
+- id: '1625489104071'
+  alias: Daily backup
+  description: ''
+  trigger:
+  - platform: time
+    at: 04:00
+  condition: []
+  action:
+  - service: hassio.snapshot_full
+  mode: single
+- id: '1626969085204'
+  alias: wake up kids
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:15
+  condition:
+  - condition: state
+    entity_id: binary_sensor.workday_sensor
+    state: 'on'
+  action:
+  - service: script.kids_wakeup
+  mode: single

@@ -1,0 +1,104 @@
+# spotify_test_1:
+#   alias: Spotify Play Old
+#   description:
+#     Attempt to play playlist in spotify, but built-in method only works
+#     if devide already active
+#   sequence:
+#     - service: media_player.select_source
+#       target:
+#         entity_id: media_player.spotify_matt_sullivan
+#       data:
+#         source: Lounge tv
+#     - service: media_player.play_media
+#       data:
+#         media_content_type: playlist
+#         media_content_id: https://open.spotify.com/playlist/3WhE0IEbLZ0VABA5joDiTs
+#       target:
+#         entity_id:
+#           - media_player.spotify_matt_sullivan
+#   mode: single
+
+# spotify_test_2:
+#   alias: Spotify/google home test
+#   description: Attempt to play spotify on kitchen google home 
+#   sequence:
+#     - service: media_player.volume_set
+#       target:
+#         entity_id: media_player.kitchen_speaker
+#       data:
+#         volume_level: 0.2
+#     - service: spotcast.start
+#       data:
+#         uri: https://open.spotify.com/playlist/0fpnB1xETz7cpfsuZAAgsK?si=af6348fbcb2e47dd
+#         repeat: true
+#         start_volume: 20
+#         entity_id: media_player.kitchen_speaker
+#   mode: restart
+
+kids_wakeup:
+  alias: Kids Wake Up
+  description: Start kids wake up music and lights
+  variables:
+    chromecast_id: media_player.emilys_room_speaker
+    count: 10
+    max_volume: 1
+  sequence:
+    - service: media_player.volume_set
+      target:
+        entity_id: "{{chromecast_id}}"
+      data:
+        volume_level: 0.1
+    - service: spotcast.start
+      data:
+        uri: https://open.spotify.com/playlist/4WyHdt802ozHHPWq1BNUUB?si=be67847063db44d9
+        random_song: true
+        repeat: true
+        shuffle: true
+        start_volume: 10
+        entity_id: "{{chromecast_id}}"
+    - repeat:
+        count: "{{count}}"
+        sequence:
+          - service: media_player.volume_set
+            target:
+              entity_id: "{{chromecast_id}}"
+            data:
+              volume_level: "{{repeat.index|float / count * max_volume}}"
+          - service: scene.apply
+            data:
+              entities:
+                light.emily_reading:
+                  brightness: "{{repeat.index|float / count * 255}}"
+                  state: "on"
+                light.toby_reading:
+                  brightness: "{{repeat.index|float / count * 255}}"
+                  state: "on"
+                light.kids_long_w:
+                  brightness: "{{repeat.index|float / count * 255}}"
+                  state: "on"
+          - delay:
+              hours: 0
+              minutes: 1
+              seconds: 0
+              milliseconds: 0
+  mode: restart
+
+kids_sleep_time:
+  alias: Kids Sleep Time
+  description: Sleep music and night lights
+  sequence:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.kids_sleep_time
+    - service: media_player.volume_set
+      target:
+        entity_id: media_player.emilys_room_speaker
+      data:
+        volume_level: 0.2
+    - service: spotcast.start
+      data:
+        uri: https://open.spotify.com/playlist/0fpnB1xETz7cpfsuZAAgsK?si=af6348fbcb2e47dd
+        repeat: true
+        start_volume: 20
+        entity_id: media_player.emilys_room_speaker
+  mode: restart
