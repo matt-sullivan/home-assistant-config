@@ -1,20 +1,11 @@
-# lovelace:
-#   mode: storage
-#   # Add yaml dashboards
-#   dashboards:
-#     dashboard-raspipool-yaml:
-#       mode: yaml
-#       title: YAML
-#       icon: mdi:script
-#       show_in_sidebar: true
-#       filename: dashboard_raspipool.yaml
 lovelace:
+  # Include the default and any other dashboards configured in the UI
   mode: storage
   # Add yaml dashboards
   dashboards:
     lovelace-yaml:
       mode: yaml
-      title: YAML
-      icon: mdi:script
+      title: Pool
+      icon: mdi:pool
       show_in_sidebar: true
-      filename: "lovelace-test.yaml"
+      filename: "ui-lovelace-pool.yaml"
