@@ -86,10 +86,29 @@ kids_wakeup:
 kids_sleep_time:
   alias: Kids Sleep Time
   description: Sleep music and night lights
+  variables:
+    steps: 5
+    start_brightness: 71
+    end_brightness: 25
   sequence:
-    - service: scene.turn_on
-      target:
-        entity_id: scene.kids_sleep_time
+    - service: scene.apply
+      data:
+        entities:
+          light.kids_short_rgb:
+            color_mode: hs
+            brightness: 38
+            hs_color:
+            - 195.059
+            - 100
+            state: 'on'
+          light.kids_short_w:
+            state: 'off'
+          light.emily_reading:
+            state: 'off'
+          light.toby_reading:
+            state: 'off'
+          light.kids_long_rgb:
+            state: 'off'
     - service: media_player.volume_set
       target:
         entity_id: media_player.emilys_room_speaker
@@ -101,4 +120,28 @@ kids_sleep_time:
         repeat: true
         start_volume: 20
         entity_id: media_player.emilys_room_speaker
+    - repeat:
+        count: "{{steps}}"
+        sequence:
+          - service: scene.apply
+            data:
+              entities:
+                light.kids_long_w:
+                  brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
+                  state: "on"
+          - delay:
+              hours: 0
+              minutes: 1
+              seconds: 0
+              milliseconds: 0
+    - delay:
+        hours: 2
+        minutes: 0
+        seconds: 0
+        milliseconds: 0
+    - service: scene.apply
+      data:
+        entities:
+          light.kids_long_w:
+            state: 'off'
   mode: restart
