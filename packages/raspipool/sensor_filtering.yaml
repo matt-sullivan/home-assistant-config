@@ -1,17 +1,46 @@
+binary_sensor:
+  - platform: template
+    sensors:
+      pool_samples_available:
+        unique_id: pool_samples_available_20210920
+        value_template: "{{ states('sensor.smartswitch2_energy_power')|float > 100 }}"
+        delay_on: 0:05:00
+        delay_off: 0:00:00
+
 sensor:
   - platform: template
     sensors:
       pool_water_temperature:
-        friendly_name: "Pool Temp."
-        entity_id: sensor.pool_water_temperature
+        unique_id: pool_temp_filtered_20210920
         value_template: "{{ states('sensor.pool_temp')|float|round(1) }}"
+        availability_template: "{{ states('binary_sensor.pool_samples_available') }}"
         icon_template: hass:thermometer
         unit_of_measurement: 'ºC'
       ph_mean:
-        entity_id: sensor.ph_mean
+        unique_id: pool_ph_filtered_20210920
         value_template: "{{ states('sensor.pool_ph')|float|round(1) }}"
+        availability_template: "{{ states('binary_sensor.pool_samples_available') }}"
         unit_of_measurement: 'u'
       orp_mean:
-        entity_id: sensor.orp_mean
+        unique_id: pool_orp_filtered_20210920
         value_template: "{{ states('sensor.pool_orp')|float|round(1) }}"
+        availability_template: "{{ states('binary_sensor.pool_samples_available') }}"
         unit_of_measurement: 'mV'
+
+# Note: this file uses the legacy config format specified here:
+# https://www.home-assistant.io/integrations/template/#legacy-sensor-configuration-format
+# There are some problems defining templates in packages, reports it works using the
+# following format with the 'sensor' line as a dict rather than the list, but I can't get
+# it to work. https://github.com/home-assistant/core/issues/49212
+# template:
+#   sensor:
+#     - name: ph_mean
+#       unique_id: pool_ph_filtered
+#       value: "{{ states('sensor.pool_ph')|float|round(1) }}"
+#       unit_of_measurement: 'u'
+#       availability: "{{ states(binary_sensor.pool_samples_valid) }}"
+#     - name: orp_mean
+#       unique_id: pool_orp_filtered
+#       value: "{{ states('sensor.pool_orp')|float|round(1) }}"
+#       unit_of_measurement: 'mV'
+#       availability: "{{ states(binary_sensor.pool_samples_valid) }}"
