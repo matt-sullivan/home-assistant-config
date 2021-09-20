@@ -1,0 +1,17 @@
+sensor:
+  - platform: template
+    sensors:
+      pool_water_temperature:
+        friendly_name: "Pool Temp."
+        entity_id: sensor.pool_water_temperature
+        value_template: "{{ states('sensor.pool_temp')|float|round(1) }}"
+        icon_template: hass:thermometer
+        unit_of_measurement: 'ºC'
+      ph_mean:
+        entity_id: sensor.ph_mean
+        value_template: "{{ states('sensor.pool_ph')|float|round(1) }}"
+        unit_of_measurement: 'u'
+      orp_mean:
+        entity_id: sensor.orp_mean
+        value_template: "{{ states('sensor.pool_orp')|float|round(1) }}"
+        unit_of_measurement: 'mV'
