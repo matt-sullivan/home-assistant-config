@@ -1,18 +1,20 @@
 sensor:
-  # Weather prediction
-  - platform: openweathermap
-    api_key: !secret openweathermap_api_key
-    name: Exterior
-    language: es
-    monitored_conditions:
-      - weather
-      - temperature
-      - wind_speed
-      - humidity
-      - pressure
-      - clouds
-      - rain
-    scan_interval: 600
+  # openweathermap seems like it no longer supports setup from a config file.
+  # (it says 'The openweathermap platform for the sensor integration does not support platform setup. Please remove it from your config.')
+  # Use the UI to add this integration instead
+  # - platform: openweathermap
+  #   api_key: !secret openweathermap_api_key
+  #   name: Exterior
+  #   language: en
+  #   monitored_conditions:
+  #     - weather
+  #     - temperature
+  #     - wind_speed
+  #     - humidity
+  #     - pressure
+  #     - clouds
+  #     - rain
+  #   scan_interval: 600
 
   - platform: time_date
     display_options:
