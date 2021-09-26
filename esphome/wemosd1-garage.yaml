@@ -1,0 +1,189 @@
+substitutions:
+  device_name: "Garage Wemos D1"
+  sensor_name: "Garage Door"
+  open_duration: 30s
+  distance_threshold: "0.5"
+
+esphome:
+  name: wemosd1-garage
+  platform: ESP8266
+  board: d1_mini
+  on_boot:
+    priority: 600
+    then:
+      # I don't know if CLOSED is great, but the closed sensor should immedatiately transition to open anyway
+      - cover.template.publish:
+          id: garage
+          state: CLOSED
+          current_operation: IDLE
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password 
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Wemosd1-Garage Fallback Hotspot"
+    password: !secret fallback_password
+
+captive_portal:
+
+external_components:  
+  - source:
+      type: git
+      url: https://github.com/muxa/esphome-state-machine
+    refresh: 1h
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: D3
+    echo_pin: D4
+    name: "${sensor_name} Distance"
+    id: garage_distance
+    update_interval: 1s
+    
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal"
+    update_interval: 60s
+
+  - platform: uptime
+    name: "${device_name} Uptime"
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "days"
+    accuracy_decimals: 1
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D0
+      mode: INPUT_PULLUP
+    name: "${device_name} Button Pressed"
+    filters:
+      - delayed_on: 100ms
+    # If it wasn't our code that triggered the button input to the motor transition the state machine
+    on_press:
+      - if:
+          condition:
+            - switch.is_off: garage_relay
+          then:
+            - state_machine.transition: PRESS
+  - platform: template
+    name: "Garage Door Open"
+    lambda: |-
+      // Use < for confirmation of closed, nan should be open
+      if (id(garage_distance).state < ${distance_threshold}) {
+        // this seems backwards, but returning true appears to turn the sensor off (closed)
+        return true;
+      } else {
+        // open
+        return false;
+      }
+    on_press:
+      - state_machine.transition: DETECTED_OPENING
+    on_release:
+      - state_machine.transition: DETECTED_CLOSED
+
+switch:
+  - platform: gpio
+    name: "${sensor_name} Toggle"
+    internal: true
+    pin: D8
+    id: garage_relay
+    icon: "mdi:garage"
+    on_turn_on:
+      - delay: 1s
+      - switch.turn_off: garage_relay
+
+text_sensor:
+  - platform: state_machine
+    name: "${sensor_name} State"
+
+state_machine:
+  - name: "${sensor_name}"
+    diagram: true
+    initial_state: CLOSED
+    states:
+      - name: CLOSED
+        on_enter:
+          - cover.template.publish:
+              id: garage
+              state: CLOSED
+              current_operation: IDLE
+      - name: OPENING
+        on_enter:
+          - cover.template.publish:
+              id: garage
+              state: OPEN
+              current_operation: OPENING
+          - delay: ${open_duration}
+          - state_machine.transition: TIMEOUT
+      - name: OPEN
+        on_enter:
+          - cover.template.publish:
+              id: garage
+              state: OPEN
+              current_operation: IDLE
+      - name: CLOSING
+        on_enter:
+          - cover.template.publish:
+              id: garage
+              state: OPEN
+              current_operation: CLOSING
+    inputs:
+      - name: PRESS
+        transitions:
+          - CLOSED -> OPENING
+          - OPENING -> CLOSING
+          - CLOSING -> OPENING
+          - OPEN -> CLOSING
+      - name: TIMEOUT
+        transitions:
+          - OPENING -> OPEN
+        action:
+          - logger.log: "Timeout reached"
+      - name: DETECTED_OPENING
+        transitions:
+          - CLOSED -> OPENING
+          - CLOSING -> OPENING
+          - OPEN -> OPENING
+      - name: DETECTED_CLOSED
+        transitions:
+          - CLOSING -> CLOSED
+          - OPEN -> CLOSED
+          - OPENING -> CLOSED
+      - name: REQUEST_OPEN
+        transitions:
+          - CLOSED -> OPENING
+          - CLOSING -> OPENING
+        action:
+          - switch.turn_on: garage_relay
+      - name: REQUEST_CLOSE
+        transitions:
+          - OPEN -> CLOSING
+          - OPENING -> CLOSING
+        action:
+          - switch.turn_on: garage_relay
+
+cover:
+  - platform: template
+    name: "Garage"
+    id: garage
+    device_class: garage
+    assumed_state: true
+    open_action: 
+      - state_machine.transition: REQUEST_OPEN
+    close_action:
+      - state_machine.transition: REQUEST_CLOSE
+    stop_action:
+      - switch.turn_on: garage_relay
