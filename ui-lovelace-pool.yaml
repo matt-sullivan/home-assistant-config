@@ -1,8 +1,10 @@
 views:
   - badges:
       - sensor.exterior_temperature
+      - sensor.ph_mean
+      - sensor.orp_mean
       - sensor.e_fc
-      - sensor.cycle_pool
+      - sensor.pool_water_temperature
       - sensor.exterior_condition
     title: Pool
     panel: false
@@ -64,6 +66,21 @@ views:
               #       entity_id: sensor.ezo_orp
             type: glance
             show_state: true
+          - title: last 3 hours
+            entities:
+              - entity: sensor.pump_state
+              - entity: switch.orp
+                name: Bleach inj.
+              - entity: switch.ph
+                name: Muriatic inj.
+              - entity: sensor.ph_mean
+                name: pH
+              - entity: sensor.orp_mean
+                name: ORP
+              - entity: sensor.pool_water_temperature
+                name: water temp.
+            type: history-graph
+            hours_to_show: 3
           # - title: prueba
           #   type: horizontal-stack
           #   cards:
@@ -129,38 +146,57 @@ views:
     panel: true
     icon: 'mdi:chart-line'
     cards:
-      - type: horizontal-stack
+      - type: vertical-stack
         cards:
-          - title: last 3 hours
-            entities:
-              - entity: sensor.pump_state
-              - entity: switch.orp
-                name: Bleach inj.
-              - entity: switch.ph
-                name: Muriatic inj.
-              - entity: sensor.ph_mean
-                name: pH
-              - entity: sensor.orp_mean
-                name: ORP
-              - entity: sensor.pool_water_temperature
-                name: water temp.
-            type: history-graph
-            hours_to_show: 3
-          - title: last 3 days
-            entities:
-              - entity: sensor.pump_state
-              - entity: switch.orp
-                name: Bleach inj.
-              - entity: switch.ph
-                name: Muriatic inj.
-              - entity: sensor.ph_mean
-                name: pH
-              - entity: sensor.orp_mean
-                name: ORP
-              - entity: sensor.pool_water_temperature
-                name: water temp.
-            type: history-graph
-            hours_to_show: 72
+          - type: horizontal-stack
+            cards:
+              - title: last 3 hours
+                entities:
+                  - entity: sensor.pump_state
+                  - entity: switch.orp
+                    name: Bleach inj.
+                  - entity: switch.ph
+                    name: Muriatic inj.
+                  - entity: sensor.ph_mean
+                    name: pH
+                  - entity: sensor.orp_mean
+                    name: ORP
+                  - entity: sensor.pool_water_temperature
+                    name: water temp.
+                type: history-graph
+                hours_to_show: 3
+              - title: last 3 days
+                entities:
+                  - entity: sensor.pump_state
+                  - entity: switch.orp
+                    name: Bleach inj.
+                  - entity: switch.ph
+                    name: Muriatic inj.
+                  - entity: sensor.ph_mean
+                    name: pH
+                  - entity: sensor.orp_mean
+                    name: ORP
+                  - entity: sensor.pool_water_temperature
+                    name: water temp.
+                type: history-graph
+                hours_to_show: 72
+          - type: horizontal-stack
+            cards:
+              - title: last month
+                entities:
+                  - entity: sensor.pump_state
+                  - entity: switch.orp
+                    name: Bleach inj.
+                  - entity: switch.ph
+                    name: Muriatic inj.
+                  - entity: sensor.ph_mean
+                    name: pH
+                  - entity: sensor.orp_mean
+                    name: ORP
+                  - entity: sensor.pool_water_temperature
+                    name: water temp.
+                type: history-graph
+                hours_to_show: 744
   - badges: []
     title: Chemical
     panel: true
