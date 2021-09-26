@@ -46,6 +46,7 @@ external_components:
 
 sensor:
   - platform: ultrasonic
+    internal: true
     trigger_pin: D3
     echo_pin: D4
     name: "${sensor_name} Distance"
@@ -54,7 +55,7 @@ sensor:
     
   - platform: wifi_signal
     name: "${device_name} WiFi Signal"
-    update_interval: 60s
+    update_interval: 5min
 
   - platform: uptime
     name: "${device_name} Uptime"
@@ -62,23 +63,28 @@ sensor:
       - lambda: return x / 86400.0;
     unit_of_measurement: "days"
     accuracy_decimals: 1
+    update_interval: 5min
 
 binary_sensor:
-  - platform: gpio
-    pin:
-      number: D0
-      mode: INPUT_PULLUP
-    name: "${device_name} Button Pressed"
-    filters:
-      - delayed_on: 100ms
-    # If it wasn't our code that triggered the button input to the motor transition the state machine
-    on_press:
-      - if:
-          condition:
-            - switch.is_off: garage_relay
-          then:
-            - state_machine.transition: PRESS
+  # Disable this sensor of when the button is pressed, I haven't wired it up and it's not very
+  # important, I know the door state regardless of the button.
+  # - platform: gpio
+  #   pin:
+  #     number: D0
+  #     mode: INPUT_PULLUP
+  #   name: "${device_name} Button Pressed"
+  #   filters:
+  #     - delayed_on: 100ms
+  #   # If it wasn't our code that triggered the button input to the motor transition the state machine
+  #   on_press:
+  #     - if:
+  #         condition:
+  #           - switch.is_off: garage_relay
+  #         then:
+  #           - state_machine.transition: PRESS
+  
   - platform: template
+    internal: true
     name: "Garage Door Open"
     lambda: |-
       // Use < for confirmation of closed, nan should be open
@@ -96,8 +102,8 @@ binary_sensor:
 
 switch:
   - platform: gpio
-    name: "${sensor_name} Toggle"
     internal: true
+    name: "${sensor_name} Toggle"
     pin: D8
     id: garage_relay
     icon: "mdi:garage"
@@ -110,7 +116,8 @@ text_sensor:
     name: "${sensor_name} State"
 
 state_machine:
-  - name: "${sensor_name}"
+  - name: "${sensor_name} State Machine"
+    id: garage_sm
     diagram: true
     initial_state: CLOSED
     states:
@@ -177,7 +184,7 @@ state_machine:
 
 cover:
   - platform: template
-    name: "Garage"
+    name: "${sensor_name}"
     id: garage
     device_class: garage
     assumed_state: true
