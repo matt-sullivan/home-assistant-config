@@ -10,16 +10,16 @@ logger:
 api:
 
 ota:
-  password: "6e6c92844da208f21c6ef965d2939506"
+  password: !secret ota_password
 
 wifi:
-  ssid: "MattAndSara"
+  ssid: !secret wifi_ssid
   password: !secret wifi_password 
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "H801-Emily Fallback Hotspot"
-    password: "VfSD0MqYCNLg"
+    password: !secret fallback_password
 
 captive_portal:
 
