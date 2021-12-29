@@ -2,7 +2,7 @@ substitutions:
   device_name: "Garage Wemos D1"
   sensor_name: "Garage Door"
   open_duration: 30s
-  distance_threshold: "0.5"
+  distance_threshold: "0.9"
 
 esphome:
   name: wemosd1-garage
