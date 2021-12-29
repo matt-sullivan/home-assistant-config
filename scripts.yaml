@@ -20,7 +20,7 @@
 
 # spotify_test_2:
 #   alias: Spotify/google home test
-#   description: Attempt to play spotify on kitchen google home 
+#   description: Attempt to play spotify on kitchen google home
 #   sequence:
 #     - service: media_player.volume_set
 #       target:
@@ -41,7 +41,7 @@ kids_wakeup:
   variables:
     chromecast_id: media_player.emilys_room_speaker
     count: 10
-    max_volume: 1
+    max_volume: 0.3
   sequence:
     - service: media_player.volume_set
       target:
@@ -98,17 +98,17 @@ kids_sleep_time:
             color_mode: hs
             brightness: 38
             hs_color:
-            - 195.059
-            - 100
-            state: 'on'
+              - 195.059
+              - 100
+            state: "on"
           light.kids_short_w:
-            state: 'off'
+            state: "off"
           light.emily_reading:
-            state: 'off'
+            state: "off"
           light.toby_reading:
-            state: 'off'
+            state: "off"
           light.kids_long_rgb:
-            state: 'off'
+            state: "off"
     - service: media_player.volume_set
       target:
         entity_id: media_player.emilys_room_speaker
@@ -143,5 +143,5 @@ kids_sleep_time:
       data:
         entities:
           light.kids_long_w:
-            state: 'off'
+            state: "off"
   mode: restart
