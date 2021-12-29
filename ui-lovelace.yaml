@@ -1,0 +1,22 @@
+title: Overview
+views:
+  - title: Tab 1
+    cards:
+      - title: Kids Bedroom
+        type: entities
+        entities:
+          - scene.kids_reading_time
+          - script.kids_sleep_time
+          - script.kids_wakeup
+          - light.kids_long_w
+          - light.kids_short_rgb
+          - light.toby_reading
+          - light.emily_reading
+      - title: Misc
+        type: entities
+        entities:
+          - sensor.pool_ph
+          - sensor.pool_temp
+          - lock.front_door
+          - entity: cover.garage_door
+            name: Garage Door

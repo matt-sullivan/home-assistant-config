@@ -8,7 +8,7 @@ views:
       - sensor.exterior_condition
     title: Pool
     panel: false
-    icon: 'mdi:pool'
+    icon: "mdi:pool"
     cards:
       - type: vertical-stack
         cards:
@@ -144,7 +144,7 @@ views:
   - badges: []
     title: History
     panel: true
-    icon: 'mdi:chart-line'
+    icon: "mdi:chart-line"
     cards:
       - type: vertical-stack
         cards:
@@ -200,7 +200,7 @@ views:
   - badges: []
     title: Chemical
     panel: true
-    icon: 'mdi:flask'
+    icon: "mdi:flask"
     cards:
       - type: horizontal-stack
         cards:
@@ -238,7 +238,7 @@ views:
             show_header_toggle: false
   - badges: []
     path: default_view
-    icon: 'mdi:message-alert'
+    icon: "mdi:message-alert"
     title: Alerts
     cards:
       - title: Notifications
@@ -253,7 +253,7 @@ views:
         show_header_toggle: true
   - badges: []
     title: Settings
-    icon: 'mdi:tune'
+    icon: "mdi:tune"
     cards:
       - title: Pool Settings
         entities:
@@ -304,7 +304,7 @@ views:
       - sensor.cycle_pool
       - input_number.out_of_order
     title: Advanced
-    icon: 'mdi:settings'
+    icon: "mdi:settings"
     cards:
       - type: horizontal-stack
         cards:
@@ -346,4 +346,3 @@ views:
           - entity: sensor.cummulated_flow_high
           - entity: sensor.cummulated_flow_low
         type: entities
-        

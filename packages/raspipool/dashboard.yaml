@@ -1,11 +1,17 @@
 lovelace:
-  # Include the default and any other dashboards configured in the UI
-  mode: storage
+  # Include ui-lovelace.yaml as the default dashboard (with url lovelace)
+  mode: yaml
   # Add yaml dashboards
   dashboards:
-    lovelace-yaml:
+    lovelace-pool: # lovelace-pool is the url, but sidebar entries are sorted based on title
       mode: yaml
       title: Pool
       icon: mdi:pool
       show_in_sidebar: true
       filename: "ui-lovelace-pool.yaml"
+    lovelace-all:
+      mode: yaml
+      title: All Items
+      icon: mdi:view-dashboard-outline
+      show_in_sidebar: true
+      filename: notexist.yaml
