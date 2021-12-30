@@ -46,3 +46,11 @@ spotcast:
   sp_dc: !secret spotcast_sp_dc
   sp_key: !secret spotcast_sp_key
 
+panel_custom:
+  - name: panel-redirect
+    url_path: redirect-supervisor
+    sidebar_title: Supervisor
+    sidebar_icon: mdi:home-assistant
+    module_url: /local/panel-redirect.js
+    config:
+      target: /hassio/dashboard

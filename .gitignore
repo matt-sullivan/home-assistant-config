@@ -8,3 +8,6 @@ secrets.yaml
 /.cloud/
 __pycache__
 /tts
+custom_components/**
+home-assistant.log.*
+
