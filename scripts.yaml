@@ -109,6 +109,9 @@ kids_sleep_time:
             state: "off"
           light.kids_long_rgb:
             state: "off"
+          light.kids_long_w:
+            brightness: "{{start_brightness}}"
+            state: "on"
     - service: media_player.volume_set
       target:
         entity_id: media_player.emilys_room_speaker
