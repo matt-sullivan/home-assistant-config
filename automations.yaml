@@ -21,3 +21,54 @@
   action:
   - service: script.kids_wakeup
   mode: single
+- id: '1641563153852'
+  alias: Hallway lights 2 way sync off
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_off
+    device_id: 1ac13f25b4e63596266089837f912188
+    entity_id: switch.hallway_light
+    domain: switch
+  - platform: device
+    type: turned_off
+    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
+    entity_id: switch.hallway_light_kitchen
+    domain: switch
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 1ac13f25b4e63596266089837f912188
+    entity_id: switch.hallway_light
+    domain: switch
+  - type: turn_off
+    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
+    entity_id: switch.hallway_light_kitchen
+    domain: switch
+  mode: single
+
+- id: '1641563154069'
+  alias: Hallway lights 2 way sync on
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 1ac13f25b4e63596266089837f912188
+    entity_id: switch.hallway_light
+    domain: switch
+  - platform: device
+    type: turned_on
+    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
+    entity_id: switch.hallway_light_kitchen
+    domain: switch
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 1ac13f25b4e63596266089837f912188
+    entity_id: switch.hallway_light
+    domain: switch
+  - type: turn_on
+    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
+    entity_id: switch.hallway_light_kitchen
+    domain: switch
+  mode: single
