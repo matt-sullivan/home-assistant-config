@@ -54,3 +54,10 @@ panel_custom:
     module_url: /local/panel-redirect.js
     config:
       target: /hassio/dashboard
+
+person:
+  - name: Sara
+    id: sara
+    user_id: e47941a6895841da96e1afb58282ffdf
+    device_trackers:
+      - device_tracker.saras_iphone
