@@ -1,0 +1,19 @@
+notify:
+  - name: admins
+    platform: group
+    services:
+      - service: mobile_app_pixel_5
+
+automation:
+  - id: holiday_light_notifications
+    alias: Holiday light notifications
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.holiday_lights_running
+        # use null/blank to trigger on all state changes
+        to:
+    action:
+      - service: notify.admins
+        data:
+          message: "Holiday lights {% if is_state('input_boolean.holiday_lights_running', 'on') %}started{% else %}stopped{% endif %}"

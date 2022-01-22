@@ -18,6 +18,11 @@ input_text:
   holiday_lights_next_to_switch:
     name: Holiday Lights Next to Switch
 
+input_boolean:
+  # Track if the lights are actively running (and send notifications when they start and stop)
+  holiday_lights_running:
+    name: Are holiday lights active?
+
 automation:
   - id: holiday_lights_reset
     alias: Random Holiday Reset Next Time At Dusk
@@ -76,6 +81,10 @@ automation:
       - alias: "Loop to change lights, but ensure at least one on"
         repeat:
           sequence:
+            - alias: "Flag lights as running"
+              service: homeassistant.turn_on
+              target:
+                entity_id: input_boolean.holiday_lights_running
             - alias: "Toggle light"
               service: homeassistant.toggle
               data_template:
@@ -116,3 +125,7 @@ automation:
       - delay: "00:{{ range(2,30) | random | int }}:00"
       - service: homeassistant.turn_off
         entity_id: group.holiday_lights
+      - alias: "Flag lights as stopped"
+        service: homeassistant.turn_off
+        target:
+          entity_id: input_boolean.holiday_lights_running
