@@ -3,6 +3,8 @@ substitutions:
   sensor_name: "Garage Door"
   open_duration: 30s
   distance_threshold: "0.9"
+  # don't trust any ridiculously small measurements
+  distance_threshold_min: "0.1"
 
 esphome:
   name: wemosd1-garage
@@ -28,8 +30,8 @@ ota:
   password: !secret ota_password
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password 
+  ssid: !secret wifi_outside_ssid
+  password: !secret wifi_outside_password 
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -87,12 +89,13 @@ binary_sensor:
     internal: true
     name: "Garage Door Open"
     lambda: |-
-      // Use < for confirmation of closed, nan should be open
-      if (id(garage_distance).state < ${distance_threshold}) {
-        // this seems backwards, but returning true appears to turn the sensor off (closed)
+      // Avoid logic that distance > x because if it's > a few meters it gets nan.
+      // Thus look for < 1m which indicates the door is open (up in front of the sensor)
+      // Also apply a min of 10cm, anything less is a bogus reading (which I see regularly with hardware that now
+      // does level shifting.)
+      if (id(garage_distance).state < ${distance_threshold} && id(garage_distance).state > ${distance_threshold_min}) {
         return true;
       } else {
-        // open
         return false;
       }
     on_press:
