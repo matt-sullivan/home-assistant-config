@@ -1,0 +1,16 @@
+family:
+  name: Family
+  entities:
+    - person.matt
+    - person.sara
+    - person.visitors
+
+holiday_lights:
+  entities:
+    - switch.front_deck_light
+    - switch.hallway_light
+    - light.kids_long_w
+    - switch.lounge_light
+    # - switch.lounge_dining_light
+    # - switch.kitchen_light
+    # - switch.hallway_light_kitchen

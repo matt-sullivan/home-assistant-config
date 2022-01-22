@@ -1,0 +1,118 @@
+input_datetime:
+  holiday_lights_starttime:
+    name: Holiday Lights Start Time
+    has_time: true
+    has_date: false
+
+  holiday_lights_bedtime:
+    name: Holiday Lights Bed Time
+    has_time: true
+    has_date: false
+
+  holiday_lights_next_change:
+    name: Holiday Lights Next Change
+    has_time: true
+    has_date: false
+
+input_text:
+  holiday_lights_next_to_switch:
+    name: Holiday Lights Next to Switch
+
+automation:
+  - id: holiday_lights_reset
+    alias: Random Holiday Reset Next Time At Dusk
+    trigger:
+      # Trigger at 'civil twilight' (6deg below horizon), when you theoretically can no longer
+      # see outside. In real life we'd prolly turn on interior lights before then, but are unlikely
+      # to turn on exterior lights, and since I use a mix I want to avoid the exterior lights turning
+      # on too soon and being noticably on a timer. 'Below' is a state change trigger, so it only
+      # triggers at sunset, not sunrise nor during the night.
+      - platform: numeric_state
+        entity_id: sun.sun
+        attribute: elevation
+        below: -6.0
+    action:
+      # Set the start time and the next change time. Make sure start is < next change to satisfy the
+      # main script trigger conditions.
+      - service: input_datetime.set_datetime
+        data_template:
+          entity_id: input_datetime.holiday_lights_starttime
+          time: "{{ now().strftime('%H:%M:00') }}"
+      - service: input_datetime.set_datetime
+        data_template:
+          entity_id: input_datetime.holiday_lights_next_change
+          time: "{{ (now() + timedelta(minutes=(range(1,15) | random | int))).strftime('%H:%M:00') }}"
+
+  - id: holiday_lights_toggle
+    alias: Random Holiday Lights Toggle
+    # Trigger on home->away transitions and 'next_change' transitions between the start and end time,
+    # with conditions to ensure both away and during an appropriate time window.
+    # This should cover combinations of leaving before sunset, at home at sunset but leaving later and
+    # returning home while it's still running.
+    # I could possibly get away without the separate start time variable and just use an "after: next_change"
+    # condition. That actually works because the condition is evaluated some milliseconds after being
+    # it's triggered, but it's dodgy to trigger at a precise time and also expect it to be after that time.
+    trigger:
+      - platform: state
+        entity_id:
+          - group.family
+        to: "not_home"
+      - platform: time
+        at: input_datetime.holiday_lights_next_change
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: "not_home"
+      # Separate the time conditions to have a pure logical AND, otherwise it can & will treat it as a window
+      # that wraps through/past midnight if the times are out of order. (I.e. setting > 2pm and < 1pm, through
+      # a bug or manual testing doesn't disable it, but instead allows a 23 hour window.) 
+      - condition: time
+        after: input_datetime.holiday_lights_starttime
+      - condition: time
+        before: input_datetime.holiday_lights_bedtime
+    action:
+      # Toggle the next light, then randomly assign a light and time for the next one
+      # loop to make sure at least one stays on
+      - alias: "Loop to change lights, but ensure at least one on"
+        repeat:
+          sequence:
+            - alias: "Toggle light"
+              service: homeassistant.toggle
+              data_template:
+                entity_id: "{{states('input_text.holiday_lights_next_to_switch')}}"
+            - alias: "Set next light to change"
+              service: input_text.set_value
+              data_template:
+                entity_id: input_text.holiday_lights_next_to_switch
+                value: "{{ state_attr('group.holiday_lights','entity_id') | random }}"
+            # A medium delay seems to be needed to let the light group state update before testing the
+            # loop condition. I think this is due to tuya delays.
+            - alias: "Delay to wait for light group state" 
+              delay: "00:00:05"
+          until:
+            - alias: "Check if there is at least one light on"
+              condition: state
+              entity_id: group.holiday_lights
+              state: "on"
+      - alias: "Set next light change time"
+        service: input_datetime.set_datetime
+        data_template:
+          entity_id: input_datetime.holiday_lights_next_change
+          time: "{{ (now() + timedelta(minutes=(range(15,45) | random | int))).strftime('%H:%M:00') }}"
+
+  - id: holiday_lights_turn_off
+    alias: Random Holiday Lights Off At Bedtime
+    # I considered merging this into the 'toggle' script (mostly to reduce the number of automations
+    # in HA,) but it would need logic to stop running once switch off (set 'next change' earlier?) and
+    # it's not worth the extra complexity.
+    trigger:
+      - platform: time
+        at: input_datetime.holiday_lights_bedtime
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: "not_home"
+    action:
+      - delay: "00:{{ range(2,30) | random | int }}:00"
+      - service: homeassistant.turn_off
+        entity_id: group.holiday_lights

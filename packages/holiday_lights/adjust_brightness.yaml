@@ -1,0 +1,22 @@
+automation:
+  # Make sure the kids bedroom light strip isn't too dim to be useful (if turned on when not home)
+  - id: holiday_lights_prevent_too_dim
+    alias: Random Holiday Lights Prevent Too Dim
+    trigger:
+      - platform: state
+        entity_id:
+          - light.kids_long_w
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: "not_home"
+      - condition: time
+        before: input_datetime.holiday_lights_bedtime
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.kids_long_w
+        data:
+          brightness: 150

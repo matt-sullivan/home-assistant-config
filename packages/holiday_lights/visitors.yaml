@@ -1,0 +1,29 @@
+input_boolean:
+  visitors_at_home:
+    name: Visitors At Home
+
+person:
+  - name: Visitors
+    id: vistors
+    device_trackers:
+      - device_tracker.visitors
+
+automation:
+  - id: visitors_passthrough
+    alias: Apply visitor person state based on button
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.visitors_at_home
+      - platform: homeassistant
+        event: start
+    action:
+      - service: device_tracker.see
+        data:
+          dev_id: visitors
+          location_name: |-
+            {% if is_state('input_boolean.visitors_at_home', 'on') -%}
+              home
+            {%- else -%}
+              not_home
+            {%- endif %}
