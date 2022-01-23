@@ -27,16 +27,22 @@ automation:
   - id: holiday_lights_reset
     alias: Random Holiday Reset Next Time At Dusk
     trigger:
-      # Trigger at 'civil twilight' (6deg below horizon), when you theoretically can no longer
-      # see outside. In real life we'd prolly turn on interior lights before then, but are unlikely
-      # to turn on exterior lights, and since I use a mix I want to avoid the exterior lights turning
-      # on too soon and being noticably on a timer. 'Below' is a state change trigger, so it only
+      # Trigger just before sunset. It'd be more realistic to turn on interior lights before sunset
+      # and occasionally turn on exterior lights at night time, but I don't want to make the script
+      # that complex, so always turn on the lounge at sunset (it's subtle enough to not need to be
+      # random, and then wait until it's properly dark (at least 30 mins) before potentially turning
+      # on exterior lights.That should be enough to avoid the exterior lights turning on too soon
+      # and being obvious they're on on a timer. 'Below' is a state change trigger, so it only
       # triggers at sunset, not sunrise nor during the night.
       - platform: numeric_state
         entity_id: sun.sun
         attribute: elevation
-        below: -6.0
+        below: 1.0
     action:
+      - alias: "Turn on lounge"
+        service: homeassistant.turn_on
+        target:
+          entity_id: light.lounge
       # Set the start time and the next change time. Make sure start is < next change to satisfy the
       # main script trigger conditions.
       - service: input_datetime.set_datetime
@@ -46,7 +52,7 @@ automation:
       - service: input_datetime.set_datetime
         data_template:
           entity_id: input_datetime.holiday_lights_next_change
-          time: "{{ (now() + timedelta(minutes=(range(1,15) | random | int))).strftime('%H:%M:00') }}"
+          time: "{{ (now() + timedelta(minutes=(range(30,45) | random | int))).strftime('%H:%M:00') }}"
 
   - id: holiday_lights_toggle
     alias: Random Holiday Lights Toggle
