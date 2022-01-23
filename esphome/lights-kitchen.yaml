@@ -1,0 +1,165 @@
+substitutions:
+  device_name: lights-kitchen
+  friendly_name: "Kitchen Lights"
+
+esphome:
+  platform: ESP8266
+  board: esp01_1m
+  name: ${device_name}
+  esp8266_restore_from_flash: true
+
+# Enable logging
+logger:
+  level: DEBUG
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: EspHomeKitchenLights
+    password: !secret fallback_password
+
+captive_portal:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: !secret ota_password
+
+# The web_server & sensor components can be removed without affecting core functionaility.
+web_server:
+  port: 80
+
+sensor:
+  - platform: wifi_signal
+    name: ${device_name} Wifi Signal Strength
+    update_interval: 60s
+  - platform: uptime
+    name: "${device_name} Uptime"
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "days"
+    accuracy_decimals: 1
+    update_interval: 5min
+
+#################################
+
+status_led:
+  pin:
+    number: GPIO0
+    inverted: True
+
+output:
+  # 1st button
+  - platform: gpio
+    pin: GPIO5
+    id: relay1
+
+  # 2nd button
+  - platform: gpio
+    pin: GPIO14
+    id: relay2
+
+  # 3rd button
+  - platform: gpio
+    pin: GPIO12
+    id: relay3
+
+  # 4th button
+  - platform: gpio
+    pin: GPIO15
+    id: relay4
+
+light:
+  # 1st button
+  - platform: binary
+    name: "Kitchen"
+    output: relay1
+    id: kitchen
+
+  # 2nd button
+  - platform: binary
+    name: "Hallway Kitchen"
+    output: relay2
+    id: hallway_kitchen
+
+  # 3rd button
+  - platform: binary
+    name: "Lounge Dining"
+    output: relay3
+    id: lounge_dining
+
+  # 4th button
+  - platform: binary
+    name: "Lounge"
+    output: relay4
+    id: lounge
+
+# Buttons
+binary_sensor:
+  # 1st button
+  - platform: gpio
+    pin:
+      number: GPIO16
+      mode: INPUT
+      inverted: True
+    name: "Kitchen Light Button"
+    #toggle relay on push
+    on_press:
+      - light.toggle: kitchen
+
+  # 2nd button
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Hallway Lights Kitchen Button"
+    #toggle relay on push
+    on_press:
+      - light.toggle: hallway_kitchen
+      # Propogate to the HA group it belongs to
+      # this should be safer than an automation within HA because it only fires on the button press
+      # so it can't get in a loop/race between updates
+      - if:
+          condition:
+            light.is_on: hallway_kitchen
+          then:
+            - homeassistant.service:
+                service: homeassistant.turn_on
+                data:
+                  entity_id: group.hallway_lights
+          else:
+            - homeassistant.service:
+                service: homeassistant.turn_off
+                data:
+                  entity_id: group.hallway_lights
+
+  # 3rd button
+  - platform: gpio
+    pin:
+      number: GPIO3
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Lounge Dining Lights Button"
+    #toggle relay on push
+    on_press:
+      - light.toggle: lounge_dining
+
+  # 4th button
+  - platform: gpio
+    pin:
+      number: GPIO13
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Lounge Lights Button"
+    #toggle relay on push
+    on_press:
+      - light.toggle: lounge
+
+switch:
+  - platform: restart
+    name: "${friendly_name} REBOOT"

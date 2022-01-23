@@ -1,0 +1,168 @@
+substitutions:
+  device_name: lights-entry
+  friendly_name: "Entry Lights"
+
+esphome:
+  platform: ESP8266
+  board: esp01_1m
+  name: ${device_name}
+  esp8266_restore_from_flash: true
+
+# Enable logging
+logger:
+  level: DEBUG
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: EspHomeEntryLights
+    password: !secret fallback_password
+
+captive_portal:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: !secret ota_password
+
+# The web_server & sensor components can be removed without affecting core functionaility.
+web_server:
+  port: 80
+
+sensor:
+  - platform: wifi_signal
+    name: ${device_name} Wifi Signal Strength
+    update_interval: 60s
+  - platform: uptime
+    name: "${device_name} Uptime"
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "days"
+    accuracy_decimals: 1
+    update_interval: 5min
+
+#################################
+
+status_led:
+  pin:
+    number: GPIO0
+    inverted: True
+
+output:
+  # 1st button
+  - platform: gpio
+    pin: GPIO5
+    id: relay1
+
+  # 2nd button
+  - platform: gpio
+    pin: GPIO14
+    id: relay2
+
+  # 3rd button
+  - platform: gpio
+    pin: GPIO12
+    id: relay3
+
+  # 4th button
+  - platform: gpio
+    pin: GPIO15
+    id: relay4
+
+light:
+  # 1st button
+  - platform: binary
+    name: "Hallway Entry"
+    output: relay1
+    id: hallway_entry
+
+  # 2nd button
+  - platform: binary
+    name: "Front Deck"
+    output: relay2
+    id: front_deck
+
+  # 3rd button
+  - platform: binary
+    name: "Front Yard Sensor Light"
+    output: relay3
+    id: front_yard_sensor
+
+  # 4th button
+  - platform: binary
+    name: "Mailbox"
+    output: relay4
+    id: mailbox
+
+# Buttons
+binary_sensor:
+  # 1st button
+  - platform: gpio
+    pin:
+      number: GPIO16
+      mode: INPUT
+      inverted: True
+    name: "Hallway Lights Front Entry Button"
+    #toggle relay on push
+    on_press:
+      - light.toggle: hallway_entry
+      # Propogate to the HA group it belongs to
+      # this should be safer than an automation within HA because it only fires on the button press
+      # so it can't get in a loop/race between updates
+      - if:
+          condition:
+            light.is_on: hallway_entry
+          then:
+            - homeassistant.service:
+                service: homeassistant.turn_on
+                data:
+                  entity_id: group.hallway_lights
+          else:
+            - homeassistant.service:
+                service: homeassistant.turn_off
+                data:
+                  entity_id: group.hallway_lights
+
+  # 2nd button
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Front Deck Lights Button"
+    #toggle relay on push
+    on_press:
+      - light.toggle: front_deck
+
+  # 3rd button
+  - platform: gpio
+    pin:
+      number: GPIO3
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Front Yard Sensor Light Button"
+    # toggle relay on long press - to avoid accidentally turning it off
+    on_click:
+      min_length: 2000ms
+      max_length: 60000ms
+      then:
+        - light.toggle: front_yard_sensor
+
+  # 4th button
+  - platform: gpio
+    pin:
+      number: GPIO13
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Mailbox Light Button"
+    #toggle relay on push
+    on_press:
+      - light.toggle: mailbox
+
+switch:
+  - platform: restart
+    name: "${friendly_name} REBOOT"
