@@ -30,8 +30,8 @@ ota:
   password: !secret ota_password
 
 wifi:
-  ssid: !secret wifi_outside_ssid
-  password: !secret wifi_outside_password 
+  ssid: !secret wifi_garage_ssid
+  password: !secret wifi_garage_password 
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
