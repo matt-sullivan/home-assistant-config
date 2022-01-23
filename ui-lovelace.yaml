@@ -22,3 +22,4 @@ views:
             name: Garage Door
           - group.family
           - input_boolean.visitors_at_home
+          - input_boolean.holiday_lights_running
