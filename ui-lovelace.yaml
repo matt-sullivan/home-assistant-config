@@ -20,3 +20,5 @@ views:
           - lock.front_door
           - entity: cover.garage_door
             name: Garage Door
+          - group.family
+          - input_boolean.visitors_at_home
