@@ -115,7 +115,7 @@ automation:
           entity_id: input_datetime.holiday_lights_next_change
           time: "{{ (now() + timedelta(minutes=(range(15,45) | random | int))).strftime('%H:%M:00') }}"
 
-  - id: holiday_lights_turn_off
+  - id: holiday_lights_off_at_bedtime
     alias: Random Holiday Lights Off At Bedtime
     # I considered merging this into the 'toggle' script (mostly to reduce the number of automations
     # in HA,) but it would need logic to stop running once switch off (set 'next change' earlier?) and
@@ -131,6 +131,23 @@ automation:
       - delay: "00:{{ range(2,30) | random | int }}:00"
       - service: homeassistant.turn_off
         entity_id: group.holiday_lights
+      - alias: "Flag lights as stopped"
+        service: homeassistant.turn_off
+        target:
+          entity_id: input_boolean.holiday_lights_running
+
+  - id: holiday_lights_stop_when_home
+    alias: Random Holiday Lights Stop When Home
+    trigger:
+      - platform: state
+        entity_id:
+          - group.family
+        to: "home"
+    condition:
+      - condition: state
+        entity_id: input_boolean.holiday_lights_running
+        state: "on"
+    action:
       - alias: "Flag lights as stopped"
         service: homeassistant.turn_off
         target:
