@@ -1,74 +1,15 @@
-- id: '1625489104071'
-  alias: Daily backup
+- id: '1643034412279'
+  alias: Welcome Lights
   description: ''
   trigger:
-  - platform: time
-    at: 04:00
-  condition: []
-  action:
-  - service: hassio.snapshot_full
-  mode: single
-- id: '1626969085204'
-  alias: wake up kids
-  description: ''
-  trigger:
-  - platform: time
-    at: 06:15
+  - platform: state
+    entity_id: group.family
+    to: home
   condition:
   - condition: state
-    entity_id: binary_sensor.workday_sensor
-    state: 'on'
+    entity_id: sun.sun
+    state: below_horizon
   action:
-  - service: script.kids_wakeup
-  mode: single
-- id: '1641563153852'
-  alias: Hallway lights 2 way sync off
-  description: ''
-  trigger:
-  - platform: device
-    type: turned_off
-    device_id: 1ac13f25b4e63596266089837f912188
-    entity_id: switch.hallway_light
-    domain: switch
-  - platform: device
-    type: turned_off
-    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
-    entity_id: switch.hallway_light_kitchen
-    domain: switch
-  condition: []
-  action:
-  - type: turn_off
-    device_id: 1ac13f25b4e63596266089837f912188
-    entity_id: switch.hallway_light
-    domain: switch
-  - type: turn_off
-    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
-    entity_id: switch.hallway_light_kitchen
-    domain: switch
-  mode: single
-
-- id: '1641563154069'
-  alias: Hallway lights 2 way sync on
-  description: ''
-  trigger:
-  - platform: device
-    type: turned_on
-    device_id: 1ac13f25b4e63596266089837f912188
-    entity_id: switch.hallway_light
-    domain: switch
-  - platform: device
-    type: turned_on
-    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
-    entity_id: switch.hallway_light_kitchen
-    domain: switch
-  condition: []
-  action:
-  - type: turn_on
-    device_id: 1ac13f25b4e63596266089837f912188
-    entity_id: switch.hallway_light
-    domain: switch
-  - type: turn_on
-    device_id: 657eaaa7a74ae7bbac5d64c24448b7ff
-    entity_id: switch.hallway_light_kitchen
-    domain: switch
-  mode: single
+  - service: homeassistant.turn_on
+    target:
+      entity_id: group.welcome_lights

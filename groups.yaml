@@ -14,9 +14,8 @@ holiday_lights:
     - group.hallway_lights
     - light.kids_long_w
     - light.lounge
-    # - switch.lounge_dining_light
-    # - switch.kitchen_light
-    # - switch.hallway_light_kitchen
+    # - light.lounge_dining
+    # - light.kitchen
 
 hallway_lights:
   name: "Hallway Lights"
@@ -24,3 +23,11 @@ hallway_lights:
   entities:
     - light.hallway_entry
     - light.hallway_kitchen
+
+welcome_lights:
+  name: "Welcome Lights"
+  icon: mdi:lightbulb
+  entities:
+    - light.front_deck
+    - group.hallway_lights
+    - light.lounge
