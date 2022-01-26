@@ -12,6 +12,7 @@ holiday_lights:
   entities:
     - light.front_deck
     - group.hallway_lights
+    - light.parents
     - light.kids_long_w
     - light.lounge
     # - light.lounge_dining
