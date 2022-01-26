@@ -1,12 +1,10 @@
 substitutions:
-  device_name: lights-and-fan-test
-  friendly_name: "Lights and Fan Test"
+  device_name: lights-parents
 
 esphome:
   platform: ESP8266
   board: esp01_1m
   name: ${device_name}
-  esp8266_restore_from_flash: true
 
 # Enable logging
 logger:
@@ -48,7 +46,7 @@ light:
   - platform: binary
     output: relay_light
     id: light1
-    name: ${friendly_name} Light
+    name: "Parents"
 
 status_led:
   pin:
@@ -103,7 +101,7 @@ output:
 
 binary_sensor:
   - platform: gpio
-    id: fan_light_sensor
+    id: fan_light_button
     pin:
       number: GPIO16
       mode: INPUT
@@ -111,7 +109,7 @@ binary_sensor:
     on_press:
       - light.toggle: light1
   - platform: gpio
-    id: fan_power_sensor
+    id: fan_power_button
     pin:
       number: GPIO00
       mode: INPUT
@@ -120,7 +118,7 @@ binary_sensor:
       then:
         - fan.toggle: fan_1
   - platform: gpio
-    id: fan_speed_sensor
+    id: fan_speed_button
     pin:
       number: GPIO05
       mode: INPUT
@@ -162,12 +160,12 @@ fan:
   - platform: speed
     id: fan_1
     output: fan_speed
-    name: ${friendly_name} Fan Speed
+    name: "Parents Fan"
     speed_count: 3
 
 switch:
   - platform: restart
-    name: ${friendly_name} REBOOT
+    name: "Parents Lights Reboot"
   - platform: gpio
     id: relay_fan_1
     pin: GPIO13
