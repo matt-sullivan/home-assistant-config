@@ -1,0 +1,207 @@
+sensor:
+  - platform: template
+    sensors:
+      muriatic_tank:
+        unique_id: muriatic_tank_level 
+        friendly_name: "Acid tank level"
+        value_template: "{{ states('input_number.muriatic_tank')|round(2)}}"
+      muriatic_injected_last_24h:
+        unique_id: muriatic_injected_last_24h 
+        friendly_name: "Acid injected last 24h"
+        value_template: "{{ states('sensor.muriatic_on_last_24h')|float * (states('input_number.muriatic_speed')|float *60) }}"
+
+  - platform: history_stats
+    name: muriatic_on_last_hour
+    entity_id: switch.pool_acid_pump
+    state: 'on'
+    type: time
+    end: '{{now().replace(minute=0).replace(second=0)}}'
+    duration: 01:00:00
+
+  - platform: history_stats
+    name: muriatic_on_last_24h
+    entity_id: switch.pool_acid_pump
+    state: 'on'
+    type: time
+    end: '{{now()}}'
+    duration: 24:00:00
+
+input_boolean:
+  lock_muriatic:
+    initial: off
+    icon: mdi:lock
+
+input_number:
+  ph_target:
+    min: 6.5
+    max: 8.5
+    step: 0.01
+    unit_of_measurement: 'pH'
+    icon: mdi:alpha-h-circle-outline
+    mode: box
+  muriatic_tank:
+    name: Acid tank remaining 
+    min: 0
+    max: 25
+    step: 0.001
+    unit_of_measurement: 'l'
+    icon: mdi:blood-bag
+    mode: box
+  muriatic_concentration:
+    name: Acid concentration
+    min: 5
+    max: 30
+    step: .1
+    unit_of_measurement: '%'
+    icon: mdi:water-percent
+    mode: box
+  muriatic_speed:
+    min: 10
+    max: 100
+    step: 1
+    unit_of_measurement: 'ml/min'
+    icon: mdi:needle
+  notify_muriatic_high:
+    name: Acid over-injection alarm
+    min: 0
+    max: 5
+    step: 0.1
+    unit_of_measurement: 'l/24h'
+  notify_muriatic_tank:
+    name: Acid empty notification level
+    min: 0
+    max: 10
+    step: 0.5
+    unit_of_measurement: 'l'
+    icon: mdi:flask-empty
+  muriatic_inject:
+    name: Acid to inject today
+    min: 0
+    max: 10000
+    step: 1
+    unit_of_measurement: 'ml'
+    icon: mdi:beaker
+    mode: box
+
+timer:
+  muriatic_injection:
+    duration: "00:00:00"
+
+automation:
+- id: muriatic_tank_level_update
+  alias: Acid tank level update  
+  initial_state: true
+  trigger:
+  - platform: time_pattern
+    minutes: 1
+  condition: []
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.muriatic_tank
+      value: " {{ ( states('input_number.muriatic_tank')|float - ( states('sensor.muriatic_on_last_hour')|float * states('input_number.muriatic_speed')|int * 60 / 1000 ) ) | round(2) }} "
+
+- id: muriatic_tank_low
+  alias: Acid tank low
+  initial_state: true
+  trigger:
+    platform: template
+    value_template: "{% if states('input_number.notify_muriatic_tank')|int> 0 and states('sensor.muriatic_tank')|float < states('input_number.notify_muriatic_tank')|float %}true{% endif %}"
+  condition: []
+  action:
+  - data_template:
+      message: "@{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic tank low ({{states('input_number.muriatic_tank')|float}} liters )!!!"
+    service: notify.admins
+
+- id: muriatic_high
+  alias: Acid injection too high cutoff & notification
+  initial_state: true
+  trigger:
+    platform: template
+    value_template: "{% if states('input_number.notify_muriatic_high')|float> 0 and states('sensor.muriatic_on_last_24h')|float > (states('input_number.notify_muriatic_high')|float*100 ) / (states('input_number.muriatic_speed')|float *6) %}true{% endif %}"
+  condition: []
+  action:
+  # don't turn off the pump directly, it'll iterfere with it's auto on/off
+  # - entity_id: switch.switch.pool_acid_pump
+  #   service: switch.turn_off
+  - entity_id: input_boolean.lock_muriatic
+    service: input_boolean.turn_on
+  - service: notify.admins
+    data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic inject blocked ({{states('sensor.muriatic_injected_last_24h')}} injected > {{states('input_number.notify_muriatic_high')}} in 24 hours)!!!"
+
+- id: muriatic_set
+  alias: Calculate acid to inject today
+  initial_state: true
+  # trigger each time the pump turns on and measurements become available
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.ph_mean
+      from: "unavailable"
+      for: "00:15:00"
+  condition: []
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.muriatic_inject
+      value: " {{ ( states('input_number.pool_capacity')|float * ( 10 ** (8 - states('input_number.ph_target')|float ) - 10 ** (8 - states('sensor.ph_mean')|float ) ) * (126.19 / states('input_number.muriatic_concentration')|float ),0 )|max |round(0)|int }} "
+
+- id: muriatic_inject
+  alias: Run acid injection pump
+  initial_state: true
+  trigger: []
+  condition: []
+  action:
+  - condition: state
+    entity_id: input_boolean.lock_muriatic
+    state: 'off'
+  - condition: numeric_state
+    entity_id: input_number.muriatic_inject
+    above: 5.0
+    below: 2500.0
+  - condition: state
+    entity_id: binary_sensor.pool_pump_running
+    state: 'on'
+  - service: notify.admins
+    data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic injection: ({{states('input_number.muriatic_inject')}} ml)!!!"
+  - alias: "Start acid injection timer"
+    service: timer.start
+    target:
+      entity_id: timer.muriatic_injection
+    data:
+      duration: "{{ [0 , 60 * states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }}"
+  - alias: "Loop to repeatedly turn the pump on until enough time has elapsed"
+    repeat:
+      while: "{{ is_state('timer.muriatic_injection', 'active') and is_state('binary_sensor.pool_pump_running', 'on') }}"
+      sequence:
+        - service: switch.turn_on
+          entity_id: switch.pool_acid_pump
+        # wait 1 second to let it start before waiting for it to stop
+        - delay: 1
+        - wait_for_trigger:
+            - platform: state
+              entity_id:
+                - switch.pool_acid_pump
+              to: "off"
+          timeout: 30
+        # Check if the pump turned off afte 10s as it's supposed to.
+        # If it didn't we're in trouble because turning it off may potentially trigger it to turn itself
+        # on again after 10s.
+        - choose:
+            - conditions: "{{ wait.trigger == 'none' }}"
+              sequence:
+                - service: notify.admins
+                  data_template:
+                    message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+                    title: "Acid pump didn't turn off!!!"
+                - service: switch.turn_off
+                  entity_id: switch.pool_acid_pump
+  - service: notify.admins
+    data_template:
+      message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+      title: "Muriatic injection end!!!"
