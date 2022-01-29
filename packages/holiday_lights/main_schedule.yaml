@@ -39,10 +39,18 @@ automation:
         attribute: elevation
         below: 1.0
     action:
-      - alias: "Turn on lounge"
-        service: homeassistant.turn_on
-        target:
-          entity_id: light.lounge
+      # Only turn on the lights if nobody is home, but continue to reset the other persistent
+      # variables regardless
+      - choose:
+        - conditions:
+            - condition: state
+              entity_id: group.family
+              state: "not_home"
+          sequence:          
+            - alias: "Turn on lounge"
+              service: homeassistant.turn_on
+              target:
+                entity_id: light.lounge
       # Set the start time and the next change time. Make sure start is < next change to satisfy the
       # main script trigger conditions.
       - service: input_datetime.set_datetime
