@@ -1,0 +1,5 @@
+notify:
+  - name: admins
+    platform: group
+    services:
+      - service: mobile_app_pixel_5

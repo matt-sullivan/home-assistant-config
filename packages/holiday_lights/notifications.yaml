@@ -1,9 +1,3 @@
-notify:
-  - name: admins
-    platform: group
-    services:
-      - service: mobile_app_pixel_5
-
 automation:
   - id: holiday_light_notifications
     alias: Holiday light notifications
