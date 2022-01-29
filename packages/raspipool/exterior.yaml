@@ -15,7 +15,3 @@ sensor:
   #     - clouds
   #     - rain
   #   scan_interval: 600
-
-  - platform: time_date
-    display_options:
-      - 'time'
