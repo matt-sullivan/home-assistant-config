@@ -213,26 +213,10 @@ views:
                 name: Concentration
               - entity: input_number.muriatic_speed
                 name: Speed injection
-              - entity: switch.ph
+              - entity: switch.pool_acid_pump
                 name: Pump injection
                 secondary_info: last-changed
               - entity: input_boolean.lock_muriatic
-                name: Lock Pump
-            type: entities
-            show_header_toggle: false
-          - entities:
-              - label: Bleach ( + ORP )
-                type: section
-              - entity: input_number.bleach_tank
-                name: Tank level
-              - entity: input_number.bleach_concentration
-                name: Concentration
-              - entity: input_number.bleach_speed
-                name: Speed injection
-              - entity: switch.orp
-                name: Pump injection
-                secondary_info: last-changed
-              - entity: input_boolean.lock_bleach
                 name: Lock Pump
             type: entities
             show_header_toggle: false
@@ -259,10 +243,8 @@ views:
         entities:
           - label: Pool
             type: section
-          - entity: input_number.capacity
+          - entity: input_number.pool_capacity
             name: Capacity
-          - entity: input_number.quality
-            name: Quality
           - entity: input_datetime.recirculation
             name: Turnover rate
           - entity: input_boolean.turbo

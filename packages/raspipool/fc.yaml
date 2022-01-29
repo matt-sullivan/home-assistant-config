@@ -28,8 +28,8 @@ input_number:
 
 
 automation:
-- alias: fc_ok
-  id: '1559638825701'
+- id: fc_ok
+  alias: FC OK
   initial_state: true
   trigger:
     platform: numeric_state
@@ -43,8 +43,8 @@ automation:
   - service: frontend.set_theme
     data:
       name: default
-- alias: fc_high
-  id: '1559638825702'
+- id: fc_high
+  alias: FC too high
   initial_state: true
   trigger:
     platform: numeric_state
@@ -59,8 +59,8 @@ automation:
       name: danger
 
 
-- alias: fc_low
-  id: '1559638825702'
+- id: fc_low
+  alias: FC too low
   initial_state: true
   trigger:
     platform: numeric_state
@@ -75,8 +75,8 @@ automation:
       name: algae
 
 
-- alias: fc_target
-  id: '1559146873657'
+- id: fc_target
+  alias: FC set target
   initial_state: true
   trigger:
     - platform: state
