@@ -125,8 +125,8 @@ automation:
   # don't turn off the pump directly, it'll iterfere with it's auto on/off
   # - entity_id: switch.switch.pool_acid_pump
   #   service: switch.turn_off
-  - entity_id: input_boolean.lock_muriatic
-    service: input_boolean.turn_on
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.lock_muriatic
   - service: notify.admins
     data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
@@ -148,6 +148,11 @@ automation:
     data_template:
       entity_id: input_number.muriatic_inject
       value: " {{ ( states('input_number.pool_capacity')|float * ( 10 ** (8 - states('input_number.ph_target')|float ) - 10 ** (8 - states('sensor.ph_mean')|float ) ) * (126.19 / states('input_number.muriatic_concentration')|float ),0 )|max |round(0)|int }} "
+  - service: automation.trigger
+    target:
+      entity_id: automation.run_acid_injection_pump
+    data:
+      skip_condition: false
 
 - id: muriatic_inject
   alias: Run acid injection pump
@@ -177,31 +182,49 @@ automation:
       duration: "{{ [0 , 60 * states('input_number.muriatic_inject')|float/ states('input_number.muriatic_speed')|float ]|max|int }}"
   - alias: "Loop to repeatedly turn the pump on until enough time has elapsed"
     repeat:
-      while: "{{ is_state('timer.muriatic_injection', 'active') and is_state('binary_sensor.pool_pump_running', 'on') }}"
+      while: >-
+        {{ is_state('timer.muriatic_injection', 'active')
+           and is_state('binary_sensor.pool_pump_running', 'on')
+           and is_state('input_boolean.lock_muriatic', 'off')
+           and not is_state('switch.pool_acid_pump', 'unavailable') }}
       sequence:
         - service: switch.turn_on
           entity_id: switch.pool_acid_pump
-        # wait 1 second to let it start before waiting for it to stop
-        - delay: 1
-        - wait_for_trigger:
-            - platform: state
-              entity_id:
-                - switch.pool_acid_pump
-              to: "off"
-          timeout: 30
-        # Check if the pump turned off afte 10s as it's supposed to.
-        # If it didn't we're in trouble because turning it off may potentially trigger it to turn itself
-        # on again after 10s.
+        # Wait a few seconds to let it start before waiting for it to stop, I had problems with
+        # it's mqtt connection so I want to make sure it does indeed turn on without turning off
+        # again immediately (as it would if HA was treating it optimistically,) but then wait for
+        # it to turn off after 10 seconds (given the device does turn off by itself to prevent
+        # too much acid in case of any other bugs.)
+        - delay: 5
         - choose:
-            - conditions: "{{ wait.trigger == 'none' }}"
+            - conditions: "{{ not is_state('switch.pool_acid_pump', 'on') }}"
               sequence:
                 - service: notify.admins
                   data_template:
                     message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-                    title: "Acid pump didn't turn off!!!"
+                    title: "Acid pump didn't turn on, aborting injection."
+                # I don't know how/if you can break out of a loop in HA, but setting this flag
+                # that's part of the while condition will work just as well.
+                - service: input_boolean.turn_on
+                  entity_id: input_boolean.lock_muriatic
+        # Check if the pump turned off after 10s as it's supposed to.
+        # If it didn't we're in trouble because turning it off may potentially trigger it to turn itself
+        # on again after 10s.
+        # Wait up to 60s to give it plenty of time, but if it doesn't work by then we're in trouble.
+        - wait_template: "{{ is_state('switch.pool_acid_pump', 'off') }}"
+          timeout: 60
+        - choose:
+            - conditions: "{{ not wait.completed }}"
+              sequence:
+                - service: notify.admins
+                  data_template:
+                    message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
+                    title: "Acid pump didn't turn off, aborting loop but PUMP MAY BE RUNNING!!!"
                 - service: switch.turn_off
                   entity_id: switch.pool_acid_pump
+                - service: input_boolean.turn_on
+                  entity_id: input_boolean.lock_muriatic
   - service: notify.admins
     data_template:
       message: "{{now().strftime('%H:%M')}}[{{now().day}}/{{now().month}}]"
-      title: "Muriatic injection end!!!"
+      title: "Muriatic injection end."
