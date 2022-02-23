@@ -24,6 +24,7 @@ logger:
     homeassistant.components.zeroconf: info
     custom_components.spotcast: info
     zeroconf: info
+    tuya_iot: info
 
 recorder:
   commit_interval: 30
