@@ -25,6 +25,7 @@ logger:
     custom_components.spotcast: info
     zeroconf: info
     tuya_iot: info
+    route53: debug
 
 recorder:
   commit_interval: 30
@@ -62,3 +63,11 @@ person:
     user_id: e47941a6895841da96e1afb58282ffdf
     device_trackers:
       - device_tracker.saras_iphone
+
+route53:
+  aws_access_key_id: AKIAZN5CHK57H3XLT2FU
+  aws_secret_access_key: !secret aws_access_key
+  zone: ZMSGFDQENTCZY
+  domain: matt-sullivan.id.au
+  records:
+    - ha
