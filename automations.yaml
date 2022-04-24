@@ -13,3 +13,6 @@
   - service: homeassistant.turn_on
     target:
       entity_id: group.welcome_lights
+  - service: notify.admins
+    data:
+      message: "Welcome lights turned on"
