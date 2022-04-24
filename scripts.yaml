@@ -70,10 +70,13 @@ kids_wakeup:
                 light.emily_reading:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
+                light.emily_w:
+                  brightness: "{{repeat.index|float / count * 255}}"
+                  state: "on"
                 light.toby_reading:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
-                light.kids_long_w:
+                light.toby_w:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
           - delay:
@@ -94,22 +97,28 @@ kids_sleep_time:
     - service: scene.apply
       data:
         entities:
-          light.kids_short_rgb:
+          light.emily_rgb:
             color_mode: hs
-            brightness: 38
+            brightness: 25
             hs_color:
               - 195.059
               - 100
             state: "on"
-          light.kids_short_w:
-            state: "off"
+          light.toby_rgb:
+            color_mode: hs
+            brightness: 25
+            hs_color:
+              - 195.059
+              - 100
+            state: "on"
           light.emily_reading:
             state: "off"
           light.toby_reading:
             state: "off"
-          light.kids_long_rgb:
-            state: "off"
-          light.kids_long_w:
+          light.emily_w:
+            brightness: "{{start_brightness}}"
+            state: "on"
+          light.toby_w:
             brightness: "{{start_brightness}}"
             state: "on"
     - service: media_player.volume_set
@@ -129,7 +138,10 @@ kids_sleep_time:
           - service: scene.apply
             data:
               entities:
-                light.kids_long_w:
+                light.emily_w:
+                  brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
+                  state: "on"
+                light.toby_w:
                   brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
                   state: "on"
           - delay:
@@ -145,6 +157,8 @@ kids_sleep_time:
     - service: scene.apply
       data:
         entities:
-          light.kids_long_w:
+          light.emily_w:
+            state: "off"
+          light.toby_w:
             state: "off"
   mode: restart

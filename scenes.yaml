@@ -1,45 +1,23 @@
 - id: '1626768736357'
   name: Reading Time
   entities:
-    light.kids_short_rgb:
-      supported_color_modes:
-      - hs
-      friendly_name: Kids Short Coloured Strip
-      supported_features: 57
+    light.emily_rgb:
       state: 'off'
-    light.kids_short_w:
-      supported_color_modes:
-      - brightness
-      friendly_name: Kids Short White Strip
-      supported_features: 41
-      state: 'off'
-    light.emily_reading:
-      supported_color_modes:
-      - brightness
-      color_mode: brightness
-      brightness: 186
-      friendly_name: Emilys Reading Light
-      supported_features: 41
-      state: 'on'
-    light.kids_long_rgb:
-      supported_color_modes:
-      - hs
-      friendly_name: Kids Coloured Lights
-      supported_features: 57
-      state: 'off'
-    light.kids_long_w:
-      supported_color_modes:
-      - brightness
+    light.emily_w:
       color_mode: brightness
       brightness: 71
-      friendly_name: Kids White Strip
-      supported_features: 41
+      state: 'on'
+    light.emily_reading:
+      color_mode: brightness
+      brightness: 186
+      state: 'on'
+    light.toby_rgb:
+      state: 'off'
+    light.toby_w:
+      color_mode: brightness
+      brightness: 71
       state: 'on'
     light.toby_reading:
-      supported_color_modes:
-      - brightness
       color_mode: brightness
       brightness: 189
-      friendly_name: Tobys Reading Light
-      supported_features: 41
       state: 'on'

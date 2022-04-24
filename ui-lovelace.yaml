@@ -8,10 +8,12 @@ views:
           - scene.kids_reading_time
           - script.kids_sleep_time
           - script.kids_wakeup
-          - light.kids_long_w
-          - light.kids_short_rgb
           - light.toby_reading
+          - light.toby_w
+          - light.toby_rgb
           - light.emily_reading
+          - light.emily_w
+          - light.emily_rgb
       - title: Misc
         type: entities
         entities:

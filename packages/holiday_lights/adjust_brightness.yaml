@@ -5,7 +5,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - light.kids_long_w
+          - light.toby_w
         from: "off"
         to: "on"
     condition:
@@ -17,6 +17,6 @@ automation:
     action:
       - service: light.turn_on
         target:
-          entity_id: light.kids_long_w
+          entity_id: light.toby_w
         data:
           brightness: 150
