@@ -17,19 +17,17 @@
 #         entity_id:
 #           - media_player.spotify_matt_sullivan
 #   mode: single
-
+#
 # spotify_test_2:
 #   alias: Spotify/google home test
-#   description: Attempt to play spotify on kitchen google home
+#   description: Attempt to play spotify on kitchen google home, this does work
+#     (as long as the HACS custom component version matches the spotify component and the cast component provided by the OS)
+#     continue_on_error doesn't appear to work, because it's often an exception/compile error rather than error result 
 #   sequence:
-#     - service: media_player.volume_set
-#       target:
-#         entity_id: media_player.kitchen_speaker
-#       data:
-#         volume_level: 0.2
 #     - service: spotcast.start
+#       continue_on_error: true
 #       data:
-#         uri: https://open.spotify.com/playlist/0fpnB1xETz7cpfsuZAAgsK?si=af6348fbcb2e47dd
+#         uri: spotify:playlist:4WyHdt802ozHHPWq1BNUUB
 #         repeat: true
 #         start_volume: 20
 #         entity_id: media_player.kitchen_speaker
@@ -41,17 +39,12 @@ kids_wakeup:
   variables:
     chromecast_id: media_player.emilys_room_speaker
     count: 10
-    max_volume: 0.3
+    max_volume: 0.6
   sequence:
-    - service: media_player.volume_set
-      target:
-        entity_id: "{{chromecast_id}}"
-      data:
-        volume_level: 0.1
     - service: spotcast.start
       continue_on_error: true
       data:
-        uri: https://open.spotify.com/playlist/4WyHdt802ozHHPWq1BNUUB?si=be67847063db44d9
+        uri: spotify:playlist:4WyHdt802ozHHPWq1BNUUB
         random_song: true
         repeat: true
         shuffle: true
@@ -132,15 +125,10 @@ kids_sleep_time:
             state: "off"
           light.fish_tank_2:
             state: "off"
-    - service: media_player.volume_set
-      target:
-        entity_id: media_player.emilys_room_speaker
-      data:
-        volume_level: 0.2
     - service: spotcast.start
       continue_on_error: true
       data:
-        uri: https://open.spotify.com/playlist/0fpnB1xETz7cpfsuZAAgsK?si=af6348fbcb2e47dd
+        uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
         repeat: true
         start_volume: 20
         entity_id: media_player.emilys_room_speaker
