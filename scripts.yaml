@@ -49,6 +49,7 @@ kids_wakeup:
       data:
         volume_level: 0.1
     - service: spotcast.start
+      continue_on_error: true
       data:
         uri: https://open.spotify.com/playlist/4WyHdt802ozHHPWq1BNUUB?si=be67847063db44d9
         random_song: true
@@ -127,6 +128,7 @@ kids_sleep_time:
       data:
         volume_level: 0.2
     - service: spotcast.start
+      continue_on_error: true
       data:
         uri: https://open.spotify.com/playlist/0fpnB1xETz7cpfsuZAAgsK?si=af6348fbcb2e47dd
         repeat: true
