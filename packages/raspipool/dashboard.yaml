@@ -15,3 +15,8 @@ lovelace:
       icon: mdi:view-dashboard-outline
       show_in_sidebar: true
       filename: notexist.yaml
+    lovelace-diags:
+      mode: yaml
+      title: z Diagnostics
+      show_in_sidebar: true
+      filename: "ui-lovelace-diags.yaml"

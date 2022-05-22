@@ -1,0 +1,62 @@
+title: Overview
+views:
+  - title: Tab 1
+    cards:
+      - title: Kids Bedroom
+        type: entities
+        entities:
+          - scene.kids_reading_time
+          - script.kids_sleep_time
+          - script.kids_wakeup
+          - light.toby_reading
+          - light.toby_w
+          - light.toby_rgb
+          - light.emily_reading
+          - light.emily_w
+          - light.emily_rgb
+      - title: Misc
+        type: entities
+        entities:
+          - sensor.pool_ph
+          - sensor.pool_temp
+          - lock.front_door
+          - entity: cover.garage_door
+            name: Garage Door
+          - group.family
+          - input_boolean.visitors_at_home
+      - title: Holiday Lights
+        type: entities
+        entities:
+          - input_boolean.holiday_lights_running
+          - group.family
+          - person.matt
+          - person.sara
+          - person.visitors
+          - device_tracker.pixel_5
+          - device_tracker.matts_phone_2
+          - device_tracker.saras_iphone
+          - device_tracker.saras_phone_2
+          - device_tracker.tobys_ipad
+          - device_tracker.emilys_ipad
+          - device_tracker.emilys_phone
+          - light.front_deck
+          - group.hallway_lights
+          - light.parents
+          - light.toby_w
+          - light.lounge
+      - title: Welcome Lights
+        type: entities
+        entities:
+          - group.welcome_lights
+          - light.front_deck
+          - group.hallway_lights
+          - light.lounge
+      - title: Unifi
+        type: entities
+        entities:
+          - switch.tobys_ipad
+          - switch.emilys_ipad
+          - switch.emilys_phone
+          - switch.living_room_tv
+          - switch.matts_phone
+          - switch.saras_phone
