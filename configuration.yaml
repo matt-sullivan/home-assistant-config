@@ -63,6 +63,7 @@ person:
     user_id: e47941a6895841da96e1afb58282ffdf
     device_trackers:
       - device_tracker.saras_iphone
+      - device_tracker.saras_iphone_2
 
 route53:
   aws_access_key_id: AKIAZN5CHK57H3XLT2FU
