@@ -100,14 +100,14 @@ kids_sleep_time:
         entities:
           light.emily_rgb:
             color_mode: hs
-            brightness: 25
+            brightness: "{{start_brightness}}"
             hs_color:
               - 195.059
               - 100
             state: "on"
           light.toby_rgb:
             color_mode: hs
-            brightness: 25
+            brightness: "{{start_brightness}}"
             hs_color:
               - 195.059
               - 100
@@ -117,11 +117,9 @@ kids_sleep_time:
           light.toby_reading:
             state: "off"
           light.emily_w:
-            brightness: "{{start_brightness}}"
-            state: "on"
+            state: "off"
           light.toby_w:
-            brightness: "{{start_brightness}}"
-            state: "on"
+            state: "off"
     - service: media_player.volume_set
       target:
         entity_id: media_player.emilys_room_speaker
@@ -140,27 +138,23 @@ kids_sleep_time:
           - service: scene.apply
             data:
               entities:
-                light.emily_w:
+                light.emily_rgb:
+                  color_mode: hs
                   brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
+                  hs_color:
+                    - 195.059
+                    - 100
                   state: "on"
-                light.toby_w:
+                light.toby_rgb:
+                  color_mode: hs
                   brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
+                  hs_color:
+                    - 195.059
+                    - 100
                   state: "on"
           - delay:
               hours: 0
               minutes: 1
               seconds: 0
               milliseconds: 0
-    - delay:
-        hours: 2
-        minutes: 0
-        seconds: 0
-        milliseconds: 0
-    - service: scene.apply
-      data:
-        entities:
-          light.emily_w:
-            state: "off"
-          light.toby_w:
-            state: "off"
   mode: restart
