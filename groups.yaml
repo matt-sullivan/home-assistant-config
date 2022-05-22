@@ -13,7 +13,7 @@ holiday_lights:
     - light.front_deck
     - group.hallway_lights
     - light.parents
-    - light.toby_w
+    - light.kids_long_w
     - light.lounge
     # - light.lounge_dining
     # - light.kitchen

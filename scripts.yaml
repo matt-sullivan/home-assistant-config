@@ -57,6 +57,11 @@ kids_wakeup:
         shuffle: true
         start_volume: 10
         entity_id: "{{chromecast_id}}"
+    - service: scene.apply
+      data:
+        entities:
+          light.fish_tank_2:
+            state: "on"
     - repeat:
         count: "{{count}}"
         sequence:
@@ -71,15 +76,19 @@ kids_wakeup:
                 light.emily_reading:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
-                light.emily_w:
-                  brightness: "{{repeat.index|float / count * 255}}"
-                  state: "on"
                 light.toby_reading:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
-                light.toby_w:
+                light.kids_long_w:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
+                light.kids_short_w:
+                  brightness: "{{repeat.index|float / count * 255}}"
+                  state: "on"
+                light.kids_long_rgb:
+                  state: "off"
+                light.kids_short_rgb:
+                  state: "off"
           - delay:
               hours: 0
               minutes: 1
@@ -94,31 +103,34 @@ kids_sleep_time:
     steps: 5
     start_brightness: 71
     end_brightness: 25
+    rgb_nightlight_brightness: 38
   sequence:
     - service: scene.apply
       data:
         entities:
-          light.emily_rgb:
+          light.kids_short_rgb:
             color_mode: hs
-            brightness: "{{start_brightness}}"
+            brightness: "{{rgb_nightlight_brightness}}"
             hs_color:
               - 195.059
               - 100
             state: "on"
-          light.toby_rgb:
-            color_mode: hs
+          light.kids_long_rgb:
             brightness: "{{start_brightness}}"
             hs_color:
               - 195.059
               - 100
+
             state: "on"
+          light.kids_short_w:
+            state: "off"
           light.emily_reading:
             state: "off"
           light.toby_reading:
             state: "off"
-          light.emily_w:
+          light.kids_long_w:
             state: "off"
-          light.toby_w:
+          light.fish_tank_2:
             state: "off"
     - service: media_player.volume_set
       target:
@@ -138,23 +150,22 @@ kids_sleep_time:
           - service: scene.apply
             data:
               entities:
-                light.emily_rgb:
-                  color_mode: hs
+                light.kids_long_rgb:
                   brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
-                  hs_color:
-                    - 195.059
-                    - 100
-                  state: "on"
-                light.toby_rgb:
-                  color_mode: hs
-                  brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
-                  hs_color:
-                    - 195.059
-                    - 100
                   state: "on"
           - delay:
               hours: 0
               minutes: 1
               seconds: 0
               milliseconds: 0
+    - delay:
+        hours: 2
+        minutes: 0
+        seconds: 0
+        milliseconds: 0
+    - service: scene.apply
+      data:
+        entities:
+          light.kids_long_rgb:
+            state: "off"
   mode: restart

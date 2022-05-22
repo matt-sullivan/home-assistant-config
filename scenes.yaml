@@ -1,19 +1,17 @@
 - id: '1626768736357'
   name: Reading Time
   entities:
-    light.emily_rgb:
+    light.kids_short_rgb:
       state: 'off'
-    light.emily_w:
-      color_mode: brightness
-      brightness: 71
-      state: 'on'
+    light.kids_short_w:
+      state: 'off'
     light.emily_reading:
       color_mode: brightness
       brightness: 186
       state: 'on'
-    light.toby_rgb:
+    light.kids_long_rgb:
       state: 'off'
-    light.toby_w:
+    light.kids_long_w:
       color_mode: brightness
       brightness: 71
       state: 'on'
