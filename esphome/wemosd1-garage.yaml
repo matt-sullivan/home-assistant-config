@@ -121,7 +121,7 @@ text_sensor:
 state_machine:
   - name: "${sensor_name} State Machine"
     id: garage_sm
-    diagram: true
+    diagram: mermaid
     initial_state: CLOSED
     states:
       - name: CLOSED
