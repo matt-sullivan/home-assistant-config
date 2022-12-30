@@ -39,7 +39,7 @@ kids_wakeup:
   variables:
     chromecast_id: media_player.emilys_room_speaker
     count: 10
-    max_volume: 0.6
+    max_volume: 0.5
   sequence:
     - service: spotcast.start
       continue_on_error: true
@@ -48,12 +48,12 @@ kids_wakeup:
         random_song: true
         repeat: true
         shuffle: true
-        start_volume: 10
+        start_volume: 20
         entity_id: "{{chromecast_id}}"
     - service: scene.apply
       data:
         entities:
-          light.fish_tank_2:
+          switch.fishtank:
             state: "on"
     - repeat:
         count: "{{count}}"
@@ -123,7 +123,7 @@ kids_sleep_time:
             state: "off"
           light.kids_long_w:
             state: "off"
-          light.fish_tank_2:
+          switch.fishtank:
             state: "off"
     - service: spotcast.start
       continue_on_error: true
