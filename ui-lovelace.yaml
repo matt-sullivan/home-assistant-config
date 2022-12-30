@@ -12,9 +12,13 @@ views:
           - light.kids_long_rgb
           - light.kids_short_w
           - light.kids_short_rgb
-          - light.fish_tank_2
+          - switch.fishtank
           - light.toby_reading
           - light.emily_reading
+          - switch.toby_electric_blanket
+          - switch.emily_electric_blanket
+          - sensor.toby_electric_blanket_power
+          - sensor.emily_electric_blanket_power
       - title: Misc
         type: entities
         entities:
@@ -25,3 +29,5 @@ views:
             name: Garage Door
           - group.family
           - input_boolean.visitors_at_home
+          - switch.sara_electric_blanket
+          

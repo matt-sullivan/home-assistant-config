@@ -9,11 +9,11 @@ views:
           - script.kids_sleep_time
           - script.kids_wakeup
           - light.toby_reading
-          - light.toby_w
-          - light.toby_rgb
           - light.emily_reading
-          - light.emily_w
-          - light.emily_rgb
+          - light.kids_long_w
+          - light.kids_long_rgb
+          - light.kids_short_w
+          - light.kids_short_rgb
       - title: Misc
         type: entities
         entities:
@@ -42,8 +42,10 @@ views:
           - light.front_deck
           - group.hallway_lights
           - light.parents
-          - light.toby_w
+          - light.kids_long_w
           - light.lounge
+          - input_datetime.holiday_lights_starttime
+          - input_datetime.holiday_lights_next_change
       - title: Welcome Lights
         type: entities
         entities:
