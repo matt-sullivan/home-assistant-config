@@ -3,7 +3,7 @@ family:
   icon: mdi:account-group
   entities:
     - person.matt
-    - person.sara
+    #    - person.sara
     - person.visitors
 
 holiday_lights:
