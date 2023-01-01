@@ -18,20 +18,20 @@
 #           - media_player.spotify_matt_sullivan
 #   mode: single
 #
-# spotify_test_2:
-#   alias: Spotify/google home test
-#   description: Attempt to play spotify on kitchen google home, this does work
-#     (as long as the HACS custom component version matches the spotify component and the cast component provided by the OS)
-#     continue_on_error doesn't appear to work, because it's often an exception/compile error rather than error result 
-#   sequence:
-#     - service: spotcast.start
-#       continue_on_error: true
-#       data:
-#         uri: spotify:playlist:4WyHdt802ozHHPWq1BNUUB
-#         repeat: true
-#         start_volume: 20
-#         entity_id: media_player.kitchen_speaker
-#   mode: restart
+spotify_test_2:
+  alias: Spotify/google home test
+  description: Attempt to play spotify on kitchen google home, this does work
+    (as long as the HACS custom component version matches the spotify component and the cast component provided by the OS)
+    continue_on_error doesn't appear to work, because it's often an exception/compile error rather than error result 
+  sequence:
+    - service: spotcast.start
+      continue_on_error: true
+      data:
+        uri: spotify:playlist:4WyHdt802ozHHPWq1BNUUB
+        repeat: true
+        start_volume: 10
+        entity_id: media_player.kitchen_speaker
+  mode: restart
 
 kids_wakeup:
   alias: Kids Wake Up
@@ -130,7 +130,7 @@ kids_sleep_time:
       data:
         uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
         repeat: true
-        start_volume: 20
+        start_volume: 30
         entity_id: media_player.emilys_room_speaker
     - repeat:
         count: "{{steps}}"
