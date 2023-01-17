@@ -2,7 +2,11 @@ title: Overview
 views:
   - title: Tab 1
     cards:
-      - title: Kids Bedroom
+      - title: Emilys Bedroom
+        type: entities
+        entities:
+          - light.emilys_bedroom_light
+      - title: Tobys Bedroom
         type: entities
         entities:
           - scene.kids_reading_time
@@ -12,13 +16,8 @@ views:
           - light.kids_long_rgb
           - light.kids_short_w
           - light.kids_short_rgb
-          - switch.fishtank
           - light.toby_reading
           - light.emily_reading
-          - switch.toby_electric_blanket
-          - switch.emily_electric_blanket
-          - sensor.toby_electric_blanket_power
-          - sensor.emily_electric_blanket_power
       - title: Misc
         type: entities
         entities:
@@ -30,4 +29,3 @@ views:
           - group.family
           - input_boolean.visitors_at_home
           - switch.sara_electric_blanket
-          
