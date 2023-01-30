@@ -90,31 +90,32 @@ kids_wakeup:
               milliseconds: 0
   mode: restart
 
-kids_sleep_time:
-  alias: Kids Sleep Time
+toby_sleep_time:
+  alias: Toby Sleep Time
   description: Sleep music and night lights
   variables:
-    steps: 5
-    start_brightness: 71
-    end_brightness: 25
-    rgb_nightlight_brightness: 38
+    steps: 30
+    start_brightness: 120
+    end_brightness: 64
+    rgb_nightlight_brightness_start: 163
+    rgb_nightlight_brightness_end: 125
   sequence:
     - service: scene.apply
       data:
         entities:
           light.kids_short_rgb:
             color_mode: hs
-            brightness: "{{rgb_nightlight_brightness}}"
+            brightness: "{{rgb_nightlight_brightness_start}}"
             hs_color:
-              - 195.059
-              - 100
+              - 120
+              - 70
             state: "on"
           light.kids_long_rgb:
+            color_mode: hs
             brightness: "{{start_brightness}}"
             hs_color:
-              - 195.059
-              - 100
-
+              - 120
+              - 70
             state: "on"
           light.kids_short_w:
             state: "off"
@@ -132,6 +133,7 @@ kids_sleep_time:
         uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
         repeat: true
         start_volume: 30
+        # actually toby's speaker, called emily's from when they shared bedroom
         entity_id: media_player.emilys_room_speaker
     - repeat:
         count: "{{steps}}"
@@ -139,6 +141,9 @@ kids_sleep_time:
           - service: scene.apply
             data:
               entities:
+                light.kids_short_rgb:
+                  brightness: "{{rgb_nightlight_brightness_start + ((rgb_nightlight_brightness_end - rgb_nightlight_brightness_start) * (repeat.index|float / steps))}}"
+                  state: "on"
                 light.kids_long_rgb:
                   brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
                   state: "on"
@@ -157,4 +162,76 @@ kids_sleep_time:
         entities:
           light.kids_long_rgb:
             state: "off"
+    - service: media_player.turn_off
+      data:
+        entity_id: media_player.emilys_room_speaker
+  mode: restart
+
+emily_reading_time:
+  alias: Emily Reading Time
+  description: Emily lights for bedtime reading
+  variables:
+    start_brightness: 200
+  sequence:
+    - service: scene.apply
+      data:
+        entities:
+          light.emilys_bedroom_light:
+            color_mode: rgb
+            brightness: "{{start_brightness}}"
+            rgb_color:
+              - 255
+              - 255
+              - 255
+            state: "on"
+
+emily_sleep_time:
+  alias: Emily Sleep Time
+  description: Emily's sleep music and night lights
+  variables:
+    steps: 30
+    start_brightness: 102
+    end_brightness: 39
+    start_volume: 50
+    end_volume: 35
+  sequence:
+    - service: scene.apply
+      data:
+        entities:
+          light.emilys_bedroom_light:
+            color_mode: rgb
+            brightness: "{{start_brightness}}"
+            rgb_color:
+              - 255
+              - 255
+              - 255
+            state: "on"
+    - service: spotcast.start
+      continue_on_error: true
+      data:
+        account: "emily"
+        # Dork diaries
+        uri: spotify:playlist:5N5yfWfwP9faFo9iQjGQO3
+        repeat: true
+        start_volume: 50
+        # Emilys speaker
+        entity_id: media_player.googlehome1978
+    - repeat:
+        count: "{{steps}}"
+        sequence:
+          - service: scene.apply
+            data:
+              entities:
+                light.emilys_bedroom_light:
+                  brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
+                  state: "on"
+          - service: media_player.volume_set
+            data:
+              entity_id: media_player.kitchen_speaker
+              volume_level: "{{start_volume + ((end_volume - start_volume) * (repeat.index|float / steps))}}"
+          - delay:
+              hours: 0
+              minutes: 1
+              seconds: 0
+              milliseconds: 0
   mode: restart

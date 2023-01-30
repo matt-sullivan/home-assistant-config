@@ -6,11 +6,14 @@ views:
         type: entities
         entities:
           - light.emilys_bedroom_light
+          - script.emily_reading_time
+          - script.emily_sleep_time
+          - media_player.googlehome1978
       - title: Tobys Bedroom
         type: entities
         entities:
-          - scene.kids_reading_time
-          - script.kids_sleep_time
+          - scene.toby_reading_time
+          - script.toby_sleep_time
           - script.kids_wakeup
           - light.kids_long_w
           - light.kids_long_rgb
@@ -18,6 +21,7 @@ views:
           - light.kids_short_rgb
           - light.toby_reading
           - light.emily_reading
+          - media_player.emilys_room_speaker
       - title: Misc
         type: entities
         entities:
