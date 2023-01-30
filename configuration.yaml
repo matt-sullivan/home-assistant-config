@@ -43,6 +43,13 @@ tts:
 spotcast:
   sp_dc: !secret spotcast_sp_dc
   sp_key: !secret spotcast_sp_key
+  accounts:
+    emily:
+      sp_dc: !secret spotcast_emily_sp_dc
+      sp_key: !secret spotcast_emily_sp_key
+    sara:
+      sp_dc: !secret spotcast_sara_sp_dc
+      sp_key: !secret spotcast_sara_sp_key
 
 panel_custom:
   - name: panel-redirect

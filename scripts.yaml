@@ -27,8 +27,9 @@ spotify_test_2:
     - service: spotcast.start
       continue_on_error: true
       data:
-        uri: spotify:playlist:4WyHdt802ozHHPWq1BNUUB
-        repeat: true
+        account: "sara"
+        search: "Taylor"
+        random_song: true
         start_volume: 10
         entity_id: media_player.kitchen_speaker
   mode: restart
