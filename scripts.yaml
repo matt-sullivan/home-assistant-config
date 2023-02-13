@@ -38,6 +38,7 @@ kids_wakeup:
   alias: Kids Wake Up
   description: Start kids wake up music and lights
   variables:
+    # actually toby's speaker, called emily's from when they shared bedroom
     chromecast_id: media_player.emilys_room_speaker
     count: 10
     max_volume: 0.5
@@ -99,6 +100,8 @@ toby_sleep_time:
     end_brightness: 64
     rgb_nightlight_brightness_start: 163
     rgb_nightlight_brightness_end: 125
+    # actually toby's speaker, called emily's from when they shared bedroom
+    chromecast_id: media_player.emilys_room_speaker
   sequence:
     - service: scene.apply
       data:
@@ -133,8 +136,7 @@ toby_sleep_time:
         uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
         repeat: true
         start_volume: 30
-        # actually toby's speaker, called emily's from when they shared bedroom
-        entity_id: media_player.emilys_room_speaker
+        entity_id: "{{chromecast_id}}"
     - repeat:
         count: "{{steps}}"
         sequence:
@@ -164,7 +166,7 @@ toby_sleep_time:
             state: "off"
     - service: media_player.turn_off
       data:
-        entity_id: media_player.emilys_room_speaker
+        entity_id: "{{chromecast_id}}"
   mode: restart
 
 emily_reading_time:
@@ -172,28 +174,9 @@ emily_reading_time:
   description: Emily lights for bedtime reading
   variables:
     start_brightness: 200
-  sequence:
-    - service: scene.apply
-      data:
-        entities:
-          light.emilys_bedroom_light:
-            color_mode: rgb
-            brightness: "{{start_brightness}}"
-            rgb_color:
-              - 255
-              - 255
-              - 255
-            state: "on"
-
-emily_sleep_time:
-  alias: Emily Sleep Time
-  description: Emily's sleep music and night lights
-  variables:
-    steps: 30
-    start_brightness: 102
-    end_brightness: 39
-    start_volume: 50
-    end_volume: 35
+    # Emilys speaker
+    chromecast_id: media_player.googlehome1978
+    start_volume: 40
   sequence:
     - service: scene.apply
       data:
@@ -213,9 +196,32 @@ emily_sleep_time:
         # Dork diaries
         uri: spotify:playlist:5N5yfWfwP9faFo9iQjGQO3
         repeat: true
-        start_volume: 50
-        # Emilys speaker
-        entity_id: media_player.googlehome1978
+        start_volume: "{{start_volume}}"
+        entity_id: "{{chromecast_id}}"
+
+emily_sleep_time:
+  alias: Emily Sleep Time
+  description: Emily's sleep music and night lights
+  variables:
+    steps: 30
+    start_brightness: 102
+    end_brightness: 39
+    start_volume: 40
+    end_volume: 30
+    # Emilys speaker
+    chromecast_id: media_player.googlehome1978
+  sequence:
+    - service: scene.apply
+      data:
+        entities:
+          light.emilys_bedroom_light:
+            color_mode: rgb
+            brightness: "{{start_brightness}}"
+            rgb_color:
+              - 255
+              - 255
+              - 255
+            state: "on"
     - repeat:
         count: "{{steps}}"
         sequence:
@@ -227,8 +233,8 @@ emily_sleep_time:
                   state: "on"
           - service: media_player.volume_set
             data:
-              entity_id: media_player.kitchen_speaker
-              volume_level: "{{start_volume + ((end_volume - start_volume) * (repeat.index|float / steps))}}"
+              entity_id: "{{chromecast_id}}"
+              volume_level: "{{(start_volume + ((end_volume - start_volume) * (repeat.index|float / steps))) / 100}}"
           - delay:
               hours: 0
               minutes: 1
