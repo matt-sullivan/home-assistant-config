@@ -7,8 +7,9 @@ views:
         entities:
           - light.emilys_bedroom_light
           - script.emily_reading_time
+          - script.emily_night_music
           - script.emily_sleep_time
-          - media_player.googlehome1978
+          - media_player.spotify_emily
       - title: Tobys Bedroom
         type: entities
         entities:
