@@ -4,7 +4,7 @@ substitutions:
   open_duration: 30s
   distance_threshold: "0.9"
   # don't trust any ridiculously small measurements
-  distance_threshold_min: "0.1"
+  distance_threshold_min: "0.25"
 
 esphome:
   name: wemosd1-garage
@@ -54,7 +54,17 @@ sensor:
     name: "${sensor_name} Distance"
     id: garage_distance
     update_interval: 1s
-    
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+#    on_value:
+#      then:
+#        - logger.log:
+#            format: "Garage distance updated to %.1f"
+#            args: ['x']
+#            level: VERBOSE
+          
   - platform: wifi_signal
     name: "${device_name} WiFi Signal"
     update_interval: 5min
@@ -114,9 +124,9 @@ switch:
       - delay: 1s
       - switch.turn_off: garage_relay
 
-text_sensor:
-  - platform: state_machine
-    name: "${sensor_name} State"
+#text_sensor:
+#  - platform: state_machine
+#    name: "${sensor_name} State"
 
 state_machine:
   - name: "${sensor_name} State Machine"
@@ -160,7 +170,7 @@ state_machine:
       - name: TIMEOUT
         transitions:
           - OPENING -> OPEN
-        action:
+        on_input:
           - logger.log: "Timeout reached"
       - name: DETECTED_OPENING
         transitions:
@@ -176,13 +186,13 @@ state_machine:
         transitions:
           - CLOSED -> OPENING
           - CLOSING -> OPENING
-        action:
+        on_input:
           - switch.turn_on: garage_relay
       - name: REQUEST_CLOSE
         transitions:
           - OPEN -> CLOSING
           - OPENING -> CLOSING
-        action:
+        on_input:
           - switch.turn_on: garage_relay
 
 cover:
