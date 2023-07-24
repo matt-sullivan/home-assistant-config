@@ -145,12 +145,14 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: True
     name: "Front Yard Sensor Light Button"
+    on_press:
+      - light.toggle: front_yard_sensor
     # toggle relay on long press - to avoid accidentally turning it off
-    on_click:
-      min_length: 2000ms
-      max_length: 60000ms
-      then:
-        - light.toggle: front_yard_sensor
+    #on_click:
+    #  min_length: 2000ms
+    #  max_length: 60000ms
+    #  then:
+    #    - light.toggle: front_yard_sensor
 
   # 4th button
   - platform: gpio
