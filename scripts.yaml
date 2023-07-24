@@ -24,24 +24,30 @@ spotify_test_2:
     (as long as the HACS custom component version matches the spotify component and the cast component provided by the OS)
     continue_on_error doesn't appear to work, because it's often an exception/compile error rather than error result 
   sequence:
-    # - service: spotcast.start
-    #   continue_on_error: true
-    #   data:
-    #     account: "sara"
-    #     search: "Taylor"
-    #     random_song: true
-    #     start_volume: 10
-    #     entity_id: media_player.kitchen_speaker
     - service: spotcast.start
+      continue_on_error: true
       data:
+        account: "sara"
         uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
+        # search: "Taylor"
+        # random_song: true
         start_volume: 10
         entity_id: media_player.kitchen_speaker
     - service: media_player.repeat_set
       target:
-        entity_id: media_player.spotify_matt_sullivan    
+        entity_id: media_player.spotify_sarasara_bb    
       data:
         repeat: all
+    # - service: spotcast.start
+    #   data:
+    #     uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
+    #     start_volume: 10
+    #     entity_id: media_player.kitchen_speaker
+    # - service: media_player.repeat_set
+    #   target:
+    #     entity_id: media_player.spotify_matt_sullivan    
+    #   data:
+    #     repeat: all
   mode: restart
 
 kids_wakeup:
@@ -185,6 +191,31 @@ toby_sleep_time:
         entity_id: "{{chromecast_id}}"
   mode: restart
 
+toby_broncos_music:
+  alias: Toby Broncos Music
+  description: Toby broncos on repeat
+  variables:
+    # actually toby's speaker, called emily's from when they shared bedroom
+    chromecast_id: media_player.emilys_room_speaker
+    start_volume: 15
+  sequence:
+    - service: spotcast.start
+      continue_on_error: true
+      data:
+        uri: spotify:track:6rfZg4xcYlla4K34dTzAI9
+        start_volume: "{{start_volume}}"
+        entity_id: "{{chromecast_id}}"
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - service: media_player.repeat_set
+      target:
+        entity_id: media_player.spotify_matt_sullivan        
+      data:
+        repeat: one
+
 emily_reading_time:
   alias: Emily Reading Time
   description: Emily lights for bedtime reading
@@ -209,7 +240,7 @@ emily_night_music:
   variables:
     # Emilys speaker
     chromecast_id: media_player.googlehome1978
-    start_volume: 15
+    start_volume: 10
   sequence:
     - service: spotcast.start
       continue_on_error: true
@@ -224,6 +255,11 @@ emily_night_music:
         # repeat: true| all doens't appear to work
         start_volume: "{{start_volume}}"
         entity_id: "{{chromecast_id}}"
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
     - service: media_player.repeat_set
       target:
         entity_id: media_player.spotify_emily        
@@ -235,10 +271,10 @@ emily_sleep_time:
   description: Emily's sleep music and night lights
   variables:
     steps: 30
-    start_brightness: 50
-    end_brightness: 25
-    start_volume: 15
-    end_volume: 10
+    start_brightness: 25
+    end_brightness: 20
+    start_volume: 10
+    end_volume: 8
     # Emilys speaker
     chromecast_id: media_player.googlehome1978
   sequence:
