@@ -150,7 +150,10 @@ toby_sleep_time:
     - service: spotcast.start
       continue_on_error: true
       data:
-        uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
+        # Kids Sleep
+        # uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
+        # We're the broncos (the single song)
+        uri: spotify:playlist:6rfZg4xcYlla4K34dTzAI9
         repeat: true
         start_volume: "{{start_volume}}"
         entity_id: "{{chromecast_id}}"
@@ -181,11 +184,12 @@ toby_sleep_time:
         minutes: 0
         seconds: 0
         milliseconds: 0
-    - service: scene.apply
-      data:
-        entities:
-          light.kids_long_rgb:
-            state: "off"
+    # Don't turn off the long lights anymore, his short ones are disconnected
+    # - service: scene.apply
+    #   data:
+    #     entities:
+    #       light.kids_long_rgb:
+    #         state: "off"
     - service: media_player.turn_off
       data:
         entity_id: "{{chromecast_id}}"
@@ -250,8 +254,10 @@ emily_night_music:
         # uri: spotify:playlist:5N5yfWfwP9faFo9iQjGQO3
         # Nice and Happy
         # uri: spotify:playlist:0sBHr8nFG0LuBhFl5g1RJA
-        # Emily sleep
-        uri: spotify:playlist:3OLPiSQR8Il7mhtxk82j82
+        # Emily
+        # uri: spotify:playlist:3OLPiSQR8Il7mhtxk82j82
+        # Emily Sleep (202307)
+        uri: spotify:playlist:7rMVlc488LsPY9Ex7tyx4u
         # repeat: true| all doens't appear to work
         start_volume: "{{start_volume}}"
         entity_id: "{{chromecast_id}}"
