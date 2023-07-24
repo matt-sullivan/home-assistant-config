@@ -15,4 +15,24 @@
       entity_id: group.welcome_lights
   - service: notify.admins
     data:
-      message: "Welcome lights turned on"
+      message: Welcome lights turned on
+- id: '1685799186818'
+  alias: front yard sensor light
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.lumi_lumi_motion_ac02_iaszone
+      light_target:
+        entity_id: light.front_yard_sensor_light
+      no_motion_wait: 60
+- id: '1685799232450'
+  alias: mailbox sensor light
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.front_yard_motion2_iaszone
+      light_target:
+        entity_id: light.mailbox
+      no_motion_wait: 60
