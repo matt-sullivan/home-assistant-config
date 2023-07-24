@@ -9,12 +9,14 @@ views:
           - script.emily_reading_time
           - script.emily_night_music
           - script.emily_sleep_time
+          - media_player.googlehome1978
           - media_player.spotify_emily
       - title: Tobys Bedroom
         type: entities
         entities:
           - scene.toby_reading_time
           - script.toby_sleep_time
+          - script.toby_broncos_music
           - script.kids_wakeup
           - light.kids_long_w
           - light.kids_long_rgb
@@ -23,6 +25,7 @@ views:
           - light.toby_reading
           - light.emily_reading
           - media_player.emilys_room_speaker
+          - media_player.spotify_matt_sullivan
       - title: Misc
         type: entities
         entities:
