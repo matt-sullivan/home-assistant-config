@@ -31,11 +31,6 @@ recorder:
   commit_interval: 30
   purge_keep_days: 31
 
-binary_sensor:
-  - platform: workday
-    country: AU
-    province: QLD
-
 # Text to speech
 tts:
   - platform: google_translate
