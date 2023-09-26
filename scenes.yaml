@@ -19,3 +19,6 @@
       color_mode: brightness
       brightness: 189
       state: 'on'
+    light.tobyfroglight:
+      color_mode: onoff
+      state: 'on'

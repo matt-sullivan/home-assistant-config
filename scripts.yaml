@@ -100,6 +100,9 @@ kids_wakeup:
                   state: "off"
                 light.kids_short_rgb:
                   state: "off"
+                light.tobyfroglight:
+                  color_mode: onoff
+                  state: 'on'
           - delay:
               hours: 0
               minutes: 1
@@ -153,7 +156,9 @@ toby_sleep_time:
         # Kids Sleep
         # uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
         # We're the broncos (the single song)
-        uri: spotify:playlist:6rfZg4xcYlla4K34dTzAI9
+        # uri: spotify:track:6rfZg4xcYlla4K34dTzAI9
+        # Toby football songs
+        uri: spotify:playlist:7EbLEaryNgBBqquiY4ALTd
         repeat: true
         start_volume: "{{start_volume}}"
         entity_id: "{{chromecast_id}}"
@@ -184,10 +189,12 @@ toby_sleep_time:
         minutes: 0
         seconds: 0
         milliseconds: 0
-    # Don't turn off the long lights anymore, his short ones are disconnected
-    # - service: scene.apply
-    #   data:
-    #     entities:
+    - service: scene.apply
+      data:
+        entities:
+          light.tobyfroglight:
+            color_mode: onoff
+            state: 'off'
     #       light.kids_long_rgb:
     #         state: "off"
     - service: media_player.turn_off

@@ -6,6 +6,7 @@ views:
         type: entities
         entities:
           - light.emilys_bedroom_light
+          - light.emily_bed
           - script.emily_reading_time
           - script.emily_night_music
           - script.emily_sleep_time
@@ -24,6 +25,7 @@ views:
           - light.kids_short_rgb
           - light.toby_reading
           - light.emily_reading
+          - light.tobyfroglight
           - media_player.emilys_room_speaker
           - media_player.spotify_matt_sullivan
       - title: Misc
