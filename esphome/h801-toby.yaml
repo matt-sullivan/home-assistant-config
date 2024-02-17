@@ -1,5 +1,5 @@
 esphome:
-  name: h801-toby
+  name: h801-emily2
   platform: ESP8266
   board: esp01_1m
 
@@ -18,14 +18,14 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "H801-Toby Fallback Hotspot"
+    ssid: "H801-Emily2 Fallback Hotspot"
     password: "WCGgF0GzYYdw"
 
 captive_portal:
 
 sensor:
   - platform: wifi_signal
-    name: "WiFi Signal Toby H801"
+    name: "WiFi Signal Emily2 H801"
     update_interval: 60s
 
 #RGBWarm
@@ -37,11 +37,11 @@ output:
   - platform: esp8266_pwm
     pin: 13
     frequency: 1000 Hz
-    id: pwm_g
+    id: pwm_r
   - platform: esp8266_pwm
     pin: 15
     frequency: 1000 Hz
-    id: pwm_r
+    id: pwm_g
   - platform: esp8266_pwm
     pin: 14
     frequency: 1000 Hz
@@ -52,8 +52,8 @@ output:
     id: pwm_w2
 light:
   - platform: rgb
-    name: "kids_long_rgb"
-    id: "kids_long_rgb"
+    name: "emily_rgb_strip"
+    id: "emily_rgb_strip"
     red: pwm_r
     green: pwm_g
     blue: pwm_b
@@ -113,18 +113,18 @@ light:
             - state: false
               duration: 250ms
   - platform: monochromatic
-    name: "kids_long_w"
-    id: "kids_long_w"
+    name: "emily_white_strip"
+    id: "emily_white_strip"
     output: pwm_w1
   - platform: monochromatic
-    name: "toby_reading"
-    id: "toby_reading"
+    name: "emily_reading2"
+    id: "emily_reading2"
     output: pwm_w2
           
 binary_sensor:
   - platform: gpio
-    name: "toby_reading_button"
-    id: "toby_reading_button"
+    name: "emily_reading_button2"
+    id: "emily_reading_button2"
     pin:
       number: 3
       mode: INPUT_PULLUP
@@ -134,4 +134,4 @@ binary_sensor:
       - delayed_off: 100ms
     on_press:
       then:
-        - light.toggle: toby_reading
+        - light.toggle: emily_reading2

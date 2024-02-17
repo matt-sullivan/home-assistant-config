@@ -69,11 +69,6 @@ kids_wakeup:
         shuffle: true
         start_volume: "{{start_volume * 100}}"
         entity_id: "{{chromecast_id}}"
-    - service: scene.apply
-      data:
-        entities:
-          switch.fishtank:
-            state: "on"
     - repeat:
         count: "{{count}}"
         sequence:
@@ -84,20 +79,12 @@ kids_wakeup:
           - service: scene.apply
             data:
               entities:
-                light.emily_reading:
-                  brightness: "{{repeat.index|float / count * 255}}"
-                  state: "on"
-                light.toby_reading:
-                  brightness: "{{repeat.index|float / count * 255}}"
-                  state: "on"
-                light.kids_long_w:
+                light.toby_reading_2:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
                 light.kids_short_w:
                   brightness: "{{repeat.index|float / count * 255}}"
                   state: "on"
-                light.kids_long_rgb:
-                  state: "off"
                 light.kids_short_rgb:
                   state: "off"
                 light.tobyfroglight:
@@ -133,22 +120,9 @@ toby_sleep_time:
               - 120
               - 70
             state: "on"
-          light.kids_long_rgb:
-            color_mode: hs
-            brightness: "{{start_brightness}}"
-            hs_color:
-              - 120
-              - 70
-            state: "on"
           light.kids_short_w:
             state: "off"
-          light.emily_reading:
-            state: "off"
-          light.toby_reading:
-            state: "off"
-          light.kids_long_w:
-            state: "off"
-          switch.fishtank:
+          light.toby_reading_2:
             state: "off"
     - service: spotcast.start
       continue_on_error: true
@@ -162,6 +136,14 @@ toby_sleep_time:
         repeat: true
         start_volume: "{{start_volume}}"
         entity_id: "{{chromecast_id}}"
+    # Setting repeat doens't seem to work. It takes a while before playing on a device appears
+    # against the specific person's account, so maybe I need to wait until that happens before
+    # I can set repeat.
+    - delay:
+        hours: 0
+        minutes: 1
+        seconds: 0
+        milliseconds: 0
     - service: media_player.repeat_set
       target:
         entity_id: media_player.spotify_matt_sullivan    
@@ -175,9 +157,6 @@ toby_sleep_time:
               entities:
                 light.kids_short_rgb:
                   brightness: "{{rgb_nightlight_brightness_start + ((rgb_nightlight_brightness_end - rgb_nightlight_brightness_start) * (repeat.index|float / steps))}}"
-                  state: "on"
-                light.kids_long_rgb:
-                  brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
                   state: "on"
           - delay:
               hours: 0
@@ -202,31 +181,6 @@ toby_sleep_time:
         entity_id: "{{chromecast_id}}"
   mode: restart
 
-toby_broncos_music:
-  alias: Toby Broncos Music
-  description: Toby broncos on repeat
-  variables:
-    # actually toby's speaker, called emily's from when they shared bedroom
-    chromecast_id: media_player.emilys_room_speaker
-    start_volume: 15
-  sequence:
-    - service: spotcast.start
-      continue_on_error: true
-      data:
-        uri: spotify:track:6rfZg4xcYlla4K34dTzAI9
-        start_volume: "{{start_volume}}"
-        entity_id: "{{chromecast_id}}"
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 10
-        milliseconds: 0
-    - service: media_player.repeat_set
-      target:
-        entity_id: media_player.spotify_matt_sullivan        
-      data:
-        repeat: one
-
 emily_reading_time:
   alias: Emily Reading Time
   description: Emily lights for bedtime reading
@@ -244,15 +198,44 @@ emily_reading_time:
               - 255
               - 255
             state: "on"
+          light.emily_reading_2:
+            brightness: 255
+            state: "on"
+          light.emily_rgb_strip:
+            color_mode: rgb
+            brightness: 130
+            rgb_color:
+              - 139
+              - 0
+              - 255
+            state: "on"
 
-emily_night_music:
-  alias: Emily Night Music
-  description: Emily night time music
+emily_sleep_time:
+  alias: Emily Sleep Time
+  description: Emily's music & night lights
   variables:
+    steps: 30
+    start_brightness: 25
+    end_brightness: 10
+    start_volume: 15
+    end_volume: 8
     # Emilys speaker
     chromecast_id: media_player.googlehome1978
-    start_volume: 10
   sequence:
+    - service: scene.apply
+      continue_on_error: true
+      data:
+        entities:
+          light.emilys_bedroom_light:
+            color_mode: rgb
+            brightness: "{{start_brightness}}"
+            rgb_color:
+              - 255
+              - 255
+              - 255
+            state: "on"
+          light.emily_reading2:
+            state: "off"
     - service: spotcast.start
       continue_on_error: true
       data:
@@ -264,64 +247,50 @@ emily_night_music:
         # Emily
         # uri: spotify:playlist:3OLPiSQR8Il7mhtxk82j82
         # Emily Sleep (202307)
-        uri: spotify:playlist:7rMVlc488LsPY9Ex7tyx4u
+        # uri: spotify:playlist:7rMVlc488LsPY9Ex7tyx4u
+        # Emily (20240114)
+        uri: spotify:playlist:6AEjlbDnBRswipN9HOMTrK
         # repeat: true| all doens't appear to work
         start_volume: "{{start_volume}}"
         entity_id: "{{chromecast_id}}"
+    # Setting repeat doens't seem to work. It takes a while before playing on a device appears
+    # against the specific person's account, so maybe I need to wait until that happens before
+    # I can set repeat.
     - delay:
         hours: 0
-        minutes: 0
-        seconds: 10
+        minutes: 1
+        seconds: 0
         milliseconds: 0
     - service: media_player.repeat_set
       target:
         entity_id: media_player.spotify_emily        
       data:
         repeat: all
-
-emily_sleep_time:
-  alias: Emily Sleep Time
-  description: Emily's sleep music and night lights
-  variables:
-    steps: 30
-    start_brightness: 25
-    end_brightness: 20
-    start_volume: 10
-    end_volume: 8
-    # Emilys speaker
-    chromecast_id: media_player.googlehome1978
-  sequence:
-    - service: scene.apply
-      data:
-        entities:
-          light.emilys_bedroom_light:
-            color_mode: rgb
-            brightness: "{{start_brightness}}"
-            rgb_color:
-              - 255
-              - 255
-              - 255
-            state: "on"
-    - repeat:
-        count: "{{steps}}"
-        sequence:
-          - service: scene.apply
-            data:
-              entities:
-                light.emilys_bedroom_light:
-                  brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
-                  rgb_color:
-                    - 255
-                    - 255
-                    - 255
-                  state: "on"
-          - service: media_player.volume_set
-            data:
-              entity_id: "{{chromecast_id}}"
-              volume_level: "{{(start_volume + ((end_volume - start_volume) * (repeat.index|float / steps))) / 100}}"
-          - delay:
-              hours: 0
-              minutes: 1
-              seconds: 0
-              milliseconds: 0
+    # - repeat:
+    #     count: "{{steps}}"
+    #     sequence:
+    #       - service: scene.apply
+    #         data:
+    #           entities:
+    #             light.emilys_bedroom_light:
+    #               brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
+    #               rgb_color:
+    #                 - 255
+    #                 - 255
+    #                 - 255
+    #               state: "on"
+    #       # - service: media_player.volume_set
+    #       #   data:
+    #       #     entity_id: "{{chromecast_id}}"
+    #       #     volume_level: "{{(start_volume + ((end_volume - start_volume) * (repeat.index|float / steps))) / 100}}"
+    #       - delay:
+    #           hours: 0
+    #           minutes: 1
+    #           seconds: 0
+    #           milliseconds: 0
+    # - service: scene.apply
+    #   data:
+    #     entities:
+    #       light.emilys_bedroom_light:
+    #         state: "off"
   mode: restart
