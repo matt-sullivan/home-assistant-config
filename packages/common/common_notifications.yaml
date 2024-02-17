@@ -2,4 +2,5 @@ notify:
   - name: admins
     platform: group
     services:
-      - service: mobile_app_pixel_5
+#      - service: mobile_app_pixel_5
+      - service: mobile_app_matt_pixel_8_pro
