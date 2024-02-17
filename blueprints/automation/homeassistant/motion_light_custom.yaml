@@ -1,0 +1,94 @@
+blueprint:
+  name: Motion-activated Light (only when sun is up)
+  description: Turn on a light when motion is detected.
+  domain: automation
+  # Customized from here
+  # source_url: https://community.home-assistant.io/t/motion-activated-light-but-with-conditions/466228/12
+  input:
+    motion_entity1:
+      name: Motion Sensor 1
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: motion
+    motion_entity2:
+      name: Motion Sensor 2
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: motion
+    light_target:
+      name: Light
+      selector:
+        target:
+          entity:
+            domain: light
+    no_motion_wait:
+      name: Wait time
+      description: Time to leave the light on after last motion is detected.
+      default: 120
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: seconds
+    sun_entity:
+      name: Sun entity
+      description: This is normally "sun.sun".
+      default: sun.sun
+      selector:
+        entity:
+          domain: sun
+
+# If motion is detected within the delay,
+# we restart the script.
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input motion_entity1
+    from: "off"
+    to: "on"
+  - platform: state
+    entity_id: !input motion_entity2
+    from: "off"
+    to: "on"
+
+condition:
+  - condition: numeric_state
+    entity_id: !input sun_entity
+    attribute: elevation
+    below: 0
+
+action:
+  - alias: "Turn on the light"
+    service: light.turn_on
+    target: !input light_target
+  - alias: "Wait until there is no motion from device"
+    wait_for_trigger:
+      - platform: state
+        entity_id: !input motion_entity1
+        from: "on"
+        to: "off"
+      - platform: state
+        entity_id: !input motion_entity2
+        from: "on"
+        to: "off"
+    condition:
+    - condition: state
+      entity_id: binary_sensor.lumi_lumi_motion_ac02_iaszone
+      state: 'off'
+    # condition:
+    #   - and:
+    #     - condition: state
+    #       entity_id: !input motion_entity1
+    #       state: "off"
+    #     - condition: state
+    #       entity_id: !input motion_entity2
+    #       state: "off"
+  - alias: "Wait the number of seconds that has been set"
+    delay: !input no_motion_wait
+  - alias: "Turn off the light"
+    service: light.turn_off
+    target: !input light_target

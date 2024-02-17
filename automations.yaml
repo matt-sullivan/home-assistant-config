@@ -16,23 +16,44 @@
   - service: notify.admins
     data:
       message: Welcome lights turned on
-- id: '1685799186818'
-  alias: front yard sensor light
-  description: ''
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      motion_entity: binary_sensor.lumi_lumi_motion_ac02_iaszone
-      light_target:
-        entity_id: light.front_yard_sensor_light
-      no_motion_wait: 60
-- id: '1685799232450'
-  alias: mailbox sensor light
-  description: ''
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      motion_entity: binary_sensor.front_yard_motion2_iaszone
-      light_target:
-        entity_id: light.mailbox
-      no_motion_wait: 60
+- id: sensor_lights
+  alias: Sensor Lights
+  description: Sensor lights combining both sensors and lights
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.lumi_lumi_motion_ac02_iaszone
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.front_yard_motion3_motion
+    to: 'on'
+  condition:
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: 0
+  action:
+  - alias: Turn on the light
+    service: light.turn_on
+    target:
+      entity_id:
+      - light.front_yard_sensor_light
+      - light.mailbox
+    data: {}
+  - alias: Wait until there is no motion from either device
+    wait_template: '{{ not(is_state(''binary_sensor.lumi_lumi_motion_ac02_iaszone'',
+      ''on'')) and not(is_state(''binary_sensor.front_yard_motion3_motion'', ''on''))
+      }}'
+  - alias: Wait a while longer
+    delay:
+      hours: 0
+      minutes: 2
+      seconds: 0
+      milliseconds: 0
+  - alias: Turn off the light
+    service: light.turn_off
+    target:
+      entity_id:
+      - light.front_yard_sensor_light
+      - light.mailbox
+    data: {}
+  mode: restart
