@@ -17,7 +17,7 @@ views:
       - title: Tobys Bedroom
         type: entities
         entities:
-          - scene.toby_reading_time
+          - script.toby_reading_time
           - script.toby_sleep_time
           - script.kids_wakeup
           - light.kids_short_w

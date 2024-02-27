@@ -97,6 +97,21 @@ kids_wakeup:
               milliseconds: 0
   mode: restart
 
+toby_reading_time:
+  alias: Toby Reading Time
+  sequence:
+    - service: scene.apply
+      data:
+        entities:
+          light.toby_reading_2:
+            brightness: 255
+            state: "on"
+          light.tobyfroglight:
+            state: 'on'
+          switch.toby_electric_blanket:
+            # friendly_name: Toby Star Light
+            state: 'on'
+
 toby_sleep_time:
   alias: Toby Sleep Time
   description: Sleep music and night lights
@@ -198,7 +213,7 @@ emily_reading_time:
               - 255
               - 255
             state: "on"
-          light.emily_reading_2:
+          light.emily_reading2:
             brightness: 255
             state: "on"
           light.emily_rgb_strip:
@@ -226,16 +241,26 @@ emily_sleep_time:
       continue_on_error: true
       data:
         entities:
+          # light.emilys_bedroom_light:
+          #   color_mode: rgb
+          #   brightness: "{{start_brightness}}"
+          #   rgb_color:
+          #     - 255
+          #     - 255
+          #     - 255
+          #   state: "on"
           light.emilys_bedroom_light:
-            color_mode: rgb
-            brightness: "{{start_brightness}}"
-            rgb_color:
-              - 255
-              - 255
-              - 255
-            state: "on"
+            state: "off"
           light.emily_reading2:
             state: "off"
+          light.emily_rgb_strip:
+            color_mode: rgb
+            brightness: 130
+            rgb_color:
+              - 139
+              - 0
+              - 255
+            state: "on"
     - service: spotcast.start
       continue_on_error: true
       data:
