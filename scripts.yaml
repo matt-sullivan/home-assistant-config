@@ -27,17 +27,17 @@ spotify_test_2:
     - service: spotcast.start
       continue_on_error: true
       data:
-        account: "sara"
+        account: "emily"
         uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
         # search: "Taylor"
         # random_song: true
         start_volume: 10
         entity_id: media_player.kitchen_speaker
-    - service: media_player.repeat_set
-      target:
-        entity_id: media_player.spotify_sarasara_bb    
-      data:
-        repeat: all
+    # - service: media_player.repeat_set
+    #   target:
+    #     entity_id: media_player.spotify_sarasara_bb    
+    #   data:
+    #     repeat: all
     # - service: spotcast.start
     #   data:
     #     uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK

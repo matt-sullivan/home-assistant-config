@@ -13,10 +13,9 @@ esphome:
   on_boot:
     priority: 600
     then:
-      # I don't know if CLOSED is great, but the closed sensor should immedatiately transition to open anyway
       - cover.template.publish:
           id: garage
-          state: CLOSED
+          state: OPEN
           current_operation: IDLE
 
 # Enable logging
@@ -47,24 +46,6 @@ external_components:
     refresh: 1h
 
 sensor:
-  - platform: ultrasonic
-    internal: true
-    trigger_pin: D3
-    echo_pin: D4
-    name: "${sensor_name} Distance"
-    id: garage_distance
-    update_interval: 1s
-    filters:
-      - sliding_window_moving_average:
-          window_size: 5
-          send_every: 1
-#    on_value:
-#      then:
-#        - logger.log:
-#            format: "Garage distance updated to %.1f"
-#            args: ['x']
-#            level: VERBOSE
-          
   - platform: wifi_signal
     name: "${device_name} WiFi Signal"
     update_interval: 5min
@@ -77,7 +58,21 @@ sensor:
     accuracy_decimals: 1
     update_interval: 5min
 
+# Read the zigbee door sensor from home assistant
+# The physical position means we reliably detect when the door is closed but the sensor state
+# goes on/off when the door is open/closed respectively, so on_press fires when it begins to
+# open, and on_release fires when closed.
 binary_sensor:
+  - platform: homeassistant
+    name: "Zigbee door sensor (from Home Assistant)"
+    entity_id: binary_sensor.garage_door_closed_stop
+    publish_initial_state: true
+    on_press:
+      - state_machine.transition: DETECTED_OPENING
+    on_release:
+      - state_machine.transition: DETECTED_CLOSED
+    
+
   # Disable this sensor of when the button is pressed, I haven't wired it up and it's not very
   # important, I know the door state regardless of the button.
   # - platform: gpio
@@ -95,24 +90,6 @@ binary_sensor:
   #         then:
   #           - state_machine.transition: PRESS
   
-  - platform: template
-    internal: true
-    name: "Garage Door Open"
-    lambda: |-
-      // Avoid logic that distance > x because if it's > a few meters it gets nan.
-      // Thus look for < 1m which indicates the door is open (up in front of the sensor)
-      // Also apply a min of 10cm, anything less is a bogus reading (which I see regularly with hardware that now
-      // does level shifting.)
-      if (id(garage_distance).state < ${distance_threshold} && id(garage_distance).state > ${distance_threshold_min}) {
-        return true;
-      } else {
-        return false;
-      }
-    on_press:
-      - state_machine.transition: DETECTED_OPENING
-    on_release:
-      - state_machine.transition: DETECTED_CLOSED
-
 switch:
   - platform: gpio
     internal: true
@@ -124,15 +101,16 @@ switch:
       - delay: 1s
       - switch.turn_off: garage_relay
 
-#text_sensor:
-#  - platform: state_machine
-#    name: "${sensor_name} State"
+text_sensor:
+  - platform: state_machine
+    id: garage_state_machine
+    name: Garage Door State Machine State
 
 state_machine:
   - name: "${sensor_name} State Machine"
     id: garage_sm
     diagram: mermaid
-    initial_state: CLOSED
+    initial_state: OPEN
     states:
       - name: CLOSED
         on_enter:

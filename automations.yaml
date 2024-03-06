@@ -4,11 +4,12 @@
   trigger:
   - platform: state
     entity_id: group.family
-    to: home
+    from: "away"
+    to: "home"
   condition:
   - condition: state
     entity_id: sun.sun
-    state: below_horizon
+    state: "below_horizon"
   action:
   - service: homeassistant.turn_on
     target:
@@ -16,6 +17,51 @@
   - service: notify.admins
     data:
       message: Welcome lights turned on
+
+- id: open_garage_matt
+  alias: Open garage when Matt drives home
+  trigger:
+  - platform: state
+    entity_id: device_tracker.matt_pixel_8_pro
+    from: "away"
+    to:
+      - "home"
+      - "HomeStreet1"
+      - "HomeStreet2"
+  condition:
+  - condition: state
+    entity_id: sensor.matt_pixel_8_pro_detected_activity
+    state: "in_vehicle"
+  action:
+  - service: cover.stop_cover
+    target:
+      entity_id: cover.garage_door
+  - service: notify.mobile_app_matt_pixel_8_pro
+    data:
+      message: Opening garage
+
+- id: garage_left_open_warn
+  alias: Send a warning if the garage left open
+  trigger:
+  # Can't get this to work using state not_to closed, so use template instead
+  - platform: template
+    value_template: "{{ not(is_state('cover.garage_door', 'closed'))}}"
+    for: "00:05:00"
+  action:
+  - service: notify.admins
+    data:
+      message: Garage left open!
+
+- id: garage_monitoring
+  alias: Debug garage open & close
+  trigger:
+  - platform: state
+    entity_id: cover.garage_door
+  action:
+  - service: notify.mobile_app_matt_pixel_8_pro
+    data:
+      message: "Garage is {{states.cover.garage_door.state}}"
+
 - id: sensor_lights
   alias: Sensor Lights
   description: Sensor lights combining both sensors and lights

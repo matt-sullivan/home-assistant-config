@@ -36,8 +36,8 @@ tts:
   - platform: google_translate
 
 spotcast:
-  sp_dc: !secret spotcast_sp_dc
-  sp_key: !secret spotcast_sp_key
+  sp_dc: !secret spotcast_matt_sp_dc
+  sp_key: !secret spotcast_matt_sp_key
   accounts:
     emily:
       sp_dc: !secret spotcast_emily_sp_dc
@@ -45,6 +45,9 @@ spotcast:
     sara:
       sp_dc: !secret spotcast_sara_sp_dc
       sp_key: !secret spotcast_sara_sp_key
+    matt:
+      sp_dc: !secret spotcast_matt_sp_dc
+      sp_key: !secret spotcast_matt_sp_key
 
 panel_custom:
   - name: panel-redirect
@@ -62,6 +65,24 @@ person:
 #      device_trackers:
 #      - device_tracker.saras_iphone
 #      - device_tracker.saras_iphone_2
+
+zone:
+  - name: Home
+    latitude: -27.534078
+    longitude: 153.078125
+    radius: 65
+    icon: mdi:home
+  - name: HomeStreet1
+    latitude: -27.533366
+    longitude: 153.077895
+    radius: 40
+    icon: mdi:home-minus
+  - name: HomeStreet2
+    latitude: -27.534767
+    longitude: 153.078987
+    radius: 65
+    icon: mdi:home-minus
+
 
 route53:
   aws_access_key_id: AKIAZN5CHK57H3XLT2FU

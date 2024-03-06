@@ -6,7 +6,6 @@ views:
         type: entities
         entities:
           - light.emilys_bedroom_light
-          - light.emily_bed
           - light.emily_reading2
           - light.emily_rgb_strip 
           - light.emily_white_strip 
@@ -36,6 +35,18 @@ views:
           # - lock.front_door
           - entity: cover.garage_door
             name: Garage Door
+          - sensor.garage_door_state_machine_state
+          - binary_sensor.garage_door_closed_stop
           - group.family
           - input_boolean.visitors_at_home
           # - switch.sara_electric_blanket
+      - title: Front Entry Camera
+        type: picture-entity
+        entity: camera.front_entry_camera
+        show_name: false
+        show_state: false
+      - title: Footpath Camera
+        type: picture-entity
+        entity: camera.footpath_camera_2
+        show_name: false
+        show_state: false
