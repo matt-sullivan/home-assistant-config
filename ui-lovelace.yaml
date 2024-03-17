@@ -11,6 +11,7 @@ views:
           - light.emily_white_strip 
           - script.emily_reading_time
           - script.emily_sleep_time
+          - cover.emily_side_blind
           - media_player.googlehome1978
           - media_player.spotify_emily
       - title: Tobys Bedroom
@@ -30,13 +31,12 @@ views:
       - title: Misc
         type: entities
         entities:
-          - sensor.pool_ph
-          - sensor.pool_temp
-          # - lock.front_door
+          - lock.front_door
           - entity: cover.garage_door
             name: Garage Door
           - sensor.garage_door_state_machine_state
           - binary_sensor.garage_door_closed_stop
+          - binary_sensor.downstairs_laundry_door
           - group.family
           - input_boolean.visitors_at_home
           # - switch.sara_electric_blanket
