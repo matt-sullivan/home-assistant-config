@@ -8,6 +8,7 @@ logger:
 
 # Enable Home Assistant API
 api:
+  reboot_timeout: 24h
 
 ota:
   password: "6c91cd96dd82e4ca3816fbde0a5fc90a"
@@ -15,6 +16,7 @@ ota:
 wifi:
   ssid: "MattAndSara"
   password:  !secret wifi_password
+  reboot_timeout: 1h
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:

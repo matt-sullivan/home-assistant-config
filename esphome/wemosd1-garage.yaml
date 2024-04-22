@@ -24,6 +24,7 @@ logger:
 
 # Enable Home Assistant API
 api:
+  reboot_timeout: 24h
 
 ota:
   password: !secret ota_password
@@ -31,6 +32,7 @@ ota:
 wifi:
   ssid: !secret wifi_garage_ssid
   password: !secret wifi_garage_password 
+  reboot_timeout: 1h
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -54,7 +56,7 @@ sensor:
     name: "${device_name} Uptime"
     filters:
       - lambda: return x / 86400.0;
-    unit_of_measurement: "days"
+    unit_of_measurement: "d"
     accuracy_decimals: 1
     update_interval: 5min
 
