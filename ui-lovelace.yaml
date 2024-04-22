@@ -11,7 +11,8 @@ views:
           - light.emily_white_strip 
           - script.emily_reading_time
           - script.emily_sleep_time
-          - cover.emily_side_blind
+          - cover.emilys_door_blind
+          - cover.emilys_side_blind
           - media_player.googlehome1978
           - media_player.spotify_emily
       - title: Tobys Bedroom
@@ -25,7 +26,8 @@ views:
           - light.toby_reading_2
           - light.tobyfroglight
           - switch.toby_electric_blanket
-          - cover.toby_front_blind
+          - cover.tobys_front_blind
+          - cover.tobys_side_blind
           - media_player.emilys_room_speaker
           - media_player.spotify_matt_sullivan
       - title: Misc
