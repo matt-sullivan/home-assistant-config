@@ -62,9 +62,8 @@ person:
   - name: Sara
     id: sara
     user_id: e47941a6895841da96e1afb58282ffdf
-#      device_trackers:
-#      - device_tracker.saras_iphone
-#      - device_tracker.saras_iphone_2
+    device_trackers:
+      - device_tracker.saras_iphone_app
 
 zone:
   - name: Home

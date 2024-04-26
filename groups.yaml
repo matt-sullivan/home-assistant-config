@@ -3,7 +3,7 @@ family:
   icon: mdi:account-group
   entities:
     - person.matt
-    #    - person.sara
+    - person.sara
     - person.visitors
 
 holiday_lights:
@@ -30,5 +30,6 @@ welcome_lights:
   icon: mdi:lightbulb
   entities:
     - light.front_deck
+    - light.front_yard_sensor_light
     - group.hallway_lights
     - light.lounge

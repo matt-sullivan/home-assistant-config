@@ -14,7 +14,7 @@
     - service: homeassistant.turn_on
       target:
         entity_id: group.welcome_lights
-    - service: notify.admins
+    - service: notify.parents
       data:
         message: Welcome lights turned on
 
@@ -32,26 +32,59 @@
 - id: open_garage_matt
   alias: Open garage when Matt drives home
   trigger:
-    - platform: state
-      entity_id: device_tracker.matt_pixel_8_pro
-      from: "not_home"
-      to:
-        - "home"
-        - "HomeStreet1"
-        - "HomeStreet2"
+  - platform: state
+    entity_id: device_tracker.matt_pixel_8_pro
+    from: not_home
+    to:
+    - home
+    - HomeStreet1
+    - HomeStreet2
   condition:
-    alias: "Driving"
-    condition: template
+  - condition: state
+    alias: "Garage closed"
+    entity_id: cover.garage_door
+    state: closed
+  - condition: template
+    alias: "Phone connected to car"
     value_template: "{{state_attr('sensor.matt_pixel_8_pro_bluetooth_connection', 'connected_paired_devices') | contains('B8:9F:09:62:F7:7F (BMW 93379)')
-or state_attr('sensor.matt_pixel_8_pro_bluetooth_connection', 'connected_paired_devices') | contains('00:0A:30:92:D6:C7 (Mazda)')
-}}"
+or state_attr('sensor.matt_pixel_8_pro_bluetooth_connection', 'connected_paired_devices') | contains('00:0A:30:92:D6:C7 (Mazda)')}}"
   action:
-    - service: cover.stop_cover
-      target:
-        entity_id: cover.garage_door
-    - service: notify.mobile_app_matt_pixel_8_pro
-      data:
-        message: Matt arrived home, opening garage
+  - service: cover.stop_cover
+    target:
+      entity_id: cover.garage_door
+  - service: notify.mobile_app_matt_pixel_8_pro
+    data:
+      message: Matt arrived home, opening garage
+
+- id: open_garage_sara
+  alias: Open garage when Sara drives home
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.saras_iphone_app
+    from: not_home
+    to:
+    - home
+    - HomeStreet1
+    - HomeStreet2
+  condition:
+  - condition: state
+    alias: "Garage closed"
+    entity_id: cover.garage_door
+    state: closed
+  - condition: template
+    alias: "Phone connected to car"
+    value_template: "{{states('sensor.saras_iphone14_ssid') == 'DIRECT-BMW 93379'}}"
+  action:
+  - service: cover.stop_cover
+    target:
+      entity_id: cover.garage_door
+  - service: notify.mobile_app_matt_pixel_8_pro
+    data:
+      message: Sara arrived home, opening garage
+  - service: notify.mobile_app_saras_iphone_2
+    data:
+      message: Sara arrived home, opening garage
 
 - id: garage_left_open_warn
   alias: Send a warning if the garage left open
@@ -61,7 +94,7 @@ or state_attr('sensor.matt_pixel_8_pro_bluetooth_connection', 'connected_paired_
       value_template: "{{ not(is_state('cover.garage_door', 'closed'))}}"
       for: "00:05:00"
   action:
-    - service: notify.admins
+    - service: notify.parents
       data:
         message: Garage left open!
 
