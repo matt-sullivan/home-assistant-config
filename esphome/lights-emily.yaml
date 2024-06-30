@@ -35,7 +35,7 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Lights-Emily Fallback Hotspot"
+    ssid: "${friendly_name} Fallback Hotspot"
     password: !secret fallback_password
 
 web_server:
@@ -55,38 +55,53 @@ sensor:
     accuracy_decimals: 1
     update_interval: 5min
 
-output:
-  # status led
-  - platform: gpio
-    pin: P24
-    id: status_led_output
+## ---------------- ##
+##    Status LED    ##
+## ---------------- ##
+status_led:
+  pin:
+    number: P24
     inverted: true
-    
-  # Relay 1
-  - platform: gpio
-    pin: P14
-    id: relay1
 
-light:
+output:
+  # Dummy output to allow the light to have an output connected, but we don't need it to do
+  # anything
+  - platform: template
+    type: binary
+    id: dummy1
+    write_action:
+      then:
+        # use delay 0 to supply an action that does nothing
+        - delay: 0s
 
-  # status Led
-  - platform: binary
-    name: "${friendly_name} status_led"
-    output: status_led_output
-    id: status
-    
 ## ------------ ##
 ##     Light    ##
 ## ------------ ##
+light:
   # Light - keeping as internal as I found it worked but if you used the other switch 2-way switch, that HA would say the light was off when the light was actually on.
   # Using the Switch at the bottom of the config to keep everything in order. But then in HA you have to set the Switch that shows up to show up as a Light.
   - platform: binary
+    id: light1
     name: "${friendly_name} light"
     icon: ${deviceicon}
-    output: relay1
-    id: light1
+    output: dummy1
+    on_turn_on:
+      then:
+        - if:
+            condition:
+              not:
+                - script.is_running: state_change_timer1
+            then:
+              - switch.toggle: relay1
+    on_turn_off:
+      then:
+        - if:
+            condition:
+              not:
+                - script.is_running: state_change_timer1
+            then:
+              - switch.toggle: relay1
    
-
 ## ----------------- ##
 ##      Buttons      ##
 ## ----------------- ##
@@ -100,7 +115,7 @@ binary_sensor:
       inverted: true
       mode: INPUT_PULLUP
     on_press:
-      - light.toggle: light1
+      - switch.toggle: relay1
 
   - platform: gpio
     id: power_status_1
@@ -109,7 +124,14 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: true  
     name: "Power status 1"
-
+    on_press:
+      then:
+        - script.execute: state_change_timer1
+        - light.turn_on: light1
+    on_release:
+      then:
+        - script.execute: state_change_timer1
+        - light.turn_off: light1
 
 ## ---------------- ##
 ##     Switches     ##
@@ -118,26 +140,13 @@ switch:
   - platform: restart
     name: "${friendly_name} REBOOT"
 
-  # Keep the light in HA in sync when using 2nd phyiscal switch
-  - platform: template
-    name: ${friendly_name}
-    id: lounge_deta_2way_single_gang_template
-    icon: ${deviceicon}
-    lambda: |-
-      if (id(power_status_1).state) {
-        return true;
-      } else {
-        return false;
-      }
-    turn_on_action:
-    - if:
-        condition:
-          - binary_sensor.is_off: power_status_1
-        then:
-          - light.toggle: light1
-    turn_off_action:
-    - if:
-        condition:
-          - binary_sensor.is_on: power_status_1
-        then:
-          - light.toggle: light1
+  - platform: gpio
+    id: relay1
+    name: "${friendly_name} Switch"
+    pin: P14
+
+script:
+  - id: state_change_timer1
+    mode: restart
+    then:
+      - delay: 100ms
