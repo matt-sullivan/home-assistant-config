@@ -43,12 +43,112 @@ web_server:
 
 captive_portal:
 
+## ------------ ##
+##     Light    ##
+## ------------ ##
+light:
+  # This is the main light component exposed to HA, but it's state needs to be updated by the
+  # power status sensor, so do not connect it's output directly to the relay. I.e. When the button
+  # is pressed or the HA light entity is toggled we want to toggle the relay, then expect the power
+  # status sensor to change soon after (which is ok because the power sensor should set it to the
+  # same state it's already in.) If the remote physical light switch is switched, the power sensor
+  # will detect the change and we want to update this light entities state without toggling the
+  # relay. That's implemented by ignoring state changes soon after the power sensor has changed.
+  - platform: binary
+    id: light1
+    name: "Light"
+    icon: ${deviceicon}
+    output: dummy1
+    on_state:
+      then:
+        - if:
+            condition:
+              not:
+                - script.is_running: power_sensor_changed
+            then:
+              - switch.toggle: relay1
+
+script:
+  - id: power_sensor_changed
+    parameters:
+      state: boolean
+    mode: restart
+    then:
+      # delay before ending the script so the light component can check whether how long it's been
+      # since the power sensor changed
+      - light.control:
+          id: light1
+          state: !lambda return state == true;
+      - delay: 100ms
+
+
+## ---------------- ##
+##     Switches     ##
+## ---------------- ##
+switch:
+  # This is the real output to control the relay, use a switch component rather than an output so
+  # other code can call toggle (outputs only have turn_on/off) 
+  - platform: gpio
+    id: relay1
+    name: "Relay Output"
+    pin: P14
+    internal: true
+
+  - platform: restart
+    name: "Reboot"
+
+
+## ----------------- ##
+##      Buttons      ##
+## ----------------- ##
+binary_sensor:
+  # channel 1 button
+  - platform: gpio
+    id: button
+    name: "Button"
+    pin:
+      number: P26
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      - light.toggle: light1
+
+  # channel 1 power status sensor
+  - platform: gpio
+    id: power_status_1
+    name: "Power Status"
+    pin:
+      number: P8
+      mode: INPUT_PULLUP
+      inverted: true
+    on_state:
+      then:
+        - script.execute:
+            id: power_sensor_changed
+            state: !lambda return x;
+
+output:
+  # Dummy output to allow the light to have an output connected, but we don't need it to do
+  # anything
+  - platform: template
+    type: binary
+    id: dummy1
+    write_action:
+      then:
+        # use delay 0 to supply an action that does nothing
+        - delay: 0s
+
+
+## ------------------ ##
+##    Generic Sensors ##
+## ------------------ ##
 sensor:
   - platform: wifi_signal
-    name: ${device_name} Wifi Signal Strength
+    name: Wifi Signal Strength
     update_interval: 60s
+  
   - platform: uptime
-    name: "${device_name} Uptime"
+    name: "Uptime"
     filters:
       - lambda: return x / 86400.0;
     unit_of_measurement: "d"
@@ -62,91 +162,3 @@ status_led:
   pin:
     number: P24
     inverted: true
-
-output:
-  # Dummy output to allow the light to have an output connected, but we don't need it to do
-  # anything
-  - platform: template
-    type: binary
-    id: dummy1
-    write_action:
-      then:
-        # use delay 0 to supply an action that does nothing
-        - delay: 0s
-
-## ------------ ##
-##     Light    ##
-## ------------ ##
-light:
-  # Light - keeping as internal as I found it worked but if you used the other switch 2-way switch, that HA would say the light was off when the light was actually on.
-  # Using the Switch at the bottom of the config to keep everything in order. But then in HA you have to set the Switch that shows up to show up as a Light.
-  - platform: binary
-    id: light1
-    name: "${friendly_name} light"
-    icon: ${deviceicon}
-    output: dummy1
-    on_turn_on:
-      then:
-        - if:
-            condition:
-              not:
-                - script.is_running: state_change_timer1
-            then:
-              - switch.toggle: relay1
-    on_turn_off:
-      then:
-        - if:
-            condition:
-              not:
-                - script.is_running: state_change_timer1
-            then:
-              - switch.toggle: relay1
-   
-## ----------------- ##
-##      Buttons      ##
-## ----------------- ##
-binary_sensor:
-  # Top (or only) button
-  - platform: gpio
-    id: button
-    name: "${friendly_name} Button"
-    pin:
-      number: P26
-      inverted: true
-      mode: INPUT_PULLUP
-    on_press:
-      - switch.toggle: relay1
-
-  - platform: gpio
-    id: power_status_1
-    pin:
-      number: P8
-      mode: INPUT_PULLUP
-      inverted: true  
-    name: "Power status 1"
-    on_press:
-      then:
-        - script.execute: state_change_timer1
-        - light.turn_on: light1
-    on_release:
-      then:
-        - script.execute: state_change_timer1
-        - light.turn_off: light1
-
-## ---------------- ##
-##     Switches     ##
-## ---------------- ##
-switch:
-  - platform: restart
-    name: "${friendly_name} REBOOT"
-
-  - platform: gpio
-    id: relay1
-    name: "${friendly_name} Switch"
-    pin: P14
-
-script:
-  - id: state_change_timer1
-    mode: restart
-    then:
-      - delay: 100ms
