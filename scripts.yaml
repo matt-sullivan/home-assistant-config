@@ -108,9 +108,10 @@ toby_reading_time:
             state: "on"
           light.tobyfroglight:
             state: 'on'
-          switch.toby_electric_blanket:
-            # friendly_name: Toby Star Light
+          light.toby_star_light:
             state: 'on'
+          light.toby_main:
+            state: "off"
 
 toby_sleep_time:
   alias: Toby Sleep Time
@@ -135,10 +136,16 @@ toby_sleep_time:
               - 120
               - 70
             state: "on"
+          light.toby_main:
+            state: "off"
           light.kids_short_w:
             state: "off"
           light.toby_reading_2:
             state: "off"
+          light.tobyfroglight:
+            state: 'on'
+          light.toby_star_light:
+            state: 'on'
     - service: spotcast.start
       continue_on_error: true
       data:
@@ -224,6 +231,8 @@ emily_reading_time:
               - 0
               - 255
             state: "on"
+          light.emily_heart:
+            state: "off"
 
 emily_sleep_time:
   alias: Emily Sleep Time
@@ -252,6 +261,8 @@ emily_sleep_time:
           light.emilys_bedroom_light:
             state: "off"
           light.emily_reading2:
+            state: "off"
+          light.emily_heart:
             state: "off"
           light.emily_rgb_strip:
             color_mode: rgb
@@ -319,3 +330,48 @@ emily_sleep_time:
     #       light.emilys_bedroom_light:
     #         state: "off"
   mode: restart
+
+emily_wake_up:
+  alias: Emily Wake Up
+  description: Emily's morning music
+  variables:
+    start_volume: 20
+    # Emilys speaker
+    chromecast_id: media_player.googlehome1978
+  sequence:
+    - service: spotcast.start
+      continue_on_error: true
+      data:
+        account: "emily"
+        # Emily Morning Wake Up
+        uri: spotify:playlist:4ExKNntDG3GiHdXpieO1fj
+        # repeat: true| all doens't appear to work
+        start_volume: "{{start_volume}}"
+        entity_id: "{{chromecast_id}}"
+    # Setting repeat doens't seem to work. It takes a while before playing on a device appears
+    # against the specific person's account, so maybe I need to wait until that happens before
+    # I can set repeat.
+    - delay:
+        hours: 0
+        minutes: 1
+        seconds: 0
+        milliseconds: 0
+    - service: media_player.repeat_set
+      target:
+        entity_id: media_player.spotify_emily        
+      data:
+        repeat: all
+  mode: restart
+
+leaving_home:
+  alias: Leaving Home
+  description: Turn off lights and open garage door when leaving home
+  sequence:
+      - service: light.turn_off
+        target:
+          entity_id: all
+        data: {}
+      - service: cover.open_cover
+        target:
+          entity_id: cover.garage_door
+        data: {}

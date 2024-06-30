@@ -5,12 +5,14 @@ views:
       - title: Emilys Bedroom
         type: entities
         entities:
+          - script.emily_reading_time
+          - script.emily_sleep_time
           - light.emilys_bedroom_light
           - light.emily_reading2
           - light.emily_rgb_strip 
           - light.emily_white_strip 
-          - script.emily_reading_time
-          - script.emily_sleep_time
+          - light.emily_heart 
+          - switch.emily_electric_blanket
           - cover.emilys_door_blind
           - cover.emilys_side_blind
           - media_player.googlehome1978
@@ -21,10 +23,9 @@ views:
           - script.toby_reading_time
           - script.toby_sleep_time
           - script.kids_wakeup
-          - light.kids_short_w
-          - light.kids_short_rgb
           - light.toby_reading_2
           - light.tobyfroglight
+          - light.toby_star_light
           - switch.toby_electric_blanket
           - cover.tobys_front_blind
           - cover.tobys_side_blind
@@ -37,9 +38,15 @@ views:
           - entity: cover.garage_door
             name: Garage Door
           - sensor.garage_door_state_machine_state
-          - binary_sensor.garage_door_closed_stop
           - binary_sensor.downstairs_laundry_door
+          - switch.sara_electric_blanket
+          - switch.matt_electric_blanket
+          - cover.parents_front_blind
+          - cover.parents_front_door_blind
+          - cover.parents_side_blind
           - group.family
+          - person.matt
+          - person.sara
           - input_boolean.visitors_at_home
           # - switch.sara_electric_blanket
       - title: Front Entry Camera
