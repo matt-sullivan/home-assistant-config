@@ -7,12 +7,9 @@ views:
         entities:
           - script.emily_reading_time
           - script.emily_sleep_time
-          - light.emilys_bedroom_light
           - light.emily_reading2
           - light.emily_rgb_strip 
-          - light.emily_white_strip 
-          - light.emily_heart 
-          - switch.emily_electric_blanket
+          - light.emily_heart
           - cover.emilys_door_blind
           - cover.emilys_side_blind
           - media_player.googlehome1978
@@ -26,11 +23,10 @@ views:
           - light.toby_reading_2
           - light.tobyfroglight
           - light.toby_star_light
-          - switch.toby_electric_blanket
           - cover.tobys_front_blind
           - cover.tobys_side_blind
           - media_player.emilys_room_speaker
-          - media_player.spotify_matt_sullivan
+          - media_player.spotify_toby_sullivan
       - title: Misc
         type: entities
         entities:
@@ -39,8 +35,7 @@ views:
             name: Garage Door
           - sensor.garage_door_state_machine_state
           - binary_sensor.downstairs_laundry_door
-          - switch.sara_electric_blanket
-          - switch.matt_electric_blanket
+          - switch.xmas_tree
           - cover.parents_front_blind
           - cover.parents_front_door_blind
           - cover.parents_side_blind
@@ -59,3 +54,17 @@ views:
         entity: camera.footpath_camera_2
         show_name: false
         show_state: false
+      - title: Batteries
+        type: entities
+        entities:
+          - sensor.tobys_front_blind_battery
+          - sensor.emilys_door_blind_battery
+          - sensor.emilys_side_blind_battery
+          - sensor.parents_front_door_blind_battery
+          - sensor.parents_side_blind_battery
+          - sensor.downstairs_laundry_door_battery
+          - sensor.garage_door_closed_sensor_battery
+          - entity: sensor.lumi_lumi_motion_ac02_battery
+            name: Sensor Light 1 Battery
+          - entity: sensor.front_yard_motion3_battery
+            name: Sensor Light 2 Battery

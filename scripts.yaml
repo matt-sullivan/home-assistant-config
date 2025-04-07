@@ -1,23 +1,3 @@
-# spotify_test_1:
-#   alias: Spotify Play Old
-#   description:
-#     Attempt to play playlist in spotify, but built-in method only works
-#     if devide already active
-#   sequence:
-#     - service: media_player.select_source
-#       target:
-#         entity_id: media_player.spotify_matt_sullivan
-#       data:
-#         source: Lounge tv
-#     - service: media_player.play_media
-#       data:
-#         media_content_type: playlist
-#         media_content_id: https://open.spotify.com/playlist/3WhE0IEbLZ0VABA5joDiTs
-#       target:
-#         entity_id:
-#           - media_player.spotify_matt_sullivan
-#   mode: single
-#
 spotify_test_2:
   alias: Spotify/google home test
   description: Attempt to play spotify on kitchen google home, this does work
@@ -27,8 +7,13 @@ spotify_test_2:
     - service: spotcast.start
       continue_on_error: true
       data:
+        # Emily 'favourites'
+        uri: spotify:playlist:6AEjlbDnBRswipN9HOMTrK
         account: "emily"
-        uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
+        # uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
+        # Toby football songs
+        #account: "toby"
+        #uri: spotify:playlist:7EbLEaryNgBBqquiY4ALTd
         # search: "Taylor"
         # random_song: true
         start_volume: 10
@@ -153,6 +138,7 @@ toby_sleep_time:
         # uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
         # We're the broncos (the single song)
         # uri: spotify:track:6rfZg4xcYlla4K34dTzAI9
+        account: "toby"
         # Toby football songs
         uri: spotify:playlist:7EbLEaryNgBBqquiY4ALTd
         repeat: true
@@ -168,7 +154,7 @@ toby_sleep_time:
         milliseconds: 0
     - service: media_player.repeat_set
       target:
-        entity_id: media_player.spotify_matt_sullivan    
+        entity_id: media_player.spotify_toby_sullivan
       data:
         repeat: all
     - repeat:
@@ -190,12 +176,12 @@ toby_sleep_time:
         minutes: 0
         seconds: 0
         milliseconds: 0
-    - service: scene.apply
-      data:
-        entities:
-          light.tobyfroglight:
-            color_mode: onoff
-            state: 'off'
+    # - service: scene.apply
+    #   data:
+    #     entities:
+    #       light.tobyfroglight:
+    #         color_mode: onoff
+    #         state: 'off'
     #       light.kids_long_rgb:
     #         state: "off"
     - service: media_player.turn_off
@@ -212,14 +198,6 @@ emily_reading_time:
     - service: scene.apply
       data:
         entities:
-          light.emilys_bedroom_light:
-            color_mode: rgb
-            brightness: "{{start_brightness}}"
-            rgb_color:
-              - 255
-              - 255
-              - 255
-            state: "on"
           light.emily_reading2:
             brightness: 255
             state: "on"
@@ -227,11 +205,19 @@ emily_reading_time:
             color_mode: rgb
             brightness: 130
             rgb_color:
-              - 139
-              - 0
+              - 255
+              - 255
               - 255
             state: "on"
+          light.emily_white_strip:
+            state: "off"
+          light.emily_main:
+            state: "off"
           light.emily_heart:
+            state: "off"
+          light.emily_sign:
+            state: "off"
+          light.emily_makeup:
             state: "off"
 
 emily_sleep_time:
@@ -241,7 +227,7 @@ emily_sleep_time:
     steps: 30
     start_brightness: 25
     end_brightness: 10
-    start_volume: 15
+    start_volume: 10
     end_volume: 8
     # Emilys speaker
     chromecast_id: media_player.googlehome1978
@@ -250,26 +236,24 @@ emily_sleep_time:
       continue_on_error: true
       data:
         entities:
-          # light.emilys_bedroom_light:
-          #   color_mode: rgb
-          #   brightness: "{{start_brightness}}"
-          #   rgb_color:
-          #     - 255
-          #     - 255
-          #     - 255
-          #   state: "on"
-          light.emilys_bedroom_light:
-            state: "off"
           light.emily_reading2:
             state: "off"
+          light.emily_white_strip:
+            state: "off"
+          light.emily_main:
+            state: "off"
           light.emily_heart:
+            state: "off"
+          light.emily_sign:
+            state: "off"
+          light.emily_makeup:
             state: "off"
           light.emily_rgb_strip:
             color_mode: rgb
             brightness: 130
             rgb_color:
-              - 139
-              - 0
+              - 255
+              - 255
               - 255
             state: "on"
     - service: spotcast.start
@@ -368,6 +352,10 @@ leaving_home:
   description: Turn off lights and open garage door when leaving home
   sequence:
       - service: light.turn_off
+        target:
+          entity_id: all
+        data: {}
+      - service: fan.turn_off
         target:
           entity_id: all
         data: {}

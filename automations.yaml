@@ -1,34 +1,32 @@
-- id: "1643034412279"
+- id: '1643034412279'
   alias: Welcome Lights
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id: group.family
-      from: "away"
-      to: "home"
+  - platform: state
+    entity_id: group.family
+    from: away
+    to: home
   condition:
-    - condition: state
-      entity_id: sun.sun
-      state: "below_horizon"
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
   action:
-    - service: homeassistant.turn_on
-      target:
-        entity_id: group.welcome_lights
-    - service: notify.parents
-      data:
-        message: Welcome lights turned on
-
+  - service: homeassistant.turn_on
+    target:
+      entity_id: group.welcome_lights
+  - service: notify.parents
+    data:
+      message: Welcome lights turned on at {{now().strftime("%H:%M")}}
 - id: debug_matt_location
   alias: Debug matt location
   trigger:
-    - platform: state
-      entity_id: device_tracker.matt_pixel_8_pro
-      not_from:
+  - platform: state
+    entity_id: device_tracker.matt_pixel_8_pro
+    not_from:
   action:
-    - service: notify.mobile_app_matt_pixel_8_pro
-      data:
-        message: "Matt is at {{states('device_tracker.matt_pixel_8_pro')}}"
-
+  - service: notify.mobile_app_matt_pixel_8_pro
+    data:
+      message: Matt is at {{states('device_tracker.matt_pixel_8_pro')}} at {{now().strftime("%H:%M")}}
 - id: open_garage_matt
   alias: Open garage when Matt drives home
   trigger:
@@ -41,21 +39,24 @@
     - HomeStreet2
   condition:
   - condition: state
-    alias: "Garage closed"
+    alias: Garage closed
     entity_id: cover.garage_door
     state: closed
   - condition: template
-    alias: "Phone connected to car"
-    value_template: "{{state_attr('sensor.matt_pixel_8_pro_bluetooth_connection', 'connected_paired_devices') | contains('B8:9F:09:62:F7:7F (BMW 93379)')
-or state_attr('sensor.matt_pixel_8_pro_bluetooth_connection', 'connected_paired_devices') | contains('00:0A:30:92:D6:C7 (Mazda)')}}"
+    alias: Phone connected to car
+    value_template: '{{state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
+      ''connected_paired_devices'') | contains(''B8:9F:09:62:F7:7F (BMW 93379)'')
+      or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
+      ''connected_paired_devices'') | contains(''00:02:5B:BE:23:C0 (CAR6509)'')
+      or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'', ''connected_paired_devices'')
+      | contains(''00:0A:30:92:D6:C7 (Mazda)'')}}'
   action:
   - service: cover.stop_cover
     target:
       entity_id: cover.garage_door
   - service: notify.mobile_app_matt_pixel_8_pro
     data:
-      message: Matt arrived home, opening garage
-
+      message: Matt arrived home, opening garage at {{now().strftime("%H:%M")}}
 - id: open_garage_sara
   alias: Open garage when Sara drives home
   trigger:
@@ -69,84 +70,120 @@ or state_attr('sensor.matt_pixel_8_pro_bluetooth_connection', 'connected_paired_
     - HomeStreet2
   condition:
   - condition: state
-    alias: "Garage closed"
+    alias: Garage closed
     entity_id: cover.garage_door
     state: closed
   - condition: template
-    alias: "Phone connected to car"
-    value_template: "{{states('sensor.saras_iphone14_ssid') == 'DIRECT-BMW 93379'}}"
+    alias: Phone connected to car
+    value_template: '{{states(''sensor.saras_iphone14_ssid'') == ''DIRECT-BMW 93379''}}'
   action:
   - service: cover.stop_cover
     target:
       entity_id: cover.garage_door
   - service: notify.mobile_app_matt_pixel_8_pro
     data:
-      message: Sara arrived home, opening garage
+      message: Sara arrived home, opening garage at {{now().strftime("%H:%M")}}
   - service: notify.mobile_app_saras_iphone_2
     data:
-      message: Sara arrived home, opening garage
-
+      message: Sara arrived home, opening garage at {{now().strftime("%H:%M")}}
 - id: garage_left_open_warn
   alias: Send a warning if the garage left open
   trigger:
-    # Can't get this to work using state not_to closed, so use template instead
-    - platform: template
-      value_template: "{{ not(is_state('cover.garage_door', 'closed'))}}"
-      for: "00:05:00"
+  - platform: template
+    value_template: '{{ not(is_state(''cover.garage_door'', ''closed''))}}'
+    for: 00:05:00
   action:
-    - service: notify.parents
-      data:
-        message: Garage left open!
-
+  - service: notify.parents
+    data:
+      message: Garage left open! At {{now().strftime("%H:%M")}}
 - id: garage_monitoring
   alias: Debug garage open & close
   trigger:
-    - platform: state
-      entity_id: cover.garage_door
+  - platform: state
+    entity_id: cover.garage_door
   action:
-    - service: notify.mobile_app_matt_pixel_8_pro
-      data:
-        message: "Garage is {{states.cover.garage_door.state}}"
-
+  - service: notify.mobile_app_matt_pixel_8_pro
+    data:
+      message: Garage is {{states.cover.garage_door.state}} at {{now().strftime("%H:%M")}}
 - id: sensor_lights
   alias: Sensor Lights
   description: Sensor lights combining both sensors and lights
   trigger:
-    - platform: state
-      entity_id: binary_sensor.lumi_lumi_motion_ac02_iaszone
-      to: "on"
-    - platform: state
-      entity_id: binary_sensor.front_yard_motion3_motion
-      to: "on"
+  - platform: state
+    entity_id: binary_sensor.lumi_lumi_motion_ac02_iaszone
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.front_yard_motion3_motion
+    to: 'on'
   condition:
-    - condition: numeric_state
-      entity_id: sun.sun
-      attribute: elevation
-      below: 0
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: 0
   action:
-    - alias: Turn on the light
-      service: light.turn_on
-      target:
-        entity_id:
-          - light.front_yard_sensor_light
-          - light.mailbox
-      data: {}
-    - alias: Wait until there is no motion from either device
-      wait_template:
-        "{{ not(is_state('binary_sensor.lumi_lumi_motion_ac02_iaszone',
-        'on')) and not(is_state('binary_sensor.front_yard_motion3_motion', 'on'))
-        }}"
-    - alias: Wait a while longer
-      delay:
-        hours: 0
-        minutes: 2
-        seconds: 0
-        milliseconds: 0
-    - alias: Turn off the light
-      service: light.turn_off
-      target:
-        entity_id:
-          - light.front_yard_sensor_light
-          - light.mailbox
-      data: {}
+  - alias: Turn on the light
+    service: light.turn_on
+    target:
+      entity_id:
+      - light.front_yard_sensor_light
+      - light.mailbox
+    data: {}
+  - alias: Wait until there is no motion from either device
+    wait_template: '{{ not(is_state(''binary_sensor.lumi_lumi_motion_ac02_iaszone'',
+      ''on'')) and not(is_state(''binary_sensor.front_yard_motion3_motion'', ''on''))
+      }}'
+  - alias: Wait a while longer
+    delay:
+      hours: 0
+      minutes: 2
+      seconds: 0
+      milliseconds: 0
+  - alias: Turn off the light
+    service: light.turn_off
+    target:
+      entity_id:
+      - light.front_yard_sensor_light
+      - light.mailbox
+    data: {}
   mode: restart
+- id: '1720934399141'
+  alias: Light Back On - Emily Sign
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - light.emily_sign
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.emily_sign
+  mode: single
+
+- id: '1720934399142'
+  alias: Light Back On - Emily Makeup
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - light.emily_makeup
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.emily_makeup
+  mode: single

@@ -13,8 +13,8 @@ scene: !include scenes.yaml
 logger:
   default: info
   logs:
-    homeassistant.components.automation: debug
     homeassistant.core: info
+    homeassistant.components.automation: info
     homeassistant.components.cast: info
     homeassistant.components.cast.media_player: info
     homeassistant.components.recorder: info
@@ -25,7 +25,41 @@ logger:
     custom_components.spotcast: info
     zeroconf: info
     tuya_iot: info
-    route53: debug
+    route53: info
+    # zigbee debugging I used to use
+    # homeassistant.components.zha: debug
+    # homeassistant.components.zha.button: debug
+    # homeassistant.components.zha.entity: debug
+    # homeassistant.components.zha.core: debug
+    # homeassistant.components.zha.cover: debug
+    # zigpy: debug
+    # zhaquirks: debug
+    # zigpy.zcl: debug
+    # zhaquirks.tuya: debug
+    # zhaquirks.tuya.mcu: debug
+    # ts0601_cover: debug
+    # test_custom_quirk: debug
+    # custom_components.zha: debug
+    # custom_components.zha.button: debug
+    # custom_components.zha.core: debug
+    # custom_components.zha.cover: debug
+    # custom_components.zha.entity: debug
+    ########### until here
+    # zigpy_deconz.zigbee.application: debug
+    # zigpy_deconz.api: debug
+    # zigpy_xbee.zigbee.application: debug
+    # zigpy_xbee.api: debug
+    # zigpy_zigate: debug
+    # zigpy_znp: debug
+    # bellows.zigbee.application: debug
+    # bellows.ezsp: debug
+
+# esphome:
+#     build_path: "../config/esphome/${name}_build"
+
+zha:
+   enable_quirks: true
+#    custom_quirks_path: /config/zha_quirks/
 
 recorder:
   commit_interval: 30
@@ -48,6 +82,9 @@ spotcast:
     matt:
       sp_dc: !secret spotcast_matt_sp_dc
       sp_key: !secret spotcast_matt_sp_key
+    toby:
+      sp_dc: !secret spotcast_toby_sp_dc
+      sp_key: !secret spotcast_toby_sp_key
 
 panel_custom:
   - name: panel-redirect

@@ -20,7 +20,7 @@ sensor:
         value_template: "{{ states('sensor.pool_temp')|float|round(1) }}"
         availability_template: "{{ states('binary_sensor.pool_samples_available') }}"
         icon_template: hass:thermometer
-        unit_of_measurement: 'ºC'
+        unit_of_measurement: '°C'
       ph_mean:
         unique_id: pool_ph_filtered_20210920
         value_template: "{{ states('sensor.pool_ph')|float|round(1) }}"
