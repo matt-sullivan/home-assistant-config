@@ -40,6 +40,9 @@ wifi:
 
 web_server:
   port: 80
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
 
 captive_portal:
 
@@ -59,14 +62,20 @@ light:
     name: "Light"
     icon: ${deviceicon}
     output: dummy1
+    # I'd prefer 'on_state' to handle turn off and turn on (given the actions are the same,) but
+    # if you use a voice command to turn off while already off it toggles it on.
     on_state:
       then:
-        - if:
-            condition:
-              not:
-                - script.is_running: power_sensor_changed
-            then:
-              - switch.toggle: relay1
+        - lambda: |-
+            ESP_LOGI("STATEDEBUG", "on_state");
+    on_turn_on:
+      then:
+        - logger.log: "on_turn_on"
+        - switch.turn_off: relay1
+    on_turn_off:
+      then:
+        - logger.log: "on_turn_off"
+        - switch.turn_on: relay1
 
 script:
   - id: power_sensor_changed
@@ -74,12 +83,13 @@ script:
       state: boolean
     mode: restart
     then:
+      - lambda: |-
+          ESP_LOGI("STATEDEBUG", "power_sensor_changed - skipping any action, state=%d", state);
       # delay before ending the script so the light component can check whether how long it's been
       # since the power sensor changed
-      - light.control:
-          id: light1
-          state: !lambda return state == true;
-      - delay: 100ms
+      - delay: 400ms
+      - lambda: |-
+          ESP_LOGI("STATEDEBUG", "power_sensor_changed finished");
 
 
 ## ---------------- ##

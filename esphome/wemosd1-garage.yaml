@@ -8,8 +8,6 @@ substitutions:
 
 esphome:
   name: wemosd1-garage
-  platform: ESP8266
-  board: d1_mini
   on_boot:
     priority: 600
     then:
@@ -18,16 +16,12 @@ esphome:
           state: OPEN
           current_operation: IDLE
 
+esp8266:
+  board: d1_mini
+
 # Enable logging
 logger:
   level: DEBUG
-
-# Enable Home Assistant API
-api:
-  reboot_timeout: 24h
-
-ota:
-  password: !secret ota_password
 
 wifi:
   ssid: !secret wifi_garage_ssid
@@ -36,16 +30,31 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Wemosd1-Garage Fallback Hotspot"
+    ssid: "Wemosd1-Garage"
     password: !secret fallback_password
 
 captive_portal:
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 24h
+
+ota:
+  platform: esphome
+  password: !secret ota_password
 
 external_components:  
   - source:
       type: git
       url: https://github.com/muxa/esphome-state-machine
     refresh: 1h
+
+# The web_server & sensor components can be removed without affecting core functionaility.
+web_server:
+  port: 80
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
 
 sensor:
   - platform: wifi_signal
