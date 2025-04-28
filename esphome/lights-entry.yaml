@@ -116,7 +116,7 @@ binary_sensor:
       inverted: True
     name: "Hallway Lights Front Entry Button"
     #toggle relay on push
-    on_press:
+    on_click:
       - light.toggle: hallway_entry
       # Propogate to the HA group it belongs to
       # this should be safer than an automation within HA because it only fires on the button press
@@ -134,6 +134,13 @@ binary_sensor:
                 service: homeassistant.turn_off
                 data:
                   entity_id: group.hallway_lights
+    on_multi_click:
+      - timing:
+          - on for at least 1s
+        then:
+          - event.trigger:
+              id: button_1
+              event_type: "Long Press"
 
   # 2nd button
   - platform: gpio
@@ -176,3 +183,13 @@ binary_sensor:
 switch:
   - platform: restart
     name: "${friendly_name} REBOOT"
+
+##########################
+# Event exposed to HA (doesn't trigger anything within this ESPHome device)
+event:
+  - platform: template
+    id: button_1
+    name: Button 1
+    device_class: "button"
+    event_types:
+      - "Long Press"

@@ -46,10 +46,9 @@
     alias: Phone connected to car
     value_template: '{{state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
       ''connected_paired_devices'') | contains(''B8:9F:09:62:F7:7F (BMW 93379)'')
-      or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
-      ''connected_paired_devices'') | contains(''00:02:5B:BE:23:C0 (CAR6509)'')
       or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'', ''connected_paired_devices'')
-      | contains(''00:0A:30:92:D6:C7 (Mazda)'')}}'
+      | contains(''00:02:5B:BE:23:C0 (CAR6509)'') or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
+      ''connected_paired_devices'') | contains(''00:0A:30:92:D6:C7 (Mazda)'')}}'
   action:
   - service: cover.stop_cover
     target:
@@ -166,7 +165,6 @@
     target:
       entity_id: light.emily_sign
   mode: single
-
 - id: '1720934399142'
   alias: Light Back On - Emily Makeup
   description: ''
@@ -186,4 +184,187 @@
     data: {}
     target:
       entity_id: light.emily_makeup
+  mode: single
+- id: '1745786335394'
+  alias: EmilyButton1-ReadingTime
+  description: ''
+  triggers:
+  - device_id: 2d52c62b1bbcd0ec31a5901f9fcfa4ee
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_1
+    trigger: device
+  conditions: []
+  actions:
+  - action: script.emily_reading_time
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1745786392915'
+  alias: EmilyButton2-SleepTime
+  description: ''
+  triggers:
+  - device_id: 2d52c62b1bbcd0ec31a5901f9fcfa4ee
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_2
+    trigger: device
+  conditions: []
+  actions:
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.emily_sleep_time
+  mode: single
+- id: '1745786735917'
+  alias: EmilyButton3-RgbLights
+  description: ''
+  triggers:
+  - device_id: 2d52c62b1bbcd0ec31a5901f9fcfa4ee
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_3
+    trigger: device
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.emily_rgb_strip
+  mode: single
+- id: '1745786785985'
+  alias: EmilyButton4-Kitchen
+  description: ''
+  triggers:
+  - device_id: 2d52c62b1bbcd0ec31a5901f9fcfa4ee
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_4
+    trigger: device
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.kitchen
+  mode: single
+- id: '1745787427449'
+  alias: TobyButton1-Reading
+  description: ''
+  triggers:
+  - device_id: 5582c9a1d80e85a86f9d66ca5f750b98
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_1
+    trigger: device
+  conditions: []
+  actions:
+  - action: script.toby_reading_time
+    metadata: {}
+    data: {}
+  mode: single
+- id: '1745787483164'
+  alias: TobyButton2-Sleep
+  description: ''
+  triggers:
+  - device_id: 5582c9a1d80e85a86f9d66ca5f750b98
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_2
+    trigger: device
+  conditions: []
+  actions:
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.toby_sleep_time
+  mode: single
+- id: '1745787544962'
+  alias: TobyButton3-FrogLight
+  description: ''
+  triggers:
+  - device_id: 5582c9a1d80e85a86f9d66ca5f750b98
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_3
+    trigger: device
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.tobyfroglight
+  mode: single
+- id: '1745787601152'
+  alias: TobyButton4-Hallway
+  description: ''
+  triggers:
+  - device_id: 5582c9a1d80e85a86f9d66ca5f750b98
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_4
+    trigger: device
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.hallway_entry
+  mode: single
+- id: '1745847668003'
+  alias: EntryLongPress-LeavingHome
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.lights_entry_button_1
+  conditions:
+  - condition: state
+    entity_id: event.lights_entry_button_1
+    attribute: event_type
+    state: Long Press
+  actions:
+  - action: script.turn_on
+    target:
+      entity_id: script.leaving_home
+  mode: single
+- id: EmilyLongPress-AllOff
+  alias: EmilyLongPress-AllOff
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.lights_emily_button_1
+  conditions:
+  - condition: state
+    entity_id: event.lights_emily_button_1
+    attribute: event_type
+    state: Long Press
+  actions:
+  - action: script.turn_on
+    target:
+      entity_id: script.emily_all_off
+  mode: single
+- id: TobyLongPress-AllOff
+  alias: TobyLongPress-AllOff
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.lights_toby_button_1
+  conditions:
+  - condition: state
+    entity_id: event.lights_toby_button_1
+    attribute: event_type
+    state: Long Press
+  actions:
+  - action: script.turn_on
+    target:
+      entity_id: script.toby_all_off
   mode: single

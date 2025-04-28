@@ -129,9 +129,16 @@ binary_sensor:
       number: P14
       mode: INPUT
       inverted: True
-    on_press:
+    on_click:
       - light.toggle: light1
-  
+    on_multi_click:
+      - timing:
+          - on for at least 1s
+        then:
+          - event.trigger:
+              id: button_1
+              event_type: "Long Press"
+
   - platform: gpio
     id: fan_power_button
     pin:
@@ -236,3 +243,13 @@ switch:
               - fan.turn_on:
                   id: fan_1
                   speed: 3
+
+##########################
+# Event exposed to HA (doesn't trigger anything within this ESPHome device)
+event:
+  - platform: template
+    id: button_1
+    name: Button 1
+    device_class: "button"
+    event_types:
+      - "Long Press"

@@ -347,6 +347,40 @@ emily_wake_up:
         repeat: all
   mode: restart
 
+toby_all_off:
+  alias: Toby All Off
+  description: Turn off everything in Toby's room
+  sequence:
+      - service: light.turn_off
+        target:
+          area_id: kids_bedroom
+      - service: fan.turn_off
+        target:
+          area_id: kids_bedroom
+      - action: media_player.turn_off
+        target:
+          entity_id: media_player.emilys_room_speaker
+      - action: script.turn_off
+        target:
+          entity_id: script.toby_sleep_time
+
+emily_all_off:
+  alias: Emily All Off
+  description: Turn off everything in Emily's room
+  sequence:
+      - service: light.turn_off
+        target:
+          area_id: toy_room
+      - service: fan.turn_off
+        target:
+          area_id: toy_room
+      - action: media_player.turn_off
+        target:
+          entity_id: media_player.googlehome1978
+      - action: script.turn_off
+        target:
+          entity_id: script.emily_sleep_time
+
 leaving_home:
   alias: Leaving Home
   description: Turn off lights and open garage door when leaving home
@@ -354,12 +388,19 @@ leaving_home:
       - service: light.turn_off
         target:
           entity_id: all
-        data: {}
       - service: fan.turn_off
         target:
           entity_id: all
-        data: {}
       - service: cover.open_cover
         target:
           entity_id: cover.garage_door
-        data: {}
+      - action: media_player.turn_off
+        target:
+          entity_id:
+            - media_player.googlehome1978
+            - media_player.emilys_room_speaker
+      - action: script.turn_off
+        target:
+          entity_id: 
+            - script.emily_sleep_time
+            - script.toby_sleep_time
