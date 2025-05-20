@@ -12,7 +12,7 @@ views:
           - light.emily_heart
           - cover.emilys_door_blind
           - cover.emilys_side_blind
-          - media_player.googlehome1978
+          - media_player.emilys_bedroom_speaker
           - media_player.spotify_emily
       - title: Tobys Bedroom
         type: entities
@@ -25,7 +25,7 @@ views:
           - light.toby_star_light
           - cover.tobys_front_blind
           - cover.tobys_side_blind
-          - media_player.emilys_room_speaker
+          - media_player.tobys_bedroom_speaker
           - media_player.spotify_toby_sullivan
       - title: Misc
         type: entities

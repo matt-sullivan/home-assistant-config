@@ -39,8 +39,7 @@ kids_wakeup:
   alias: Kids Wake Up
   description: Start kids wake up music and lights
   variables:
-    # actually toby's speaker, called emily's from when they shared bedroom
-    chromecast_id: media_player.emilys_room_speaker
+    chromecast_id: media_player.tobys_bedroom_speaker
     count: 10
     start_volume: 0.2
     max_volume: 0.5
@@ -108,8 +107,7 @@ toby_sleep_time:
     rgb_nightlight_brightness_start: 163
     rgb_nightlight_brightness_end: 125
     start_volume: 15
-    # actually toby's speaker, called emily's from when they shared bedroom
-    chromecast_id: media_player.emilys_room_speaker
+    chromecast_id: media_player.tobys_bedroom_speaker
   sequence:
     - service: scene.apply
       data:
@@ -230,7 +228,7 @@ emily_sleep_time:
     start_volume: 10
     end_volume: 8
     # Emilys speaker
-    chromecast_id: media_player.googlehome1978
+    chromecast_id: media_player.emilys_bedroom_speaker
   sequence:
     - service: scene.apply
       continue_on_error: true
@@ -321,7 +319,7 @@ emily_wake_up:
   variables:
     start_volume: 20
     # Emilys speaker
-    chromecast_id: media_player.googlehome1978
+    chromecast_id: media_player.emilys_bedroom_speaker
   sequence:
     - service: spotcast.start
       continue_on_error: true
@@ -359,7 +357,7 @@ toby_all_off:
           area_id: kids_bedroom
       - action: media_player.turn_off
         target:
-          entity_id: media_player.emilys_room_speaker
+          entity_id: media_player.tobys_bedroom_speaker
       - action: script.turn_off
         target:
           entity_id: script.toby_sleep_time
@@ -376,7 +374,7 @@ emily_all_off:
           area_id: toy_room
       - action: media_player.turn_off
         target:
-          entity_id: media_player.googlehome1978
+          entity_id: media_player.emilys_bedroom_speaker
       - action: script.turn_off
         target:
           entity_id: script.emily_sleep_time
@@ -397,8 +395,8 @@ leaving_home:
       - action: media_player.turn_off
         target:
           entity_id:
-            - media_player.googlehome1978
-            - media_player.emilys_room_speaker
+            - media_player.emilys_bedroom_speaker
+            - media_player.tobys_bedroom_speaker
       - action: script.turn_off
         target:
           entity_id: 
