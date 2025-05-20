@@ -43,6 +43,7 @@ views:
           - person.matt
           - person.sara
           - input_boolean.visitors_at_home
+          - light.bin_light
           # - switch.sara_electric_blanket
       - title: Front Entry Camera
         type: picture-entity
