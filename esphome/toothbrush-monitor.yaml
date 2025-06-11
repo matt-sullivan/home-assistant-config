@@ -1,0 +1,170 @@
+substitutions:
+  device_name: toothbrush-monitor
+  friendly_name: "Toothbrush Monitor"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 24h
+  encryption:
+    key: "cVCi6rwnqwDgUJEa6sLk/7io+dAI6j1dBBdlxzxsiTs="
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  reboot_timeout: 1h
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${friendly_name} Hotspot"
+    password: !secret fallback_password
+
+# web_server:
+#   port: 80
+#   auth:
+#     username: !secret web_server_username
+#     password: !secret web_server_password
+
+# captive_portal:
+
+# bluetooth_proxy:
+#   active: true
+
+# esp32_ble_tracker:
+#   scan_parameters:
+#     # We currently use the defaults to ensure Bluetooth
+#     # can co-exist with WiFi In the future we may be able to
+#     # enable the built-in coexistence logic in ESP-IDF
+#     active: true
+
+font:
+  - file: 'arial.ttf'
+    id: font3
+    size: 22
+
+switch:
+  # I don't think there's a physical LED on the board, just a gpio for one, but also an indicator
+  # on the screen for the led state.
+  - platform: gpio
+    name: "led"
+    id: led24
+    pin: 25
+    inverted: no
+    restore_mode: ALWAYS_OFF
+  - platform: gpio
+    name: "bck"
+    id: bck24
+    pin: 27
+    inverted: no
+    restore_mode: ALWAYS_ON
+
+# i2c:
+#   sda: 22
+#   scl: 21
+
+# sensor:
+#   - platform: aht10 #dht12 #am2320 #
+#     temperature:
+#       name: "HMI-24 Temperature"
+#       id: temperature24
+#     humidity:
+#       name: "HMI-24 Humidity"
+#       id: humidity24
+#     update_interval: 10s
+
+spi:
+  clk_pin: 14
+  mosi_pin: 13
+  miso_pin: 12
+  
+image:
+  - file: "menu.png"
+    id: menu
+    resize: 320x240
+    type: RGB
+  - file: "ON_Light.png"
+    id: ON_Light
+    resize: 320x240
+    type: RGB
+  - file: "OFF_Light.png"
+    id: OFF_Light
+    resize: 320x240
+    type: RGB
+
+color:
+  - id: my_red
+    red: 100%
+    green: 0%
+    blue: 0%
+  - id: my_color
+    red: 100%
+    green: 100%
+    blue: 0%
+  - id: my_green
+    red: 0%
+    green: 100%
+    blue: 0%
+  - id: my_blue
+    red: 0%
+    green: 0%
+    blue: 100%
+
+display:
+  - platform: ili9xxx
+    model: ili9341
+    dc_pin: 2
+    cs_pin: 15
+    rotation: 90
+    color_palette: 8BIT
+    invert_colors: false
+    lambda: |-     
+      it.image(0, 0, id(menu));
+      it.printf(221, 62, id(font3), id(my_red), "RED");
+      it.printf(221, 163, id(font3), id(my_blue), "blue");
+      if (id(led24).state) {
+        it.image(0, 0, id(ON_Light));
+      } 
+      else {
+        it.image(0, 0, id(OFF_Light));
+      }
+
+touchscreen:
+  platform: xpt2046
+  id: my_touchscreen
+  cs_pin: 33
+  update_interval: 50ms
+  threshold: 400
+  calibration:
+    x_max: 3848
+    x_min: 320
+    y_max: 3848
+    y_min: 240
+  transform:
+    mirror_x: false
+    mirror_y: false
+    swap_xy: false
+  on_touch:
+    - lambda: |-
+          ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+              touch.x,
+              touch.y,
+              touch.x_raw,
+              touch.y_raw
+              );
+
