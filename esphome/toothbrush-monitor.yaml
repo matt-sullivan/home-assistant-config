@@ -43,8 +43,8 @@ wifi:
 
 # captive_portal:
 
-# bluetooth_proxy:
-#   active: true
+bluetooth_proxy:
+  active: true
 
 # esp32_ble_tracker:
 #   scan_parameters:
@@ -93,20 +93,6 @@ spi:
   mosi_pin: 13
   miso_pin: 12
   
-image:
-  - file: "menu.png"
-    id: menu
-    resize: 320x240
-    type: RGB
-  - file: "ON_Light.png"
-    id: ON_Light
-    resize: 320x240
-    type: RGB
-  - file: "OFF_Light.png"
-    id: OFF_Light
-    resize: 320x240
-    type: RGB
-
 color:
   - id: my_red
     red: 100%
@@ -134,15 +120,14 @@ display:
     color_palette: 8BIT
     invert_colors: false
     lambda: |-     
-      it.image(0, 0, id(menu));
       it.printf(221, 62, id(font3), id(my_red), "RED");
       it.printf(221, 163, id(font3), id(my_blue), "blue");
-      if (id(led24).state) {
-        it.image(0, 0, id(ON_Light));
-      } 
-      else {
-        it.image(0, 0, id(OFF_Light));
-      }
+    # if (id(led24).state) {
+    #   it.image(0, 0, id(ON_Light));
+    # } 
+    # else {
+    #   it.image(0, 0, id(OFF_Light));
+    # }
 
 touchscreen:
   platform: xpt2046
