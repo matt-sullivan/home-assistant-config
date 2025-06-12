@@ -1,6 +1,6 @@
 title: Overview
 views:
-  - title: Tab 1
+  - title: Kids
     cards:
       - title: Emilys Bedroom
         type: entities
@@ -14,6 +14,7 @@ views:
           - cover.emilys_side_blind
           - media_player.emilys_bedroom_speaker
           - media_player.spotify_emily
+          - media_player.emilys_bedroom_speaker_ma
       - title: Tobys Bedroom
         type: entities
         entities:
@@ -27,6 +28,9 @@ views:
           - cover.tobys_side_blind
           - media_player.tobys_bedroom_speaker
           - media_player.spotify_toby_sullivan
+          - media_player.tobys_bedroom_speaker_ma
+  - title: Misc
+    cards:
       - title: Misc
         type: entities
         entities:
@@ -44,7 +48,12 @@ views:
           - person.sara
           - input_boolean.visitors_at_home
           - light.bin_light
+          - input_boolean.music_assistant_no_spotify
+          - input_number.toby_start_volume
+          - input_number.emily_start_volume
           # - switch.sara_electric_blanket
+  - title: Cameras
+    cards:
       - title: Front Entry Camera
         type: picture-entity
         entity: camera.front_entry_camera
@@ -55,6 +64,8 @@ views:
         entity: camera.footpath_camera_2
         show_name: false
         show_state: false
+  - title: Batteries
+    cards:
       - title: Batteries
         type: entities
         entities:

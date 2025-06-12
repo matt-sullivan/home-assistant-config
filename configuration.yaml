@@ -139,3 +139,20 @@ sensor:
     property_number: !secret council_property_id
     alert_hours: 8
     green_bin: true
+
+input_boolean:
+  music_assistant_no_spotify:
+    name: Use Music Assistant not Spotify 
+    icon: mdi:folder-music-outline
+
+input_number:
+  toby_start_volume:
+    min: 0
+    max: 100
+    mode: box
+    icon: mdi:volume-medium
+  emily_start_volume:
+    min: 0
+    max: 100
+    mode: box
+    icon: mdi:volume-medium

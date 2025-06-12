@@ -101,24 +101,11 @@ toby_sleep_time:
   alias: Toby Sleep Time
   description: Sleep music and night lights
   variables:
-    steps: 60
-    start_brightness: 204
-    end_brightness: 102
-    rgb_nightlight_brightness_start: 163
-    rgb_nightlight_brightness_end: 125
-    start_volume: 15
     chromecast_id: media_player.tobys_bedroom_speaker
   sequence:
     - service: scene.apply
       data:
         entities:
-          light.kids_short_rgb:
-            color_mode: hs
-            brightness: "{{rgb_nightlight_brightness_start}}"
-            hs_color:
-              - 120
-              - 70
-            state: "on"
           light.toby_main:
             state: "off"
           light.kids_short_w:
@@ -129,59 +116,54 @@ toby_sleep_time:
             state: 'on'
           light.toby_star_light:
             state: 'on'
-    - service: spotcast.start
-      continue_on_error: true
-      data:
-        # Kids Sleep
-        # uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
-        # We're the broncos (the single song)
-        # uri: spotify:track:6rfZg4xcYlla4K34dTzAI9
-        account: "toby"
-        # Toby football songs
-        uri: spotify:playlist:7EbLEaryNgBBqquiY4ALTd
-        repeat: true
-        start_volume: "{{start_volume}}"
-        entity_id: "{{chromecast_id}}"
-    # Setting repeat doens't seem to work. It takes a while before playing on a device appears
-    # against the specific person's account, so maybe I need to wait until that happens before
-    # I can set repeat.
-    - delay:
-        hours: 0
-        minutes: 1
-        seconds: 0
-        milliseconds: 0
-    - service: media_player.repeat_set
-      target:
-        entity_id: media_player.spotify_toby_sullivan
-      data:
-        repeat: all
-    - repeat:
-        count: "{{steps}}"
-        sequence:
-          - service: scene.apply
-            data:
-              entities:
-                light.kids_short_rgb:
-                  brightness: "{{rgb_nightlight_brightness_start + ((rgb_nightlight_brightness_end - rgb_nightlight_brightness_start) * (repeat.index|float / steps))}}"
-                  state: "on"
-          - delay:
-              hours: 0
-              minutes: 1
-              seconds: 0
-              milliseconds: 0
+    - if:
+        - alias: "Use Music Assistant not spotify"
+          condition: state
+          entity_id: input_boolean.music_assistant_no_spotify
+          state: "on"
+      then:
+        - action: media_player.volume_set
+          data:
+            volume_level: "{{states('input_number.toby_start_volume') | int() /100}}"
+          target:
+            entity_id: media_player.tobys_bedroom_speaker_ma
+        - action: music_assistant.play_media
+          data:
+            media_id: library://playlist/6 # toby sleep music
+            enqueue: replace
+          target:
+            entity_id: media_player.tobys_bedroom_speaker_ma
+        - action: media_player.repeat_set
+          target:
+            entity_id: media_player.tobys_bedroom_speaker_ma
+          data:
+            repeat: all
+      else:
+        - service: spotcast.start
+          continue_on_error: true
+          data:
+            account: "toby"
+            uri: spotify:playlist:7EbLEaryNgBBqquiY4ALTd
+            start_volume: "{{states('input_number.toby_start_volume') | int()}}"
+            entity_id: "{{chromecast_id}}"
+        # Setting repeat doens't seem to work. It takes a while before playing on a device appears
+        # against the specific person's account, so maybe I need to wait until that happens before
+        # I can set repeat.
+        - delay:
+            hours: 0
+            minutes: 1
+            seconds: 0
+            milliseconds: 0
+        - service: media_player.repeat_set
+          target:
+            entity_id: media_player.spotify_toby_sullivan
+          data:
+            repeat: all
     - delay:
         hours: 2
         minutes: 0
         seconds: 0
         milliseconds: 0
-    # - service: scene.apply
-    #   data:
-    #     entities:
-    #       light.tobyfroglight:
-    #         color_mode: onoff
-    #         state: 'off'
-    #       light.kids_long_rgb:
-    #         state: "off"
     - service: media_player.turn_off
       data:
         entity_id: "{{chromecast_id}}"
@@ -190,8 +172,6 @@ toby_sleep_time:
 emily_reading_time:
   alias: Emily Reading Time
   description: Emily lights for bedtime reading
-  variables:
-    start_brightness: 200
   sequence:
     - service: scene.apply
       data:
@@ -222,10 +202,6 @@ emily_sleep_time:
   alias: Emily Sleep Time
   description: Emily's music & night lights
   variables:
-    steps: 30
-    start_brightness: 25
-    end_brightness: 10
-    start_volume: 10
     end_volume: 8
     # Emilys speaker
     chromecast_id: media_player.emilys_bedroom_speaker
@@ -254,63 +230,52 @@ emily_sleep_time:
               - 255
               - 255
             state: "on"
-    - service: spotcast.start
-      continue_on_error: true
-      data:
-        account: "emily"
-        # Dork diaries
-        # uri: spotify:playlist:5N5yfWfwP9faFo9iQjGQO3
-        # Nice and Happy
-        # uri: spotify:playlist:0sBHr8nFG0LuBhFl5g1RJA
-        # Emily
-        # uri: spotify:playlist:3OLPiSQR8Il7mhtxk82j82
-        # Emily Sleep (202307)
-        # uri: spotify:playlist:7rMVlc488LsPY9Ex7tyx4u
-        # Emily (20240114)
-        uri: spotify:playlist:6AEjlbDnBRswipN9HOMTrK
-        # repeat: true| all doens't appear to work
-        start_volume: "{{start_volume}}"
-        entity_id: "{{chromecast_id}}"
-    # Setting repeat doens't seem to work. It takes a while before playing on a device appears
-    # against the specific person's account, so maybe I need to wait until that happens before
-    # I can set repeat.
-    - delay:
-        hours: 0
-        minutes: 1
-        seconds: 0
-        milliseconds: 0
-    - service: media_player.repeat_set
-      target:
-        entity_id: media_player.spotify_emily        
-      data:
-        repeat: all
-    # - repeat:
-    #     count: "{{steps}}"
-    #     sequence:
-    #       - service: scene.apply
-    #         data:
-    #           entities:
-    #             light.emilys_bedroom_light:
-    #               brightness: "{{start_brightness + ((end_brightness - start_brightness) * (repeat.index|float / steps))}}"
-    #               rgb_color:
-    #                 - 255
-    #                 - 255
-    #                 - 255
-    #               state: "on"
-    #       # - service: media_player.volume_set
-    #       #   data:
-    #       #     entity_id: "{{chromecast_id}}"
-    #       #     volume_level: "{{(start_volume + ((end_volume - start_volume) * (repeat.index|float / steps))) / 100}}"
-    #       - delay:
-    #           hours: 0
-    #           minutes: 1
-    #           seconds: 0
-    #           milliseconds: 0
-    # - service: scene.apply
-    #   data:
-    #     entities:
-    #       light.emilys_bedroom_light:
-    #         state: "off"
+    - if:
+        - alias: "Use Music Assistant not spotify"
+          condition: state
+          entity_id: input_boolean.music_assistant_no_spotify
+          state: "on"
+      then:
+        - action: media_player.volume_set
+          data:
+            volume_level: "{{states('input_number.emily_start_volume') | int()/100}}"
+          target:
+            entity_id: media_player.emilys_bedroom_speaker_ma
+        - action: music_assistant.play_media
+          data:
+            media_id: library://playlist/7
+            enqueue: replace
+          target:
+            entity_id: media_player.emilys_bedroom_speaker_ma
+        - action: media_player.repeat_set
+          target:
+            entity_id: media_player.emilys_bedroom_speaker_ma
+          data:
+            repeat: all
+      # 
+      else:
+        - service: spotcast.start
+          continue_on_error: true
+          data:
+            account: "emily"
+            # Emily 'Favourite''
+            uri: spotify:playlist:6AEjlbDnBRswipN9HOMTrK
+            # repeat: true| all doens't appear to work
+            start_volume: "{{states('input_number.emily_start_volume') | int()}}"
+            entity_id: "{{chromecast_id}}"
+        # Setting repeat doens't seem to work. It takes a while before playing on a device appears
+        # against the specific person's account, so maybe I need to wait until that happens before
+        # I can set repeat.
+        - delay:
+            hours: 0
+            minutes: 1
+            seconds: 0
+            milliseconds: 0
+        - service: media_player.repeat_set
+          target:
+            entity_id: media_player.spotify_emily
+          data:
+            repeat: all
   mode: restart
 
 emily_wake_up:
