@@ -7,7 +7,7 @@ lovelace:
       mode: yaml
       title: Pool
       icon: mdi:pool
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: "ui-lovelace-pool.yaml"
     lovelace-all:
       mode: yaml
@@ -18,5 +18,5 @@ lovelace:
     lovelace-diags:
       mode: yaml
       title: z Diagnostics
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: "ui-lovelace-diags.yaml"
