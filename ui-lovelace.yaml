@@ -48,6 +48,7 @@ views:
           - person.sara
           - input_boolean.visitors_at_home
           - light.bin_light
+          - light.storage_light
           - input_boolean.music_assistant_no_spotify
           - input_number.toby_start_volume
           - input_number.emily_start_volume
@@ -76,7 +77,6 @@ views:
           - sensor.parents_side_blind_battery
           - sensor.downstairs_laundry_door_battery
           - sensor.garage_door_closed_sensor_battery
-          - entity: sensor.lumi_lumi_motion_ac02_battery
-            name: Sensor Light 1 Battery
-          - entity: sensor.front_yard_motion3_battery
-            name: Sensor Light 2 Battery
+          - sensor.front_yard_motion_stairs_battery
+          - sensor.front_yard_mailbox_motion_battery
+          - sensor.storage_motion_battery

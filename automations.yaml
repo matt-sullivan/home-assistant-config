@@ -107,45 +107,40 @@
 - id: sensor_lights
   alias: Sensor Lights
   description: Sensor lights combining both sensors and lights
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.lumi_lumi_motion_ac02_iaszone
+  triggers:
+  - entity_id: binary_sensor.front_yard_motion_stairs
     to: 'on'
-  - platform: state
-    entity_id: binary_sensor.front_yard_motion3_motion
+    trigger: state
+  - entity_id:
+    - binary_sensor.front_yard_mailbox_motion
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: numeric_state
     entity_id: sun.sun
     attribute: elevation
     below: 0
-  action:
+  actions:
   - alias: Turn on the light
-    service: light.turn_on
     target:
       entity_id:
       - light.front_yard_sensor_light
       - light.mailbox
       - light.bin_light
     data: {}
+    action: light.turn_on
   - alias: Set bin light colour
-    service: light.turn_on
     target:
       entity_id: light.bin_light
     data:
       brightness: 255
-      hs_color: >-
-        {% if is_state('sensor.brisbane_bin_day_recycle', 'on') %}
-          [60,60]
-        {% elif is_state('sensor.brisbane_bin_day', 'on') %}
-          [128,33]
-        {% else %}
-          [0,0]
-        {% endif %}
+      hs_color: "{% if is_state('sensor.brisbane_bin_day_recycle', 'on') %}\n  [60,60]\n{%
+        elif is_state('sensor.brisbane_bin_day', 'on') %}\n  [128,100]\n{% else %}\n
+        \ [0,0]\n{% endif %}"
+    action: light.turn_on
   - alias: Wait until there is no motion from either device
-    wait_template: '{{ not(is_state(''binary_sensor.lumi_lumi_motion_ac02_iaszone'',
-      ''on'')) and not(is_state(''binary_sensor.front_yard_motion3_motion'', ''on''))
-      }}'
+    wait_template: '{{ not(is_state(''binary_sensor.front_yard_motion_stairs'',
+      ''on'')) and not(is_state(''binary_sensor.front_yard_mailbox_motion'', ''on'')) }}'
   - alias: Wait a while longer
     delay:
       hours: 0
@@ -153,13 +148,13 @@
       seconds: 0
       milliseconds: 0
   - alias: Turn off the light
-    service: light.turn_off
     target:
       entity_id:
       - light.front_yard_sensor_light
       - light.mailbox
       - light.bin_light
     data: {}
+    action: light.turn_off
   mode: restart
 - id: '1720934399141'
   alias: Light Back On - Emily Sign
@@ -384,3 +379,12 @@
     target:
       entity_id: script.toby_all_off
   mode: single
+- id: '1748697491265'
+  alias: Storage sensor light
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.storage_motion
+      light_target:
+        entity_id: light.storage_light
