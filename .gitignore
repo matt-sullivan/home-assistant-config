@@ -11,3 +11,4 @@ __pycache__
 custom_components/**
 home-assistant.log.*
 
+/custom_components-disabled
