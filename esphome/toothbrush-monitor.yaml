@@ -35,58 +35,40 @@ wifi:
     ssid: "${friendly_name} Hotspot"
     password: !secret fallback_password
 
-# web_server:
-#   port: 80
-#   auth:
-#     username: !secret web_server_username
-#     password: !secret web_server_password
+# not enough flash for normal web server or captive portal fallbacks
 
-# captive_portal:
-
-bluetooth_proxy:
-  active: true
-
-# esp32_ble_tracker:
-#   scan_parameters:
-#     # We currently use the defaults to ensure Bluetooth
-#     # can co-exist with WiFi In the future we may be able to
-#     # enable the built-in coexistence logic in ESP-IDF
-#     active: true
+# bluetooth_proxy:
+#   active: true
 
 font:
   - file: 'arial.ttf'
-    id: font3
-    size: 22
+    id: arial14
+    size: 14
+  - file: 'arial.ttf'
+    id: arial16
+    size: 16
+  - file: 'arial.ttf'
+    id: arial18
+    size: 18
+  - file: 'arial.ttf'
+    id: arial60
+    size: 60
 
 switch:
   # I don't think there's a physical LED on the board, just a gpio for one, but also an indicator
   # on the screen for the led state.
   - platform: gpio
-    name: "led"
-    id: led24
-    pin: 25
-    inverted: no
-    restore_mode: ALWAYS_OFF
-  - platform: gpio
-    name: "bck"
-    id: bck24
+    name: "backlight"
+    id: backlight
     pin: 27
     inverted: no
     restore_mode: ALWAYS_ON
 
-# i2c:
-#   sda: 22
-#   scl: 21
-
-# sensor:
-#   - platform: aht10 #dht12 #am2320 #
-#     temperature:
-#       name: "HMI-24 Temperature"
-#       id: temperature24
-#     humidity:
-#       name: "HMI-24 Humidity"
-#       id: humidity24
-#     update_interval: 10s
+sensor:
+  - platform: homeassistant
+    name: "Brushing Duration From Home Assistant"
+    id: toby_brushing_duration
+    entity_id: sensor.toby_brushing_duration
 
 spi:
   clk_pin: 14
@@ -97,14 +79,6 @@ color:
   - id: my_red
     red: 100%
     green: 0%
-    blue: 0%
-  - id: my_color
-    red: 100%
-    green: 100%
-    blue: 0%
-  - id: my_green
-    red: 0%
-    green: 100%
     blue: 0%
   - id: my_blue
     red: 0%
@@ -119,15 +93,33 @@ display:
     rotation: 90
     color_palette: 8BIT
     invert_colors: false
-    lambda: |-     
-      it.printf(221, 62, id(font3), id(my_red), "RED");
-      it.printf(221, 163, id(font3), id(my_blue), "blue");
-    # if (id(led24).state) {
-    #   it.image(0, 0, id(ON_Light));
-    # } 
-    # else {
-    #   it.image(0, 0, id(OFF_Light));
-    # }
+    lambda: |-
+      it.filled_rectangle( 40, 20, 32, 80, id(my_blue));
+      it.filled_rectangle( 80, 20, 32, 80);
+      it.filled_rectangle(120, 20, 32, 80);
+      it.filled_rectangle(160, 20, 32, 80);
+      it.filled_rectangle(200, 20, 32, 80);
+      it.filled_rectangle(240, 20, 32, 80);
+      it.filled_rectangle(280, 20, 32, 80);
+
+      it.filled_rectangle( 40, 120, 32, 80);
+      it.filled_rectangle( 80, 120, 32, 80);
+      it.filled_rectangle(120, 120, 32, 80);
+      it.filled_rectangle(160, 120, 32, 80);
+      it.filled_rectangle(200, 120, 32, 80);
+      it.filled_rectangle(240, 120, 32, 80);
+      it.filled_rectangle(280, 120, 32, 80);
+      it.printf( 20,  40, id(arial14), id(my_blue), "Morn");
+      it.printf( 20, 140, id(arial16), id(my_blue), "Night");
+      it.printf( 40, 205, id(arial14), id(my_blue), "Mo");
+      it.printf( 80, 205, id(arial14), id(my_blue), "Tu");
+      it.printf(120, 205, id(arial14), id(my_blue), "We");
+      it.printf(160, 205, id(arial14), id(my_blue), "Th");
+      it.printf(200, 205, id(arial14), id(my_blue), "Fr");
+      it.printf(240, 205, id(arial14), id(my_blue), "Sa");
+      it.printf(280, 205, id(arial14), id(my_blue), "Su");
+
+      it.printf(100, 40, id(arial60), id(my_red), "%fs", id(toby_brushing_duration).state);
 
 touchscreen:
   platform: xpt2046
