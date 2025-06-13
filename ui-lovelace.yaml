@@ -29,6 +29,17 @@ views:
           - media_player.tobys_bedroom_speaker
           - media_player.spotify_toby_sullivan
           - media_player.tobys_bedroom_speaker_ma
+      - title: Toby Brushing Duration
+        type: statistics-graph
+        chart_type: bar
+        period: day
+        entities:
+          - sensor.toby_brushing_duration_am
+          - sensor.toby_brushing_duration_pm
+        stat_types:
+          - max
+        days_to_show: 7
+        hide_legend: true
   - title: Misc
     cards:
       - title: Misc

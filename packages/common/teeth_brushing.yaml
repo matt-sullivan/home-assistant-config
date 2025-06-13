@@ -1,0 +1,87 @@
+template:
+    # Note toby_brushing_duration is the sensor I'm defining here with logic involved,
+    # toby_toothbrush_duration is the actual toothbrush input to this logic.
+    # filter on updates > 1s, the toothbrush reports some spurious idle/0 duration states,
+    # I think when the brush is picked up before starting. I don't want to reset the
+    # duration for the day if that happens, but do reset when proper brushing starts.
+  - triggers:
+      - trigger: time
+        id: reset
+        at:
+          - "11:59:59"
+          - "23:59:59"
+      - trigger: state
+        entity_id: sensor.toby_toothbrush_duration
+    conditions:
+      - alias: "Time-based reset OR duration > 1"
+        or:
+          - condition: trigger
+            id: reset
+          - condition: numeric_state
+            entity_id: sensor.toby_toothbrush_duration
+            above: 1
+    sensor:
+      - name: "Toby Brushing Duration"
+        unique_id: toby_brushing_duration 
+        state_class: measurement
+        device_class: "temperature"
+        unit_of_measurement: °C
+        state: >
+          {% if trigger.id == 'reset' %}
+            0
+          {% elif states('sensor.toby_toothbrush_duration') | int(0) > 0 %}
+            {{states('sensor.toby_toothbrush_duration') | int(0) }}
+          {% else %}
+            {{states('sensor.toby_toothbrush_duration') }}
+          {% endif %}
+  - binary_sensor:
+      - name: "Toby Brushed Teeth"
+        unique_id: toby_brushed_teeth
+        device_class: "opening"
+        state: "{{states('sensor.toby_brushing_duration') | int(0) > 105}}"
+  - triggers:
+      - trigger: state
+        entity_id: sensor.toby_brushing_duration
+    conditions:
+      - condition: time
+        before: "12:00:00"
+    sensor:
+      - name: "Toby Brushing Duration AM"
+        unique_id: toby_brushing_duration_am 
+        state_class: measurement
+        unit_of_measurement: s
+        state: "{{states('sensor.toby_brushing_duration')}}"
+  - triggers:
+      - trigger: state
+        entity_id: sensor.toby_brushing_duration
+    conditions:
+      - condition: time
+        after: "12:00:00"
+    sensor:
+      - name: "Toby Brushing Duration PM"
+        unique_id: toby_brushing_duration_pm 
+        state_class: measurement
+        unit_of_measurement: s
+        state: "{{states('sensor.toby_brushing_duration')}}"
+  - trigger:
+      - trigger: state
+        entity_id:
+          - sensor.toby_brushing_duration
+    action:
+      - action: recorder.get_statistics
+        data:
+          statistic_ids:
+            - sensor.toby_brushing_duration_am
+            - sensor.toby_brushing_duration_pm
+          start_time: "2025-06-10 00:00:00"
+          period: day
+          types:
+            - max
+        response_variable: duration_stats
+    sensor:
+      - name: Toby Brushing Stats
+        unique_id: toby_brushing_stats
+        state: "{{ now().isoformat() }}"
+        attributes:
+          stats_am: '{{ duration_stats.statistics["sensor.toby_brushing_duration_am"] }}'
+          stats_pm: '{{ duration_stats.statistics["sensor.toby_brushing_duration_pm"] }}'
