@@ -129,17 +129,6 @@ route53:
   records:
     - ha
 
-sensor:
-  - platform: bne_wc
-    name: Brisbane Bin Day
-    scan_interval: 3600
-    base_url: https://www.data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/{dataset_id}/records?where={query}&limit=1
-    days_table: waste-collection-days-collection-days
-    weeks_table: waste-collection-days-collection-weeks
-    property_number: !secret council_property_id
-    alert_hours: 8
-    green_bin: true
-
 input_boolean:
   music_assistant_no_spotify:
     name: Use Music Assistant not Spotify 
