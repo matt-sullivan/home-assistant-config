@@ -27,17 +27,18 @@ logger:
     zeroconf: info
     tuya_iot: info
     route53: info
+    # minimal zigbee debugging for blinds
+    # zigpy: debug
+    # zhaquirks: debug
+    # zigpy.zcl: debug
+    # zhaquirks.tuya: debug
+    # zhaquirks.tuya.mcu: debug
     # zigbee debugging I used to use
     # homeassistant.components.zha: debug
     # homeassistant.components.zha.button: debug
     # homeassistant.components.zha.entity: debug
     # homeassistant.components.zha.core: debug
     # homeassistant.components.zha.cover: debug
-    # zigpy: debug
-    # zhaquirks: debug
-    # zigpy.zcl: debug
-    # zhaquirks.tuya: debug
-    # zhaquirks.tuya.mcu: debug
     # ts0601_cover: debug
     # test_custom_quirk: debug
     # custom_components.zha: debug
@@ -57,6 +58,9 @@ logger:
 
 # esphome:
 #     build_path: "../config/esphome/${name}_build"
+
+# I don't know if this needs to explicitly be included, but frigate integration depends on it
+media_source:
 
 zha:
    enable_quirks: true
