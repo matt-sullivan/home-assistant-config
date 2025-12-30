@@ -67,13 +67,15 @@ template:
       - trigger: state
         entity_id:
           - sensor.toby_brushing_duration
+      - trigger: time_pattern
+        minutes: "/1"
     action:
       - action: recorder.get_statistics
         data:
           statistic_ids:
             - sensor.toby_brushing_duration_am
             - sensor.toby_brushing_duration_pm
-          start_time: "2025-06-10 00:00:00"
+          start_time: "{{today_at('00:00') - timedelta(days=6)}}"
           period: day
           types:
             - max
@@ -85,3 +87,61 @@ template:
         attributes:
           stats_am: '{{ duration_stats.statistics["sensor.toby_brushing_duration_am"] }}'
           stats_pm: '{{ duration_stats.statistics["sensor.toby_brushing_duration_pm"] }}'
+          days_to_show: >
+            {% set stats_am = duration_stats.statistics["sensor.toby_brushing_duration_am"] %}
+            {% set stats_pm = duration_stats.statistics["sensor.toby_brushing_duration_pm"] %}
+
+            {% set globals = namespace(am_lookup={}, pm_lookup={}, list=[]) %}
+
+            {# Build lookup dictionaries keyed by local date #}
+            {% for item in stats_am %}
+              {% set local_date = as_local(strptime(item.start, '%Y-%m-%dT%H:%M:%S%z')).strftime('%Y-%m-%d') %}
+              {% set globals.am_lookup = globals.am_lookup | combine({local_date: item}) %}
+            {% endfor %}
+
+            {% for item in stats_pm %}
+              {% set local_date = as_local(strptime(item.start, '%Y-%m-%dT%H:%M:%S%z')).strftime('%Y-%m-%d') %}
+              {% set globals.pm_lookup = globals.pm_lookup | combine({local_date: item}) %}
+            {% endfor %}
+
+            {# Find last local date in all data #}
+            {% set all_starts = (stats_am + stats_pm) | map(attribute='start') | map('as_datetime') | map('as_local') | list %}
+            {% set last_date = all_starts | sort | last %}
+
+            {# If it's now Monday-Friday start on Saturday, if it's the weekend start on Monday #}
+            {% set weekday = last_date.weekday() %}
+            {% set start_date = last_date - timedelta(days=weekday + (2 if weekday <= 4 else 0)) %}
+
+            {# Create 7-day merged output #}
+            {% set TARGET_TIME=120 %}
+            {% for i in range(0, 7) %}
+              {% set current_dt = start_date + timedelta(days=i) %}
+              {% set current_date = current_dt.date().isoformat() %}
+              {% set am = globals.am_lookup[current_date] if current_date in globals.am_lookup else none %}
+              {% set pm = globals.pm_lookup[current_date] if current_date in globals.pm_lookup else none %}
+
+              {% set day_short = current_dt.strftime('%A')[:2] %}
+              {% set am_val = am.max if am is not none else 0 %}
+              {% set pm_val = pm.max if pm is not none else 0 %}
+
+              {# Override today's stats with the current values to show the latest value #}
+              {# as soon as brushing ends #}
+              {% if current_dt == today_at('00:00') %}
+                {% if now() < today_at('12:00') %}
+                  {% set am_val = states('sensor.toby_brushing_duration_am') | int %}
+                {% else %}
+                  {% set pm_val = states('sensor.toby_brushing_duration_pm') | int %}
+                {% endif %}
+              {% endif %}
+
+              {% set am_norm = 1.0 if am_val > TARGET_TIME else (am_val / TARGET_TIME) %}
+              {% set pm_norm = 1.0 if pm_val > TARGET_TIME else (pm_val / TARGET_TIME) %}
+              {% set merged = {
+                "day": day_short,
+                "am": am_norm | round(1),
+                "pm": pm_norm | round(1)
+              } %}
+              {% set globals.list = globals.list + [merged] %}
+            {% endfor %}
+
+            {{ globals.list }}
