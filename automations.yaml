@@ -95,6 +95,13 @@
   - service: notify.parents
     data:
       message: Garage left open! At {{now().strftime("%H:%M")}}
+      data:
+        url: "lovelace/2"
+        channel: alarm_stream
+        priority: high
+        critical: 1
+        volume: 1.0
+        ttl: 0
 - id: garage_monitoring
   alias: Debug garage open & close
   trigger:
@@ -139,8 +146,8 @@
         \ [0,0]\n{% endif %}"
     action: light.turn_on
   - alias: Wait until there is no motion from either device
-    wait_template: '{{ not(is_state(''binary_sensor.front_yard_motion_stairs'',
-      ''on'')) and not(is_state(''binary_sensor.front_yard_mailbox_motion'', ''on'')) }}'
+    wait_template: '{{ not(is_state(''binary_sensor.front_yard_motion_stairs'', ''on''))
+      and not(is_state(''binary_sensor.front_yard_mailbox_motion'', ''on'')) }}'
   - alias: Wait a while longer
     delay:
       hours: 0
@@ -341,9 +348,9 @@
     attribute: event_type
     state: Long Press
   actions:
-  - action: script.turn_on
-    target:
-      entity_id: script.leaving_home
+  - action: notify.mobile_app_matt_pixel_8_pro
+    data:
+      message: Entry long press triggered {{now().strftime("%H:%M")}}
   mode: single
 - id: EmilyLongPress-AllOff
   alias: EmilyLongPress-AllOff
