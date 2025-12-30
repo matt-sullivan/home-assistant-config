@@ -24,9 +24,12 @@ logger:
   level: DEBUG
 
 wifi:
-  ssid: !secret wifi_garage_ssid
-  password: !secret wifi_garage_password 
-  reboot_timeout: 1h
+  reboot_timeout: 5min
+  networks:
+  - ssid: !secret wifi_ssid_front
+    password: !secret wifi_password
+  - ssid: !secret wifi_garage_ssid
+    password: !secret wifi_garage_password
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -37,7 +40,7 @@ captive_portal:
 
 # Enable Home Assistant API
 api:
-  reboot_timeout: 24h
+  reboot_timeout: 1h
 
 ota:
   platform: esphome
