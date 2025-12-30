@@ -1,0 +1,20 @@
+{
+  "vendor": "Tuya",
+  "bDetailed": "0",
+  "name": "DETA Grid Connect Smart Switch 2 Way 2 Gang (6952HA)",
+  "model": "6952HA",
+  "chip": "BK7231T",
+  "board": "TODO",
+  "flags": "1024",
+  "keywords": [],
+  "pins": {
+    "6": "Rel;2",
+    "14": "Rel;1",
+    "23": "Btn;2",
+    "24": "WifiLED;3",
+    "26": "Btn;1"
+  },
+  "command": "ON Btn1#Pressed DO Toggle 1 ENDON\r\nON Btn2#Pressed DO Toggle 2 ENDON\r\n",
+  "image": "https://devices.esphome.io/assets/images/6952HA-packet-58df006694f725288fe00ee5dc246c7e.jpg",
+  "wiki": "https://devices.esphome.io/devices/deta-grid-connect-two-gang-two-way-6952ha/"
+}

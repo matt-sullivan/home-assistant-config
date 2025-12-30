@@ -1,0 +1,122 @@
+substitutions:
+  device_name: lights-breakfast-bar
+  friendly_name: "Breakfast Bar Lights"
+  deviceicon: "mdi:lightbulb"
+  friendlyname_left: Breakfast Bar Lights
+  friendlyname_right: Hallway Toilet Light
+  hotspot_ssid: "Breakfast Bar Hotspot"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+bk72xx:
+  board: wb3s
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 24h
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  reboot_timeout: 1h
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${hotspot_ssid}"
+    password: !secret fallback_password
+
+captive_portal:
+
+web_server:
+  port: 80
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
+
+status_led:
+  pin:
+    number: P9
+    inverted: true
+
+sensor:
+  - platform: wifi_signal
+    name: ${device_name} Wifi Signal Strength
+    update_interval: 60s
+  - platform: uptime
+    name: ${device_name} Uptime
+
+switch:
+  - platform: restart
+    name: "${friendly_name} REBOOT"
+
+## ---------------- ##
+##      Relays      ##
+## ---------------- ##
+output:
+  # Left Relay
+  - platform: gpio
+    id: relay_left
+    pin: P6
+  # Right Relay
+  - platform: gpio
+    id: relay_right
+    pin: P26
+
+## ------------ ##
+##    Lights    ##
+## ------------ ##
+light:
+  # Left Light
+  - platform: binary
+    name: ${friendlyname_left}
+    icon: ${deviceicon}
+    output: relay_left
+    id: light_left
+
+  # Right Light
+  - platform: binary
+    name: ${friendlyname_right}
+    icon: ${deviceicon}
+    output: relay_right
+    id: light_right
+
+## ----------------- ##
+##      Buttons      ##
+## ----------------- ##
+binary_sensor:
+  # Left Button
+  - platform: gpio
+    id: button_left
+    pin:
+      number: P14
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      then:
+        - light.toggle: light_left
+    internal: True
+
+  # Right Button
+  - platform: gpio
+    id: button_right
+    pin:
+      number: P24
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      then:
+        - light.toggle: light_right
+    internal: True

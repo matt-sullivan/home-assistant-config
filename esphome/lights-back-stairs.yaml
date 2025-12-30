@@ -1,0 +1,115 @@
+substitutions:
+  device_name: lights-back-stairs
+  friendly_name: "Back Stairs Light"
+  deviceicon: "mdi:lightbulb"
+  friendlyname_light: Back Stairs Light
+  hotspot_ssid: "Back Stairs Hotspot"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+bk72xx:
+  board: wb3s
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 24h
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  reboot_timeout: 1h
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${hotspot_ssid}"
+    password: !secret fallback_password
+
+captive_portal:
+
+web_server:
+  port: 80
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
+
+status_led:
+  pin:
+    number: P9
+    inverted: true
+
+sensor:
+  - platform: wifi_signal
+    name: ${device_name} Wifi Signal Strength
+    update_interval: 60s
+  - platform: uptime
+    name: ${device_name} Uptime
+
+switch:
+  - platform: restart
+    name: "${friendly_name} REBOOT"
+
+  # Relay
+  - platform: gpio
+    id: relay_1
+    pin: P14
+    internal: true
+
+light:
+  - platform: binary
+    output: filter_1
+    id: light_1
+    name: "${friendlyname_light}"
+    icon: "${deviceicon}"
+
+binary_sensor:
+  # Buttons
+  - platform: gpio
+    id: button_1
+    pin:
+      number: P26
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      then:
+        - light.toggle: light_1
+    internal: true
+
+  # Activation statuses
+  # Represents the "local" relay (this device) XOR the "remote" relay (another device).
+  # It only shows TRUE if one of the "local" or "remote" relays are active, but not both.
+  - platform: gpio
+    id: activation_status_1
+    pin:
+      number: P8
+      mode: INPUT
+      inverted: true
+    internal: true
+
+output:
+  # Filters
+  # Triggered when the "light" entity is turned on or off. Will only toggle
+  # the associated relay if the "light" entity is out of sync with the
+  # "activation status"; otherwise do nothing as the state is already correct.
+  - platform: template
+    type: binary
+    id: filter_1
+    write_action:
+      then:
+        - if:
+            condition:
+              - lambda: "return state != id(activation_status_1).state;"
+            then:
+              - switch.toggle: relay_1
