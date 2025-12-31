@@ -1,8 +1,8 @@
 substitutions:
   name: hallway-stairs
   friendly_name: Hallway Stairs
-  light_1_name: "Internal Stair Light"
-  light_2_name: "Stair Bottom Landing Light" 
+  light_1_name: "Stair Bottom Landing Light" 
+  light_2_name: "Internal Stair Light"
 
 esphome:
   name: ${name}
@@ -44,6 +44,26 @@ web_server:
     username: !secret web_server_username
     password: !secret web_server_password
 
+
+## ------------------ ##
+##    Generic Sensors ##
+## ------------------ ##
+sensor:
+  - platform: wifi_signal
+    name: Wifi Signal Strength
+    update_interval: 60s
+  
+  - platform: uptime
+    name: "Uptime"
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "d"
+    accuracy_decimals: 1
+    update_interval: 5min
+
+## ---------------- ##
+##    Status LED    ##
+## ---------------- ##
 status_led:
   pin:
     number: P24
@@ -90,21 +110,12 @@ switch:
     id: channel_2
     name: "${light_2_name}"
     lambda: |-
-      return id(activation_2).state;
+      return id(relay_2).state;
     turn_on_action:
-      - if:
-          condition:
-            lambda: "return !id(activation_2).state;"
-          then:
-            - switch.toggle: relay_2
+      - switch.toggle: relay_2
     turn_off_action:
-      - if:
-          condition:
-            lambda: "return id(activation_2).state;"
-          then:
-            - switch.toggle: relay_2
+      - switch.toggle: relay_2
 
-# --- Traveller / activation sense inputs ---
 binary_sensor:
   # Local buttons
   - platform: gpio
@@ -140,14 +151,15 @@ binary_sensor:
     id: activation_1
     pin:
       number: P8
-      mode: INPUT
+      mode: INPUT_PULLUP
       inverted: true
     internal: true
 
-  - platform: gpio
-    id: activation_2
-    pin:
-      number: P9
-      mode: INPUT
-      inverted: true
-    internal: true
+  # P9 is not reliable, sometimes continuously toggles
+  # - platform: gpio
+  #   id: activation_2
+  #   pin:
+  #     number: P9
+  #     mode: INPUT_PULLUP
+  #     inverted: true
+  #   internal: true
