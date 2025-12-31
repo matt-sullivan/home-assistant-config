@@ -45,27 +45,50 @@ web_server:
     username: !secret web_server_username
     password: !secret web_server_password
 
+## ---------------- ##
+##    Status LED    ##
+## ---------------- ##
 status_led:
   pin:
     number: P9
     inverted: true
 
+## ------------------ ##
+##    Generic Sensors ##
+## ------------------ ##
 sensor:
   - platform: wifi_signal
     name: ${device_name} Wifi Signal Strength
     update_interval: 60s
+  
   - platform: uptime
     name: ${device_name} Uptime
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "d"
+    accuracy_decimals: 1
+    update_interval: 5min
 
 switch:
   - platform: restart
-    name: "${friendly_name} REBOOT"
+    id: restart_device
+    name: "${friendly_name} Reboot"
 
   # Relay
   - platform: gpio
     id: relay_1
     pin: P14
     internal: true
+
+script:
+  - id: long_press_reboot
+    mode: single
+    then:
+      - lambda: |-
+            ESP_LOGW("reboot", "Long-press detected on ${device_name} — rebooting in 2s");
+      - delay: 2s
+      - lambda: |-
+            App.safe_reboot();
 
 light:
   - platform: binary
@@ -82,9 +105,14 @@ binary_sensor:
       number: P26
       inverted: true
       mode: INPUT_PULLUP
-    on_press:
-      then:
-        - light.toggle: light_1
+    on_click:
+      - light.toggle: light_1
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
     internal: true
 
   # Activation statuses
@@ -92,11 +120,19 @@ binary_sensor:
   # It only shows TRUE if one of the "local" or "remote" relays are active, but not both.
   - platform: gpio
     id: activation_status_1
+    name: "Power Status"
     pin:
       number: P8
-      mode: INPUT
+      mode: INPUT_PULLUP
       inverted: true
-    internal: true
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_state:
+      then:
+        - light.control:
+            id: light_1
+            state: !lambda "return x;"
 
 output:
   # Filters
