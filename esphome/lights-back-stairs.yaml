@@ -116,8 +116,6 @@ binary_sensor:
     internal: true
 
   # Activation statuses
-  # Represents the "local" relay (this device) XOR the "remote" relay (another device).
-  # It only shows TRUE if one of the "local" or "remote" relays are active, but not both.
   - platform: gpio
     id: activation_status_1
     name: "Power Status"

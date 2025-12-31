@@ -3,6 +3,7 @@ substitutions:
   friendly_name: Hallway Stairs
   light_1_name: "Stair Bottom Landing Light" 
   light_2_name: "Internal Stair Light"
+  hotspot_ssid: "Hallway Stairs Hotspot"
 
 esphome:
   name: ${name}
@@ -33,7 +34,7 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "${friendly_name} Hotspot"
+    ssid: "${hotspot_ssid}"
     password: !secret fallback_password
 
 captive_portal:
@@ -44,33 +45,46 @@ web_server:
     username: !secret web_server_username
     password: !secret web_server_password
 
+## ---------------- ##
+##    Status LED    ##
+## ---------------- ##
+status_led:
+  pin:
+    number: P9
+    inverted: true
 
 ## ------------------ ##
 ##    Generic Sensors ##
 ## ------------------ ##
 sensor:
   - platform: wifi_signal
-    name: Wifi Signal Strength
+    name: ${device_name} Wifi Signal Strength
     update_interval: 60s
   
   - platform: uptime
-    name: "Uptime"
+    name: ${device_name} Uptime
     filters:
       - lambda: return x / 86400.0;
     unit_of_measurement: "d"
     accuracy_decimals: 1
     update_interval: 5min
 
-## ---------------- ##
-##    Status LED    ##
-## ---------------- ##
-status_led:
-  pin:
-    number: P24
-    inverted: true
+script:
+  - id: long_press_reboot
+    mode: single
+    then:
+      - lambda: |-
+            ESP_LOGW("reboot", "Long-press detected on ${device_name} — rebooting in 2s");
+      - delay: 2s
+      - lambda: |-
+            App.safe_reboot();
 
-# --- Raw relay outputs (internal) ---
 switch:
+  - platform: restart
+    id: restart_device
+    name: "${friendly_name} Reboot"
+
+  # --- Raw relay outputs (internal) ---
   - platform: gpio
     id: relay_1
     pin: P14
@@ -83,38 +97,17 @@ switch:
     internal: true
     restore_mode: RESTORE_DEFAULT_OFF
 
-  - platform: restart
-    name: "${friendly_name} REBOOT"
-
-  # --- HA-facing entities that stay in sync ---
-  - platform: template
-    id: channel_1
+# --- HA-facing entities that stay in sync ---
+light:
+  - platform: binary
+    output: filter_1
+    id: light_1
     name: "${light_1_name}"
-    lambda: |-
-      // Return the *actual* circuit state as seen from traveller sense:
-      return id(activation_1).state;
-    turn_on_action:
-      - if:
-          condition:
-            lambda: "return !id(activation_1).state;"
-          then:
-            - switch.toggle: relay_1
-    turn_off_action:
-      - if:
-          condition:
-            lambda: "return id(activation_1).state;"
-          then:
-            - switch.toggle: relay_1
-
-  - platform: template
-    id: channel_2
+  
+  - platform: binary
+    output: filter_2
+    id: light_2
     name: "${light_2_name}"
-    lambda: |-
-      return id(relay_2).state;
-    turn_on_action:
-      - switch.toggle: relay_2
-    turn_off_action:
-      - switch.toggle: relay_2
 
 binary_sensor:
   # Local buttons
@@ -124,12 +117,14 @@ binary_sensor:
       number: P26
       inverted: true
       mode: INPUT_PULLUP
-    filters:
-      - delayed_on: 20ms
-      - delayed_off: 20ms
     on_press:
-      then:
-        - switch.toggle: channel_1
+      - light.toggle: light_1
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
     internal: true
 
   - platform: gpio
@@ -138,28 +133,74 @@ binary_sensor:
       number: P23
       inverted: true
       mode: INPUT_PULLUP
-    filters:
-      - delayed_on: 20ms
-      - delayed_off: 20ms
     on_press:
-      then:
-        - switch.toggle: channel_2
+      - light.toggle: light_2
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
     internal: true
 
-  # Activation status lines (keep both until confirmed)
+  # Activation statuses
   - platform: gpio
-    id: activation_1
+    id: activation_status_1
+    name: "Power Status 1"
     pin:
       number: P8
       mode: INPUT_PULLUP
       inverted: true
-    internal: true
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_state:
+      then:
+        - light.control:
+            id: light_1
+            state: !lambda "return x;"
 
   # P9 is not reliable, sometimes continuously toggles
   # - platform: gpio
-  #   id: activation_2
+  #   id: activation_status_2
+  #   name: "Power Status 1"
   #   pin:
   #     number: P9
   #     mode: INPUT_PULLUP
   #     inverted: true
-  #   internal: true
+  #   filters:
+  #      - delayed_on: 30ms
+  #      - delayed_off: 30ms
+  #    on_state:
+  #      then:
+  #        - light.control:
+  #            id: light_1
+  #            state: !lambda "return x;"
+
+output:
+  # Triggered when the "light" entity is turned on or off. Will only toggle
+  # the associated relay if the "light" entity is out of sync with the
+  # "activation status"; otherwise do nothing as the state is already correct.
+  - platform: template
+    type: binary
+    id: filter_1
+    write_action:
+      then:
+        - if:
+            condition:
+              - lambda: "return state != id(activation_status_1).state;"
+            then:
+              - switch.toggle: relay_1
+
+  - platform: template
+    type: binary
+    id: filter_2
+    write_action:
+      then:
+        # Disabled because unreliable P9
+        # - if:
+        #     condition:
+        #       - lambda: "return state != id(activation_status_2).state;"
+        #     then:
+        #       - switch.toggle: relay_2
+          - switch.toggle: relay_2
