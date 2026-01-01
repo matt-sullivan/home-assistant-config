@@ -49,7 +49,7 @@ captive_portal:
 ## ------------------ ##
 sensor:
   - platform: wifi_signal
-    name: Wifi Signal Strength
+    name: "Wifi Signal Strength"
     update_interval: 60s
   
   - platform: uptime

@@ -59,11 +59,11 @@ status_led:
 ## ------------------ ##
 sensor:
   - platform: wifi_signal
-    name: ${device_name} Wifi Signal Strength
+    name: "Wifi Signal Strength"
     update_interval: 60s
   
   - platform: uptime
-    name: ${device_name} Uptime
+    name: "Uptime"
     filters:
       - lambda: return x / 86400.0;
     unit_of_measurement: "d"
@@ -73,7 +73,7 @@ sensor:
 switch:
   - platform: restart
     id: restart_device
-    name: "${friendly_name} Reboot"
+    name: "Reboot"
 
 script:
   - id: long_press_reboot

@@ -65,7 +65,7 @@ sensor:
     update_interval: 5min
 
   - platform: uptime
-    name: "${device_name} Uptime"
+    name: "Uptime"
     filters:
       - lambda: return x / 86400.0;
     unit_of_measurement: "d"

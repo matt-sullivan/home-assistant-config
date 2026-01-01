@@ -55,10 +55,10 @@ uart:
 
 sensor:
   - platform: wifi_signal
-    name: ${device_name} Wifi Signal Strength
+    name: "Wifi Signal Strength"
     update_interval: 60s
   - platform: uptime
-    name: ${device_name} Uptime
+    name: "Uptime"
 
 # Register the Tuya MCU connection
 tuya:
@@ -77,4 +77,4 @@ light:
 
 switch:
   - platform: restart
-    name: "${friendly_name} REBOOT"
+    name: "Reboot"
