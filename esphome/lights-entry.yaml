@@ -1,6 +1,7 @@
 substitutions:
   device_name: lights-entry
   friendly_name: "Entry Lights"
+  hotspot_ssid: "Entry Lights Recovery"
 
 esphome:
   name: ${device_name}
@@ -14,37 +15,48 @@ esp8266:
 logger:
   level: DEBUG
 
-wifi:
-  ssid: !secret wifi_ssid_upstairs
-  password: !secret wifi_password
-  reboot_timeout: 1h
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: EspHomeEntryLights
-    password: !secret fallback_password
-
-captive_portal:
-
 # Enable Home Assistant API
 api:
   reboot_timeout: 24h
 
 ota:
-  platform: esphome
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
-# The web_server & sensor components can be removed without affecting core functionaility.
+wifi:
+  ssid: !secret wifi_ssid_front
+  password: !secret wifi_password
+  reboot_timeout: 1h
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${hotspot_ssid}"
+    password: !secret fallback_password
+
+captive_portal:
+
 web_server:
   port: 80
   auth:
     username: !secret web_server_username
     password: !secret web_server_password
 
+## ---------------- ##
+##    Status LED    ##
+## ---------------- ##
+status_led:
+  pin:
+    number: GPIO0
+    inverted: True
+
+## ------------------ ##
+##    Generic Sensors ##
+## ------------------ ##
 sensor:
   - platform: wifi_signal
     name: "Wifi Signal Strength"
     update_interval: 60s
+  
   - platform: uptime
     name: "Uptime"
     filters:
@@ -53,12 +65,15 @@ sensor:
     accuracy_decimals: 1
     update_interval: 5min
 
-#################################
-
-status_led:
-  pin:
-    number: GPIO0
-    inverted: True
+script:
+  - id: long_press_reboot
+    mode: single
+    then:
+      - lambda: |-
+            ESP_LOGW("reboot", "Long-press detected on ${device_name} — rebooting in 2s");
+      - delay: 2s
+      - lambda: |-
+            App.safe_reboot();
 
 output:
   # 1st button
@@ -141,6 +156,11 @@ binary_sensor:
           - event.trigger:
               id: button_1
               event_type: "Long Press"
+      # Fallback for manual reboot to reconnect to HA after wifi problems
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
 
   # 2nd button
   - platform: gpio
