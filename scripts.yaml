@@ -367,3 +367,33 @@ leaving_home:
           entity_id: 
             - script.emily_sleep_time
             - script.toby_sleep_time
+      - if:
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: binary_sensor.downstairs_laundry_door
+                state: "on"
+        then:
+          - repeat:
+              count: 3
+              sequence:
+                - action: light.turn_on
+                  metadata: {}
+                  data: {}
+                  target:
+                    entity_id: light.hallway_entry
+                - delay:
+                    hours: 0
+                    minutes: 0
+                    seconds: 0
+                    milliseconds: 400
+                - action: light.turn_off
+                  metadata: {}
+                  data: {}
+                  target:
+                    entity_id: light.hallway_entry
+                - delay:
+                    hours: 0
+                    minutes: 0
+                    seconds: 0
+                    milliseconds: 400

@@ -96,7 +96,7 @@
     data:
       message: Garage left open! At {{now().strftime("%H:%M")}}
       data:
-        url: "lovelace/2"
+        url: lovelace/2
         channel: alarm_stream
         priority: high
         critical: 1
@@ -395,3 +395,36 @@
       motion_entity: binary_sensor.storage_motion
       light_target:
         entity_id: light.storage_light
+- id: '1767164840085'
+  alias: FrontDoorButton2-Garage
+  description: Toggle Garage Door on Front Door Button 2
+  triggers:
+  - device_id: 3a754aed2f804ba86edfb8bc4aa714ef
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_2
+    trigger: device
+  conditions: []
+  actions:
+  - action: cover.stop_cover
+    metadata: {}
+    data: {}
+    target:
+      entity_id: cover.garage_door
+  mode: single
+- id: '1767165043279'
+  alias: FrontDoorButton1-LeavingHome
+  description: Call Leaving Home to turn everything off and open the garage  on Front
+    Door Button 1
+  triggers:
+  - device_id: 3a754aed2f804ba86edfb8bc4aa714ef
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_1
+    trigger: device
+  conditions: []
+  actions:
+  - action: script.leaving_home
+    metadata: {}
+    data: {}
+  mode: single
