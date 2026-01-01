@@ -368,11 +368,13 @@ leaving_home:
             - script.emily_sleep_time
             - script.toby_sleep_time
       - if:
-          - condition: or
+          - condition: not
             conditions:
               - condition: state
-                entity_id: binary_sensor.downstairs_laundry_door
-                state: "on"
+                entity_id:
+                  - binary_sensor.downstairs_laundry_door
+                  - binary_sensor.downstairs_deck_door
+                state: "off"
         then:
           - repeat:
               count: 3

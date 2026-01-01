@@ -52,6 +52,7 @@ views:
             name: Garage Door
           - sensor.garage_door_state_machine_state
           - binary_sensor.downstairs_laundry_door
+          - binary_sensor.downstairs_deck_door
           - switch.pool_pump
           # - cover.parents_front_blind
           - cover.parents_front_door_blind
@@ -115,6 +116,7 @@ views:
           - sensor.parents_front_door_blind_battery
           - sensor.parents_side_blind_battery
           - sensor.downstairs_laundry_door_battery
+          - sensor.downstairs_deck_door_battery
           - sensor.garage_door_closed_sensor_battery
           - sensor.front_yard_motion_stairs_battery
           - sensor.front_yard_mailbox_motion_battery
