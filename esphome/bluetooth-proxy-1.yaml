@@ -22,8 +22,30 @@ ota:
     id: ota_esphome
 
 wifi:
-  ssid: !secret wifi_ssid_upstairs
+  ssid: !secret wifi_ssid_hall
   password: !secret wifi_password
+  reboot_timeout: 1h
+
+## ------------------ ##
+##    Generic Sensors ##
+## ------------------ ##
+sensor:
+  - platform: wifi_signal
+    name: "Wifi Signal Strength"
+    update_interval: 60s
+  
+  - platform: uptime
+    name: "Uptime"
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "d"
+    accuracy_decimals: 1
+    update_interval: 5min
+
+switch:
+  - platform: restart
+    id: restart_device
+    name: "Reboot"
 
 bluetooth_proxy:
   active: true
