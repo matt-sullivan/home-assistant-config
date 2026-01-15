@@ -7,6 +7,10 @@ esphome:
   friendly_name: ${friendly_name}
   includes:
     - toothbrush_days_to_show.h
+  platformio_options:
+      build_flags: "-DBOARD_HAS_PSRAM"
+      board_build.esp-idf.memory_type: qio_opi
+      board_build.flash_mode: dio
 
 # https://www.elecrow.com/crowpanel-advance-3-5-hmi-esp32-ai-display-480x320-artificial-intelligent-ips-touch-screen.html
 # ESP32-S3-WROOM-1U
@@ -21,6 +25,11 @@ esp32:
   flash_size: 16MB
   framework:
     type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
 psram:
   mode: octal
   speed: 80MHz
@@ -40,7 +49,7 @@ ota:
   password: !secret ota_password
 
 wifi:
-  ssid: !secret wifi_ssid
+  ssid: !secret wifi_ssid_hall
   password: !secret wifi_password
   reboot_timeout: 1h
 
@@ -73,8 +82,57 @@ sensor:
     accuracy_decimals: 1
     update_interval: 5min
 
+# These sensors are in the elecrow example but the device doesn't respond
+  # - platform: aht10
+  #   variant: AHT20
+  #   temperature:
+  #     name: "Room Temperature"
+  #     id: room_temp
+  #     unit_of_measurement: "°C"
+  #     accuracy_decimals: 1
+  #   humidity:
+  #     name: "Room Humidity"
+  #     id: room_hum
+  #     unit_of_measurement: "%"
+  #     accuracy_decimals: 1
+  #   update_interval: 1s
+
+# This is in the elecrow example, but I can't see any LED that turns on
+# switch:
+#   - platform: gpio
+#     pin: GPIO18
+#     name: "LED"
+#     id: led_output
+
 bluetooth_proxy:
   active: true
+
+i2c:
+  sda: 15
+  scl: 16
+  scan: true
+
+spi:
+  clk_pin: 42
+  mosi_pin: 39
+  # I don't think there is a spi data input pin 
+  # miso_pin: 9
+  interface: hardware
+
+# Backlight configuration
+output:
+  - platform: ledc
+    pin: GPIO38
+    inverted: false
+    id: backlight_pwm
+
+# Define a monochromatic, dimmable light for the backlight
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: "Backlight"
+    id: backlight
+    restore_mode: ALWAYS_ON
 
 globals:
   # 0 stats, 1 brushing
@@ -107,40 +165,6 @@ image:
     id: image_frog
     # transparency: chroma_key
 
-# I think these are right - schematic matches example
-i2c:
-  sda: 15
-  scl: 16
-  frequency: 400000
-  id: i2c_bus
-
-# Backlight configuration
-i2c_device:
-  id: pca9557
-  address: 0x18
-  i2c_id: i2c_bus
-
-output:
-  - platform: template
-    id: backlight_output
-    type: binary
-    write_action:
-      - lambda: |-
-          uint8_t config_reg = 0x03;
-          uint8_t config_data = 0xFD;
-          id(pca9557).write_byte(config_reg, config_data);
-          delay(10);
-          uint8_t output_reg = 0x01;
-          uint8_t output_data = state ? 0x02 : 0x00;
-          id(pca9557).write_byte(output_reg, output_data);
-
-light:
-  - platform: binary
-    name: "Backlight"
-    id: backlight
-    output: backlight_output
-    restore_mode: ALWAYS_ON
-
 number:
   - platform: homeassistant
     id: raw_duration
@@ -161,7 +185,7 @@ number:
             id(_glbl_timeout_ticks) = 0;
 
             // Refresh display
-            id(backlight).turn_on();
+            id(backlight_pwm).turn_on();
             id(my_display).update();
 
 text_sensor:
@@ -205,12 +229,6 @@ text_sensor:
             // Refresh display
             id(my_display).update();
 
-# I think these are right - taken from schematic
-spi:
-  clk_pin: 10
-  mosi_pin: 3
-  miso_pin: 9
-  
 color:
   - id: colour_white
     hex: 'ffffff'
@@ -229,17 +247,20 @@ color:
   - id: colour_blue
     hex: '0000ff'
 
-# I think this is right - taken from schematic, but example uses something completely different
-# platform: rpi_dpi_rgb
+# merged from elecrow github example
 display:
   - platform: ili9xxx
     id: my_display
-    model: ili9341
-    dc_pin: 41
-    cs_pin: 40
-    rotation: 90
-    color_palette: 8BIT
-    invert_colors: false
+    model: ILI9488_A
+    data_rate: 20MHz
+    cs_pin: GPIO40
+    dc_pin: GPIO41
+    spi_mode: mode0   #since no cs pin default is mode0
+    dimensions: 
+      height: 320
+      width: 480
+    invert_colors: True
+#    color_palette: 8BIT
     lambda: |-
  
       if (id(_glbl_mode) == Mode_Welcome)
@@ -287,23 +308,21 @@ display:
         }
       }
 
-# Not sure about this. It's a different touchscreen in the advanced version, and both schematic
-# and example reference address 0x5D, so gt911 copied from the example is probably right.
 touchscreen:
   platform: gt911
   id: my_touchscreen
   address: 0x5D
   # update_interval: 50ms
   # threshold: 400
-  # calibration:
-  #   x_max: 3848
-  #   x_min: 320
-  #   y_max: 3848
-  #   y_min: 240
-  # transform:
-  #   mirror_x: false
-  #   mirror_y: false
-  #   swap_xy: false
+  calibration:
+    x_max: 480
+    x_min: 0
+    y_max: 320
+    y_min: 0
+  transform:
+    mirror_x: false
+    mirror_y: true
+    swap_xy: true
   on_touch:
     - lambda: |-
         ESP_LOGI("touched", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
@@ -315,7 +334,7 @@ touchscreen:
           
           // Display Stats
           id(_glbl_mode) = Mode_Stats;
-          id(backlight).turn_on();
+          id(backlight_pwm).turn_on();
           id(my_display).update();
           id(_glbl_timeout_ticks) = 0;
         }
@@ -337,7 +356,7 @@ interval:
           
           // Display off
           id(_glbl_mode) = Mode_Off;
-          id(backlight).turn_off();
+          id(backlight_pwm).turn_off();
           id(my_display).update();
         }
         // Display stats 5s after stopping brushing
@@ -356,7 +375,6 @@ interval:
           
           // Display off
           id(_glbl_mode) = Mode_Off;
-          id(backlight).turn_off();
+          id(backlight_pwm).turn_off();
           id(my_display).update();
         }
-
