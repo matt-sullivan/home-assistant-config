@@ -414,7 +414,7 @@
   mode: single
 - id: '1767165043279'
   alias: FrontDoorButton1-LeavingHome
-  description: Call Leaving Home to turn everything off and open the garage  on Front
+  description: Call Leaving Home to turn everything off and open the garage on Front
     Door Button 1
   triggers:
   - device_id: 3a754aed2f804ba86edfb8bc4aa714ef
@@ -427,4 +427,19 @@
   - action: script.leaving_home
     metadata: {}
     data: {}
+  mode: single
+- id: '1767334816619'
+  alias: Ping-Down-Notification
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.network_monitor_all
+    from: 'on'
+  conditions: []
+  actions:
+  - action: notify.mobile_app_matt_pixel_8_pro
+    metadata: {}
+    data:
+      message: Ping monitoring detected devices down {{now().strftime("%H:%M")}}
   mode: single

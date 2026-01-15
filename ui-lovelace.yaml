@@ -111,6 +111,7 @@ views:
         type: entities
         entities:
           - sensor.tobys_front_blind_battery
+          - sensor.tobys_side_blind_battery
           - sensor.emilys_door_blind_battery
           - sensor.emilys_side_blind_battery
           - sensor.parents_front_door_blind_battery
@@ -121,3 +122,52 @@ views:
           - sensor.front_yard_motion_stairs_battery
           - sensor.front_yard_mailbox_motion_battery
           - sensor.storage_motion_battery
+  - title: Network Monitor
+    cards:
+      - title: Overview
+        type: entities
+        entities:
+          - binary_sensor.network_monitor_all
+          - binary_sensor.network_monitor_front
+          - binary_sensor.network_monitor_hall
+          - binary_sensor.network_monitor_outside
+          - binary_sensor.network_monitor_upstream
+          - sensor.apfront_clients
+          - sensor.apupstairshallway_clients
+          - sensor.ap_outside2_clients
+      - title: Front AP
+        type: entities
+        entities:
+          - binary_sensor.lights_ensuite_ping
+          - device_tracker.lights_ensuitelocal_is_home
+          - binary_sensor.lights_ensuitelocal_is_present
+          - device_tracker.lights_ensuite
+          - binary_sensor.lights_entry_ping
+          - binary_sensor.lights_toby_ping
+          - binary_sensor.lights_parents_ping
+          - binary_sensor.wemosd1_garage_ping
+      - title: Hall AP
+        type: entities
+        entities:
+          - binary_sensor.bluetooth_proxy_1_ping
+          - device_tracker.bluetooth_proxy_1local_is_home
+          - binary_sensor.bluetooth_proxy_1local_is_present
+          - device_tracker.bluetooth_proxy_1
+          - binary_sensor.toothbrush_monitor_ping
+          - device_tracker.toothbrush_monitorlocal_is_home
+          - binary_sensor.toothbrush_monitorlocal_is_present
+          - device_tracker.toothbrush_monitor
+          - binary_sensor.lounge_google_tv_ping
+          - binary_sensor.emilys_tv_ping
+          - binary_sensor.mfc9335cdw_ping
+      - title: Outside AP
+        type: entities
+        entities:
+          - binary_sensor.lights_bathroom_ping
+          - binary_sensor.lights_kitchen_ping
+          - binary_sensor.google_home_ping
+      - title: Upstream
+        type: entities
+        entities:
+          - binary_sensor.unifi_router_ping
+          - binary_sensor.google_dns_ping

@@ -1,0 +1,38 @@
+template:
+  - binary_sensor:
+      - name: Network Monitor Upstream
+        unique_id: network_monitor_upstream
+        state: >
+          {{ is_state('binary_sensor.unifi_router_ping', 'on')
+            and is_state('binary_sensor.google_dns_ping', 'on') }}
+      - name: Network Monitor Front
+        unique_id: network_monitor_front
+        state: >
+          {{ is_state('binary_sensor.lights_ensuite_ping', 'on')
+            and is_state('binary_sensor.lights_entry_ping', 'on')
+            and is_state('binary_sensor.lights_toby_ping', 'on')
+            and is_state('binary_sensor.lights_parents_ping', 'on')
+            and is_state('binary_sensor.wemosd1_garage_ping', 'on') }}
+      - name: Network Monitor Hall
+        unique_id: network_monitor_hall
+        state: >
+          {{ is_state('binary_sensor.bluetooth_proxy_1_ping', 'on')
+            and is_state('binary_sensor.toothbrush_monitor_ping', 'on')
+            and is_state('binary_sensor.mfc9335cdw_ping', 'on')
+            and is_state('binary_sensor.lounge_google_tv_ping', 'on')
+            and is_state('binary_sensor.emilys_tv_ping', 'on')
+            and is_state('binary_sensor.mfc9335cdw_ping', 'on')
+            }}
+      - name: Network Monitor Outside
+        unique_id: network_monitor_outside
+        state: >
+          {{ is_state('binary_sensor.lights_bathroom_ping', 'on')
+            and is_state('binary_sensor.lights_kitchen_ping', 'on')
+            and is_state('binary_sensor.google_home_ping', 'on') }}
+      - name: Network Monitor All
+        unique_id: network_monitor_all
+        state: >
+          {{ is_state('binary_sensor.network_monitor_upstream', 'on')
+            and is_state('binary_sensor.network_monitor_front', 'on')
+            and is_state('binary_sensor.network_monitor_hall', 'on')
+            and is_state('binary_sensor.network_monitor_outside', 'on') }}
