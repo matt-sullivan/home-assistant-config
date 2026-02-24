@@ -1,4 +1,5 @@
 secrets.yaml
+.mcp.json
 *.log
 *.xml
 *.db*
@@ -13,3 +14,4 @@ home-assistant.log.*
 
 /custom_components-disabled
 /www/community/advanced-camera-card
+.claude/settings.local.json
