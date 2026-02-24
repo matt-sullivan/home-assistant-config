@@ -198,8 +198,8 @@ text_sensor:
         - lambda: |-
             stats.clear();
 
-            // Allocate JSON document with enough size
-            DynamicJsonDocument doc(512);
+            // Allocate JSON document with enough size. ESP32 uses 4x more than 8bit cpu.
+            DynamicJsonDocument doc(4096);
 
             auto error = deserializeJson(doc, id(days_to_show_attr).state);
             if (error) {
