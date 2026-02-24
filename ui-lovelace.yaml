@@ -159,7 +159,6 @@ views:
           - device_tracker.toothbrush_monitor
           - binary_sensor.lounge_google_tv_ping
           - binary_sensor.emilys_tv_ping
-          - binary_sensor.mfc9335cdw_ping
       - title: Outside AP
         type: entities
         entities:

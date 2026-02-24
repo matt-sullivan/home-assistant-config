@@ -18,10 +18,8 @@ template:
         state: >
           {{ is_state('binary_sensor.bluetooth_proxy_1_ping', 'on')
             and is_state('binary_sensor.toothbrush_monitor_ping', 'on')
-            and is_state('binary_sensor.mfc9335cdw_ping', 'on')
             and is_state('binary_sensor.lounge_google_tv_ping', 'on')
             and is_state('binary_sensor.emilys_tv_ping', 'on')
-            and is_state('binary_sensor.mfc9335cdw_ping', 'on')
             }}
       - name: Network Monitor Outside
         unique_id: network_monitor_outside
