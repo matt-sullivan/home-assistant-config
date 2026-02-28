@@ -1,0 +1,81 @@
+substitutions:
+  device_name: bluetooth-proxy-2
+  friendly_name: Bluetooth Proxy 2
+  hotspot_ssid: "Bluetooth Proxy 2 Hotspot"
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      # Enable software coexistence so the radio scheduler arbitrates
+      # between WiFi and BLE rather than them competing blindly.
+      # Bias toward BLE since that's the primary function of this device.
+      CONFIG_SW_COEXIST_ENABLE: y
+      CONFIG_SW_COEXIST_PREFERENCE_BT: y
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 24h
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid_hall
+  password: !secret wifi_password
+  reboot_timeout: 1h
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${hotspot_ssid}"
+    password: !secret fallback_password
+
+captive_portal:
+
+web_server:
+  port: 80
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
+
+## ------------------ ##
+##    Generic Sensors ##
+## ------------------ ##
+sensor:
+  - platform: wifi_signal
+    name: "Wifi Signal Strength"
+    update_interval: 60s
+  
+  - platform: uptime
+    name: "Uptime"
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "d"
+    accuracy_decimals: 1
+    update_interval: 5min
+
+bluetooth_proxy:
+  active: true
+
+esp32_ble_tracker:
+  scan_parameters:
+    # Passive scanning: don't send scan requests, just listen.
+    # Oral-B broadcasts its data in the advertisement PDU so scan responses aren't needed.
+    # Reduces RF transmit activity, leaving more headroom for reception.
+    active: false
+    # High BLE duty cycle (75%) — coexistence logic above keeps WiFi alive,
+    # so we can afford to scan aggressively.
+    interval: 160ms
+    window: 120ms
+

@@ -30,6 +30,11 @@ esp32:
       CONFIG_ESP32S3_DATA_CACHE_64KB: y
       CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
       CONFIG_SPIRAM_RODATA: y
+      # Enable software coexistence so the radio scheduler arbitrates
+      # between WiFi and BLE rather than them competing blindly.
+      # Bias toward BLE since that's the primary function of this device.
+      CONFIG_SW_COEXIST_ENABLE: y
+      CONFIG_SW_COEXIST_PREFERENCE_BT: y
 psram:
   mode: octal
   speed: 80MHz
@@ -106,6 +111,17 @@ sensor:
 
 bluetooth_proxy:
   active: true
+
+esp32_ble_tracker:
+  scan_parameters:
+    # Passive scanning: don't send scan requests, just listen.
+    # Oral-B broadcasts its data in the advertisement PDU so scan responses aren't needed.
+    # Reduces RF transmit activity, leaving more headroom for reception.
+    active: false
+    # High BLE duty cycle (75%) — coexistence logic above keeps WiFi alive,
+    # so we can afford to scan aggressively.
+    interval: 160ms
+    window: 120ms
 
 i2c:
   sda: 15
