@@ -56,7 +56,7 @@ sensor:
   - platform: wifi_signal
     name: "Wifi Signal Strength"
     update_interval: 60s
-  
+
   - platform: uptime
     name: "Uptime"
     filters:
@@ -64,6 +64,26 @@ sensor:
     unit_of_measurement: "d"
     accuracy_decimals: 1
     update_interval: 5min
+
+## --------------------------------- ##
+##    Oral-B Decoded BLE Sensors     ##
+## --------------------------------- ##
+  - platform: template
+    name: "Oral-B Duration"
+    id: oralb_duration
+    unit_of_measurement: "s"
+    state_class: measurement
+    accuracy_decimals: 0
+
+  - platform: template
+    name: "Oral-B Sector"
+    id: oralb_sector
+    accuracy_decimals: 0
+
+text_sensor:
+  - platform: template
+    name: "Oral-B State"
+    id: oralb_state
 
 bluetooth_proxy:
   active: true
@@ -78,4 +98,64 @@ esp32_ble_tracker:
     # so we can afford to scan aggressively.
     interval: 160ms
     window: 120ms
+  on_ble_advertise:
+    - then:
+        - lambda: |-
+            // Decode Oral-B BLE advertisements (manufacturer ID 0x00DC = Procter & Gamble)
+            for (auto& mfr : x.get_manufacturer_datas()) {
+              if (mfr.uuid.get_uuid().len != ESP_UUID_LEN_16 ||
+                  mfr.uuid.get_uuid().uuid.uuid16 != 0x00DC) continue;
+
+              const auto& d = mfr.data;
+              if (d.size() != 9 && d.size() != 11) {
+                ESP_LOGW("oralb", "[%s] Unexpected payload length %d",
+                         x.address_str().c_str(), d.size());
+                continue;
+              }
+
+              // Byte layout (after company ID):
+              // [0:1] model  [2] unknown  [3] state  [4] pressure
+              // [5] minutes  [6] seconds  [7] mode   [8] sector
+              // [9] sector_timer  [10] num_sectors  (11-byte messages only)
+              uint8_t state_byte   = d[3];
+              uint8_t pressure_raw = d[4];
+              int     duration_s   = (int)d[5] * 60 + (int)d[6];
+              uint8_t mode_byte    = d[7];
+              uint8_t sector_raw   = d[8];
+
+              const char* state_str;
+              switch (state_byte) {
+                case 0: state_str = "unknown";        break;
+                case 1: state_str = "init";           break;
+                case 2: state_str = "idle";           break;
+                case 3: state_str = "running";        break;
+                case 4: state_str = "charging";       break;
+                case 5: state_str = "setup";          break;
+                case 6: state_str = "flight_menu";    break;
+                case 8: state_str = "selection_menu"; break;
+                case 9: state_str = "off";            break;
+                default: state_str = "other";         break;
+              }
+
+              // Map raw sector byte to 1-4 (or 0 = last sector complete)
+              // Values sourced from the oralb-ble HA integration
+              int sector = -1;
+              if      (sector_raw == 1 || sector_raw == 9)                              sector = 1;
+              else if (sector_raw == 2 || sector_raw == 10)                             sector = 2;
+              else if (sector_raw == 3 || sector_raw == 11 || sector_raw == 19 || sector_raw == 27) sector = 3;
+              else if (sector_raw == 4 || sector_raw == 7 || sector_raw == 15 || sector_raw == 31 || sector_raw == 39) sector = 4;
+              else if (sector_raw >= 41 && sector_raw <= 55)                            sector = 0;
+
+              // Pressure: raw values < 128 = normal, >= 144 = high
+              const char* pressure_str = (pressure_raw >= 144) ? "high" : "normal";
+
+              ESP_LOGI("oralb", "[%s] state=%s(%d) dur=%ds mode=%d sector=%d(raw=0x%02X) pressure=%s",
+                       x.address_str().c_str(), state_str, state_byte,
+                       duration_s, mode_byte, sector, sector_raw, pressure_str);
+
+              id(oralb_duration).publish_state(duration_s);
+              id(oralb_state).publish_state(std::string(state_str));
+              if (sector >= 0)
+                id(oralb_sector).publish_state(sector);
+            }
 
