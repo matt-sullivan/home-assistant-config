@@ -85,6 +85,33 @@ text_sensor:
     name: "Oral-B State"
     id: oralb_state
 
+# Host interface pin mapping
+# https://www.elecrow.com/download/product/DAC0010/Wireless_Module-ESP32-C6_DataSheet.pdf
+# Shows the C6's left connector but physically reversed, so P$7 is at the top
+# of the connector, connected to the host ESP32-S3 J11 pin 1.
+#   C6 GPIO20 (left P$6) → host IO16_SCL
+#   C6 EN     (left P$5) → host IO15_SDA
+#
+# Configure GPIO20 as input so it never drives the host I2C bus. I'm not
+# certain about it's state at reset but they're typically inputs.
+#
+# The EN→SDA connection is potentially a problem for the C6 but that pin
+# probably has an RC filter (typically ≥1µF) should be sufficient to absorb
+# normal I2C bit pulses without triggering a chip reset.
+#
+# Despite this config the touchscreen still fails, possibly because of
+# capacitance or power supply changes but I'm not convinced.
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO20
+      mode:
+        input: true
+        pullup: true
+    id: host_scl_bridge
+    internal: true
+    name: ""
+
 bluetooth_proxy:
   active: true
 
