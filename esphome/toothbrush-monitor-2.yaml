@@ -11,18 +11,6 @@ esphome:
       build_flags: "-DBOARD_HAS_PSRAM"
       board_build.esp-idf.memory_type: qio_opi
       board_build.flash_mode: dio
-  on_boot:
-    # The touchscreen was having problems when the C6 wireless module is
-    # connected. It seemed like some sort of intermittent timing issue that I'd
-    # hoped this retry would fix, but ultimately I had to cut the pin connecting
-    # IO15_SDA to the C6 EN.
-    priority: -100
-    then:
-      - delay: 5s
-      - lambda: |-
-          ESP_LOGI("gt911_recovery", "on_boot: calling setup() to recover GT911");
-          id(my_touchscreen).setup();
-          ESP_LOGI("gt911_recovery", "on_boot: GT911 setup() called");
 
 # https://www.elecrow.com/crowpanel-advance-3-5-hmi-esp32-ai-display-480x320-artificial-intelligent-ips-touch-screen.html
 # ESP32-S3-WROOM-1U
@@ -120,20 +108,6 @@ sensor:
 #     pin: GPIO18
 #     name: "LED"
 #     id: led_output
-
-bluetooth_proxy:
-  active: true
-
-esp32_ble_tracker:
-  scan_parameters:
-    # Passive scanning: don't send scan requests, just listen.
-    # Oral-B broadcasts its data in the advertisement PDU so scan responses aren't needed.
-    # Reduces RF transmit activity, leaving more headroom for reception.
-    active: false
-    # High BLE duty cycle (75%) — coexistence logic above keeps WiFi alive,
-    # so we can afford to scan aggressively.
-    interval: 160ms
-    window: 120ms
 
 i2c:
   id: my_i2c
