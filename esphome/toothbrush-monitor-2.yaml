@@ -138,15 +138,20 @@ light:
     restore_mode: ALWAYS_ON
 
 globals:
-  # 0 stats, 1 brushing
+  # Current display mode. See DisplayMode enum in toothbrush_days_to_show.h.
   - id: _glbl_mode
     type: int
     restore_value: no
-    initial_value: "0"
+    initial_value: "0"  # Mode_Init
   - id: _glbl_timeout_ticks
     type: int
     restore_value: no
     initial_value: "0"
+  # Mode_StatsPeek returns to this mode when its 5 s timer expires.
+  - id: _glbl_peek_return_mode
+    type: int
+    restore_value: no
+    initial_value: "0"  # ignored - set when entering peek
 
 # make sure json libraries are imported and available in lambdas
 json:
@@ -174,18 +179,74 @@ number:
     entity_id: sensor.toby_toothbrush_duration
     on_value:
       then:
+        # Scenarios to consider:
+        # We may or may not receive a duration update with value=0 at the start or end of a
+        # brushing session, depending on whether the brush is put back on charge and we recieve
+        # the BLE broadcast. (It starts sending duration=0 when picked up off the charger.)
+        # Be prepared to skip the welcome screen if we miss the initial duration=0 update,
+        # and to ignore duration=0 while on stats.
+        # This also means after a reboot the existing value might be zero or the last brush duration.
+        #
+        # - Normal brushing session: Off -> Welcome → Brushing → Stats → Off
+        # - Normal brushing without start: Off -> Brushing → Stats → Off
+        # - Normal brushing, delayed BLE updates: Brushing -> Stats -> Brushing -> Stats -> Off
+        # - Reset to zero on stats: Brushing -> Stats -> zero received -> Stats -> Off
+        # - Reset to zero before time out detected end of brushing: Brushing -> zero received -> Stats -> Off
+        # - User peeks at stats during welcome: Welcome → StatsPeek → Welcome -> Brushing → Stats → Off
+        # - User peeks at stats during welcome, brushing starts while on stats: Welcome → StatsPeek → Brushing → Stats → Off
+        # - User peeks at stats during brushing: Welcome → Brushing → StatsPeek → Brushing → Stats → Off
+        # - User peeks at stats after brushing ends but before the 5s timeout: Welcome → Brushing → StatsPeek → Stats → Off
+        # - Startup: Mode_Init -> StatsPeek -> Off
+        # - Startup, brushing starts: Mode_Init -> StatsPeek -> Welcome/Brushing
         - lambda: |-
-            // switch to either welcome or brushing mode and start the timer
             int old_mode = id(_glbl_mode);
-            if (x == 0)
-              id(_glbl_mode) = Mode_Welcome;
-            else
-              id(_glbl_mode) = Mode_Brushing;
+
+            // First sensor update after boot — show stats briefly
+            if (id(_glbl_mode) == Mode_Init) {
+              id(_glbl_mode) = Mode_StatsPeek;
+              id(_glbl_peek_return_mode) = Mode_Off;
+              id(_glbl_timeout_ticks) = 0;
+            }
+            else if (id(_glbl_mode) == Mode_Off || id(_glbl_mode) == Mode_Welcome)
+            {
+              id(_glbl_mode) = x == 0 ? Mode_Welcome : Mode_Brushing;
+              id(_glbl_timeout_ticks) = 0;
+            }
+            else if (id(_glbl_mode) == Mode_Brushing)
+            {
+              id(_glbl_mode) = x == 0 ? Mode_Stats : Mode_Brushing;
+              id(_glbl_timeout_ticks) = 0;
+            }
+            else if (id(_glbl_mode) == Mode_StatsPeek)
+            {
+                // Brushing returned to charge while the user was peeking during an active session.
+                // Upgrade to normal Stats so they get the full 60 s post-brush display.
+                if (x == 0) {
+                  id(_glbl_mode) = Mode_Stats;
+                  id(_glbl_timeout_ticks) = 0;
+                }
+                // If it's a > 0 duration update during a peek — stay in peek mode and don't reset
+                // timeout; the peek timer will return us to Mode_Brushing when it expires.
+                // This does mean it'll take longer to get to stats if brushing stops while peeking
+                // but that seems ok, not worth adding a second timer.
+                // There's an edge case for brushing starting while peeking after init, so make sure
+                // we do transition to brusing, not off.
+                else 
+                {
+                  id(_glbl_peek_return_mode) = Mode_Brushing;
+                }
+            }
+            else if (id(_glbl_mode) == Mode_Stats)
+            {
+              // go back to brushing if missed BLE updates, otherwise leave it alone until the existing timer times out
+              if (x > 0) {
+                id(_glbl_mode) = Mode_Brushing;
+                id(_glbl_timeout_ticks) = 0;
+              }
+            }
 
             if (old_mode != id(_glbl_mode))
               ESP_LOGI("mode", "%d->%d", old_mode, id(_glbl_mode));
-
-            id(_glbl_timeout_ticks) = 0;
 
             // Refresh display
             id(backlight_pwm).turn_on();
@@ -294,6 +355,7 @@ display:
           it.image(frogX, frogY, id(image_frog), id(colour_green_frog), id(colour_black));
         }
       }
+      // Render stats for all other modes, if not yet init, or the mode/backlight is off that's fine.
       else
       {
         it.printf( 2,  60, id(arialSmall), id(colour_white), "Morn");
@@ -335,10 +397,19 @@ touchscreen:
 
         if (id(_glbl_mode) == Mode_Off)
         {
+          // Normal stats display — 60 s then back to Off
           ESP_LOGI("mode", "Off->Stats");
-          
-          // Display Stats
           id(_glbl_mode) = Mode_Stats;
+          id(backlight_pwm).turn_on();
+          id(my_display).update();
+          id(_glbl_timeout_ticks) = 0;
+        }
+        else if (id(_glbl_mode) == Mode_Brushing || id(_glbl_mode) == Mode_Welcome)
+        {
+          // Peek at stats for 5s, then return to this mode
+          ESP_LOGI("mode", "%d->StatsPeek", id(_glbl_mode));
+          id(_glbl_peek_return_mode) = id(_glbl_mode);
+          id(_glbl_mode) = Mode_StatsPeek;
           id(backlight_pwm).turn_on();
           id(my_display).update();
           id(_glbl_timeout_ticks) = 0;
@@ -364,16 +435,27 @@ interval:
           id(backlight_pwm).turn_off();
           id(my_display).update();
         }
-        // Display stats 5s after stopping brushing
+        // Change to stats 5s after stopping brushing
         else if (id(_glbl_mode) == Mode_Brushing && id(_glbl_timeout_ticks) >= 5 )
         {
           ESP_LOGI("mode", "Brushing->Stats");
 
           // Display stats
           id(_glbl_mode) = Mode_Stats;
+          id(_glbl_timeout_ticks) = 0;
           id(my_display).update();
         }
-        // Display stats for 60s
+        // Peek timeout — return to the mode we came from
+        else if (id(_glbl_mode) == Mode_StatsPeek && id(_glbl_timeout_ticks) >= 5)
+        {
+          ESP_LOGI("mode", "StatsPeek->%d", id(_glbl_peek_return_mode));
+          id(_glbl_mode) = id(_glbl_peek_return_mode);
+          id(_glbl_timeout_ticks) = 0;
+          if (id(_glbl_mode) == Mode_Off)
+            id(backlight_pwm).turn_off();
+          id(my_display).update();
+        }
+        // Display stats for 60s then turn off
         else if (id(_glbl_mode) == Mode_Stats && id(_glbl_timeout_ticks) >= 60 )
         {
           ESP_LOGI("mode", "Stats->Off");
