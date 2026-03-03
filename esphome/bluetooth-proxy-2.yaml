@@ -100,7 +100,8 @@ text_sensor:
 # normal I2C bit pulses without triggering a chip reset.
 #
 # Despite this config the touchscreen still fails, possibly because of
-# capacitance or power supply changes but I'm not convinced.
+# capacitance or power supply changes but I'm not convinced. I eventually cut
+# the pin connecting EN to fix it.
 binary_sensor:
   - platform: gpio
     pin:

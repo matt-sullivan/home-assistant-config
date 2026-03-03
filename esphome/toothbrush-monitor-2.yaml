@@ -11,6 +11,18 @@ esphome:
       build_flags: "-DBOARD_HAS_PSRAM"
       board_build.esp-idf.memory_type: qio_opi
       board_build.flash_mode: dio
+  on_boot:
+    # The touchscreen was having problems when the C6 wireless module is
+    # connected. It seemed like some sort of intermittent timing issue that I'd
+    # hoped this retry would fix, but ultimately I had to cut the pin connecting
+    # IO15_SDA to the C6 EN.
+    priority: -100
+    then:
+      - delay: 5s
+      - lambda: |-
+          ESP_LOGI("gt911_recovery", "on_boot: calling setup() to recover GT911");
+          id(my_touchscreen).setup();
+          ESP_LOGI("gt911_recovery", "on_boot: GT911 setup() called");
 
 # https://www.elecrow.com/crowpanel-advance-3-5-hmi-esp32-ai-display-480x320-artificial-intelligent-ips-touch-screen.html
 # ESP32-S3-WROOM-1U
@@ -124,9 +136,10 @@ esp32_ble_tracker:
     window: 120ms
 
 i2c:
+  id: my_i2c
   sda: 15
   scl: 16
-  scan: true
+  scan: false
 
 spi:
   clk_pin: 42
@@ -214,8 +227,7 @@ text_sensor:
         - lambda: |-
             stats.clear();
 
-            // Allocate JSON document with enough size. ESP32 uses 4x more than 8bit cpu.
-            DynamicJsonDocument doc(4096);
+            JsonDocument doc;
 
             auto error = deserializeJson(doc, id(days_to_show_attr).state);
             if (error) {
@@ -327,7 +339,10 @@ display:
 touchscreen:
   platform: gt911
   id: my_touchscreen
+  display: my_display
   address: 0x5D
+  reset_pin: GPIO48
+  interrupt_pin: GPIO47
   # update_interval: 50ms
   # threshold: 400
   calibration:
