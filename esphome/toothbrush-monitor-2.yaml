@@ -270,7 +270,7 @@ display:
         it.printf(20, 20, id(arialMed), id(colour_green_text), "Hello Toby");
         it.printf(20, 70, id(arialMed), id(colour_green_text), "I'm ready when");
         it.printf(20, 120, id(arialMed), id(colour_green_text), "you are");
-        it.image(200, 140, id(image_frog), id(colour_green_frog), id(colour_black));
+        it.image(360, 130, id(image_frog), id(colour_green_frog), id(colour_black));
       }
       else if (id(_glbl_mode) == Mode_Brushing)
       {
@@ -279,7 +279,7 @@ display:
         {
           it.printf(20, 20, id(arialMed), id(colour_green_text), "Time's up.");
           it.printf(20, 70, id(arialMed), id(colour_green_text), "Great Work!");
-          it.image(200, 140, id(image_frog), id(colour_green_frog), id(colour_black));
+          it.image(360, 130, id(image_frog), id(colour_green_frog), id(colour_black));
         }
         else
         {
@@ -288,25 +288,25 @@ display:
 
           int sector = duration / 30;
           it.printf(20, 105, id(arialBig), id(colour_red), "%d", sector);
-          int frogX = 100 + (duration % 30) * 4;
-          int frogY = 160 - (duration % 30) * 1; 
+          int frogX = 140 + (duration % 30) * 10;  // travels 140→430 across the wide screen
+          int frogY = 220 - (duration % 30) * 2;   // rises 220→162
           ESP_LOGD("frog", "X=%d, Y=%d", frogX, frogY);
           it.image(frogX, frogY, id(image_frog), id(colour_green_frog), id(colour_black));
         }
       }
       else
       {
-        it.printf( 2,  40, id(arialSmall), id(colour_white), "Morn");
-        it.printf( 2, 140, id(arialSmall), id(colour_white), "Night");
+        it.printf( 2,  60, id(arialSmall), id(colour_white), "Morn");
+        it.printf( 2, 188, id(arialSmall), id(colour_white), "Night");
 
         for (size_t i = 0; i < stats.size(); i++) {
-          int am_size = 80 * stats[i].am;
-          int pm_size = 80 * stats[i].pm;
-          it.filled_rectangle( 40 + 40 * i, 20, 32, 80, id(colour_gray));
-          it.filled_rectangle( 40 + 40 * i, 100 - am_size, 32, am_size, stats[i].am >= 1 ? id(colour_green_stats) : id(colour_red));
-          it.filled_rectangle( 40 + 40 * i, 120, 32, 80, id(colour_gray));
-          it.filled_rectangle( 40 + 40 * i, 200 - pm_size, 32, pm_size, stats[i].pm >= 1 ? id(colour_green_stats) : id(colour_red));
-          it.printf( 45 + 40 * i, 205, id(arialSmall), id(colour_white), stats[i].day);
+          int am_size = 110 * stats[i].am;
+          int pm_size = 110 * stats[i].pm;
+          it.filled_rectangle( 42 + 60 * i, 10, 52, 110, id(colour_gray));
+          it.filled_rectangle( 42 + 60 * i, 120 - am_size, 52, am_size, stats[i].am >= 1 ? id(colour_green_stats) : id(colour_red));
+          it.filled_rectangle( 42 + 60 * i, 140, 52, 110, id(colour_gray));
+          it.filled_rectangle( 42 + 60 * i, 250 - pm_size, 52, pm_size, stats[i].pm >= 1 ? id(colour_green_stats) : id(colour_red));
+          it.printf( 45 + 60 * i, 258, id(arialSmall), id(colour_white), stats[i].day);
         }
       }
 
