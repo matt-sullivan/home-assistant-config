@@ -114,7 +114,11 @@ binary_sensor:
     name: ""
 
 bluetooth_proxy:
-  active: true
+  # Passive only — Oral-B data is fully decoded from BLE advertisements.
+  # Active mode causes HA to attempt GATT connections to the toothbrush, which
+  # stops passive scanning for ~20 s per attempt and disrupts WiFi via ADDBA
+  # session teardowns, while always failing.
+  active: false
 
 esp32_ble_tracker:
   scan_parameters:
@@ -126,6 +130,10 @@ esp32_ble_tracker:
     # so we can afford to scan aggressively.
     interval: 160ms
     window: 120ms
+  # Decode the toothbrush's BLE advertisements to consider changing it to work
+  # offline (e.g. if wifi or HA was flaky.) This decoding seems to work
+  # reliably but I don't think it's worth it to implement a bespoke serial protocol
+  # to the host display.
   on_ble_advertise:
     - then:
         - lambda: |-
