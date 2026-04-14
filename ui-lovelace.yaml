@@ -149,14 +149,14 @@ views:
       - title: Hall AP
         type: entities
         entities:
-          - binary_sensor.bluetooth_proxy_1_ping
-          - device_tracker.bluetooth_proxy_1local_is_home
-          - binary_sensor.bluetooth_proxy_1local_is_present
-          - device_tracker.bluetooth_proxy_1
-          - binary_sensor.toothbrush_monitor_ping
-          - device_tracker.toothbrush_monitorlocal_is_home
-          - binary_sensor.toothbrush_monitorlocal_is_present
-          - device_tracker.toothbrush_monitor
+          - binary_sensor.bluetooth_proxy_2_ping
+          - device_tracker.bluetooth_proxy_2_is_home
+          - binary_sensor.bluetooth_proxy_2_is_present
+          - device_tracker.bluetooth_proxy_2
+          - binary_sensor.toothbrush_monitor_2_ping
+          - device_tracker.toothbrush_monitor_2_is_home
+          - binary_sensor.toothbrush_monitor_2_is_present
+          - device_tracker.toothbrush_monitor_2
           - binary_sensor.lounge_google_tv_ping
           - binary_sensor.emilys_tv_ping
       - title: Outside AP

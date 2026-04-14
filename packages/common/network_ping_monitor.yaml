@@ -16,8 +16,8 @@ template:
       - name: Network Monitor Hall
         unique_id: network_monitor_hall
         state: >
-          {{ is_state('binary_sensor.bluetooth_proxy_1_ping', 'on')
-            and is_state('binary_sensor.toothbrush_monitor_ping', 'on')
+          {{ is_state('binary_sensor.bluetooth_proxy_2_ping', 'on')
+            and is_state('binary_sensor.toothbrush_monitor_2_ping', 'on')
             and is_state('binary_sensor.lounge_google_tv_ping', 'on')
             and is_state('binary_sensor.emilys_tv_ping', 'on')
             }}
