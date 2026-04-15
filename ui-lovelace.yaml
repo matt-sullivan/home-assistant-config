@@ -170,3 +170,25 @@ views:
         entities:
           - binary_sensor.unifi_router_ping
           - binary_sensor.google_dns_ping
+      - title: History
+        type: history-graph
+        hours_to_show: 48
+        entities:
+          - binary_sensor.network_monitor_all
+          - binary_sensor.network_monitor_front
+          - binary_sensor.network_monitor_hall
+          - binary_sensor.network_monitor_outside
+          - binary_sensor.lights_ensuite_ping
+          - binary_sensor.lights_entry_ping
+          - binary_sensor.lights_toby_ping
+          - binary_sensor.lights_parents_ping
+          - binary_sensor.wemosd1_garage_ping
+          - binary_sensor.bluetooth_proxy_2_ping
+          - binary_sensor.toothbrush_monitor_2_ping
+          - binary_sensor.lounge_google_tv_ping
+          - binary_sensor.emilys_tv_ping
+          - binary_sensor.lights_bathroom_ping
+          - binary_sensor.lights_kitchen_ping
+          - binary_sensor.google_home_ping
+          - binary_sensor.unifi_router_ping
+          - binary_sensor.google_dns_ping
