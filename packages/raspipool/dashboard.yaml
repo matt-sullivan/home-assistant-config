@@ -1,11 +1,17 @@
 lovelace:
   # Include ui-lovelace.yaml as the default dashboard (with url lovelace)
-  mode: yaml
+  resource_mode: yaml
   resources:
     - url: /hacsfiles/advanced-camera-card/advanced-camera-card.js
       type: module
   # Add yaml dashboards
   dashboards:
+    lovelace:
+      mode: yaml
+      title: Overview
+      icon: mdi:view-dashboard
+      show_in_sidebar: true
+      filename: ui-lovelace.yaml
     lovelace-pool: # lovelace-pool is the url, but sidebar entries are sorted based on title
       mode: yaml
       title: Pool
