@@ -68,6 +68,16 @@ status_led:
     number: P1
     inverted: true
 
+script:
+  - id: long_press_reboot
+    mode: single
+    then:
+      - lambda: |-
+            ESP_LOGW("reboot", "Long-press detected on ${device_name} — rebooting in 2s");
+      - delay: 2s
+      - lambda: |-
+            App.safe_reboot();
+
 ## ---------------- ##
 ##      Relays      ##
 ## ---------------- ##
@@ -126,6 +136,12 @@ binary_sensor:
     on_press:
       then:
         - light.toggle: light_1
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
     internal: True
 
   # Button 2
