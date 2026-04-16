@@ -310,18 +310,17 @@ color:
   - id: colour_blue
     hex: '0000ff'
 
-# merged from elecrow github example
 display:
-  - platform: ili9xxx
+  - platform: mipi_spi
     id: my_display
     model: ILI9488_A
     data_rate: 20MHz
     cs_pin: GPIO40
     dc_pin: GPIO41
-    spi_mode: mode0   #since no cs pin default is mode0
-    dimensions: 
-      height: 320
-      width: 480
+    dimensions:
+      height: 480
+      width: 320
+    rotation: 90
     invert_colors: True
 #    color_palette: 8BIT
     lambda: |-
