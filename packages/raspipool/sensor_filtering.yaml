@@ -1,51 +1,27 @@
-binary_sensor:
-  - platform: template
-    sensors:
-      pool_pump_running:
-        friendly_name: "Pool pump running"
-        unique_id: pool_pump_running_20210920
-        value_template: "{{ is_state('switch.smartswitch2', 'on') and (states('sensor.smartswitch2_energy_power') | default(0) | float > 100) }}"
-      pool_samples_available:
-        friendly_name: "Pool samples available"
-        unique_id: pool_samples_available_20210920
-        value_template: "{{ is_state('binary_sensor.pool_pump_running', 'on') }}"
-        delay_on: 0:05:00
-        delay_off: 0:00:00
-
-sensor:
-  - platform: template
-    sensors:
-      pool_water_temperature:
-        unique_id: pool_temp_filtered_20210920
-        value_template: "{{ states('sensor.pool_temp')|float|round(1) }}"
-        availability_template: "{{ states('binary_sensor.pool_samples_available') }}"
-        icon_template: hass:thermometer
+template:
+  - binary_sensor:
+      - unique_id: pool_pump_running_20210920
+        name: "Pool pump running"
+        state: "{{ is_state('switch.smartswitch2', 'on') and (states('sensor.smartswitch2_energy_power') | default(0) | float > 100) }}"
+      - unique_id: pool_samples_available_20210920
+        name: "Pool samples available"
+        state: "{{ is_state('binary_sensor.pool_pump_running', 'on') }}"
+        delay_on: "0:05:00"
+        delay_off: "0:00:00"
+    sensor:
+      - unique_id: pool_temp_filtered_20210920
+        name: "Pool water temperature"
+        state: "{{ states('sensor.pool_temp')|float|round(1) }}"
+        availability: "{{ is_state('binary_sensor.pool_samples_available', 'on') }}"
+        icon: "hass:thermometer"
         unit_of_measurement: '°C'
-      ph_mean:
-        unique_id: pool_ph_filtered_20210920
-        value_template: "{{ states('sensor.pool_ph')|float|round(1) }}"
-        availability_template: "{{ states('binary_sensor.pool_samples_available') }}"
+      - unique_id: pool_ph_filtered_20210920
+        name: "ph mean"
+        state: "{{ states('sensor.pool_ph')|float|round(1) }}"
+        availability: "{{ is_state('binary_sensor.pool_samples_available', 'on') }}"
         unit_of_measurement: 'u'
-      orp_mean:
-        unique_id: pool_orp_filtered_20210920
-        value_template: "{{ states('sensor.pool_orp')|float|round(1) }}"
-        availability_template: "{{ states('binary_sensor.pool_samples_available') }}"
+      - unique_id: pool_orp_filtered_20210920
+        name: "orp mean"
+        state: "{{ states('sensor.pool_orp')|float|round(1) }}"
+        availability: "{{ is_state('binary_sensor.pool_samples_available', 'on') }}"
         unit_of_measurement: 'mV'
-
-# Note: this file uses the legacy config format specified here:
-# https://www.home-assistant.io/integrations/template/#legacy-sensor-configuration-format
-# There are some problems defining templates in packages, reports it works using the
-# following format with the 'sensor' line as a dict rather than the list, but I can't get
-# it to work. https://github.com/home-assistant/core/issues/49212
-# template:
-#   sensor:
-#     - name: ph_mean
-#       unique_id: pool_ph_filtered
-#       value: "{{ states('sensor.pool_ph')|float|round(1) }}"
-#       unit_of_measurement: 'u'
-#       availability: "{{ states(binary_sensor.pool_samples_valid) }}"
-#     - name: orp_mean
-#       unique_id: pool_orp_filtered
-#       value: "{{ states('sensor.pool_orp')|float|round(1) }}"
-#       unit_of_measurement: 'mV'
-#       availability: "{{ states(binary_sensor.pool_samples_valid) }}"

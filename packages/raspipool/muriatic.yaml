@@ -1,15 +1,13 @@
-sensor:
-  - platform: template
-    sensors:
-      muriatic_tank:
-        unique_id: muriatic_tank_level 
-        friendly_name: "Acid tank level"
-        value_template: "{{ states('input_number.muriatic_tank')|round(2)}}"
-      muriatic_injected_last_24h:
-        unique_id: muriatic_injected_last_24h 
-        friendly_name: "Acid injected last 24h"
-        value_template: "{{ states('sensor.muriatic_on_last_24h')|float * (states('input_number.muriatic_speed')|float *60) }}"
+template:
+  - sensor:
+      - unique_id: muriatic_tank_level
+        name: "Acid tank level"
+        state: "{{ states('input_number.muriatic_tank')|round(2) }}"
+      - unique_id: muriatic_injected_last_24h
+        name: "Acid injected last 24h"
+        state: "{{ states('sensor.muriatic_on_last_24h')|float * (states('input_number.muriatic_speed')|float * 60) }}"
 
+sensor:
   - platform: history_stats
     name: muriatic_on_last_hour
     entity_id: switch.pool_acid_pump
