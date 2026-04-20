@@ -1,10 +1,13 @@
+# There are outputs from the motor controller for when the motors are running in either direction,
+# when the door is at either limit, and a pulse event on the worm gear.
+# I had dreams of showing the correct partial position, but I wasted a lot of time on it and the
+# internal ESP pull ups and downs gave me grief. (I had a voltage divider connected to D8 but the
+# internal pull down caused problems.) The motor up & down inputs are on pin 1 & 2, are normally
+# 24v, 0v when running, and 30v spikes. I wanted to use a transistor to pull D2 & D3 down but think
+# it's cause problems on D3 at boot. I gave up, it's ok to have just the limit inputs.
 substitutions:
   device_name: "Garage Wemos D1"
   sensor_name: "Garage Door"
-  open_duration: 30s
-  distance_threshold: "0.9"
-  # don't trust any ridiculously small measurements
-  distance_threshold_min: "0.25"
 
 esphome:
   name: wemosd1-garage
@@ -13,8 +16,10 @@ esphome:
     then:
       - cover.template.publish:
           id: garage
+          # assuming opening where neither limit is active
+          # and it can change to either open or closed
           state: OPEN
-          current_operation: IDLE
+          current_operation: OPENING
 
 esp8266:
   board: d1_mini
@@ -26,6 +31,7 @@ logger:
 wifi:
   ssid: !secret wifi_ssid_front
   password: !secret wifi_password
+  min_auth_mode: WPA2
   reboot_timeout: 1h
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
@@ -69,48 +75,44 @@ sensor:
     accuracy_decimals: 1
     update_interval: 5min
 
-# Read the zigbee door sensor from home assistant
-# The physical position means we reliably detect when the door is closed but the sensor state
-# goes on/off when the door is open/closed respectively, so on_press fires when it begins to
-# open, and on_release fires when closed.
-binary_sensor:
-  - platform: homeassistant
-    name: "Zigbee door sensor (from Home Assistant)"
-    entity_id: binary_sensor.garage_door_closed_stop
-    publish_initial_state: true
-    on_press:
-      - state_machine.transition: DETECTED_OPENING
-    on_release:
-      - state_machine.transition: DETECTED_CLOSED
-    
-
-  # Disable this sensor of when the button is pressed, I haven't wired it up and it's not very
-  # important, I know the door state regardless of the button.
-  # - platform: gpio
-  #   pin:
-  #     number: D0
-  #     mode: INPUT_PULLUP
-  #   name: "${device_name} Button Pressed"
-  #   filters:
-  #     - delayed_on: 100ms
-  #   # If it wasn't our code that triggered the button input to the motor transition the state machine
-  #   on_press:
-  #     - if:
-  #         condition:
-  #           - switch.is_off: garage_relay
-  #         then:
-  #           - state_machine.transition: PRESS
-  
 switch:
   - platform: gpio
     internal: true
     name: "${sensor_name} Toggle"
-    pin: D8
+    pin: D1
     id: garage_relay
     icon: "mdi:garage"
     on_turn_on:
-      - delay: 1s
+      - delay: 200ms
       - switch.turn_off: garage_relay
+
+binary_sensor:
+  - platform: gpio
+    name: "Fully Closed"
+    pin:
+      number: D7
+      inverted: true
+      mode: INPUT
+    filters:
+      - delayed_on: 200ms
+      - delayed_off: 200ms
+    on_press:
+      - state_machine.transition: DETECTED_CLOSED
+    on_release:
+      - state_machine.transition: DETECTED_OPENING
+  - platform: gpio
+    name: "Fully Open"
+    pin:
+      number: D6
+      inverted: true
+      mode: INPUT
+    filters:
+      - delayed_on: 200ms
+      - delayed_off: 200ms
+    on_press:
+      - state_machine.transition: DETECTED_OPEN
+    on_release:
+      - state_machine.transition: DETECTED_CLOSING
 
 text_sensor:
   - platform: state_machine
@@ -118,10 +120,10 @@ text_sensor:
     name: Garage Door State Machine State
 
 state_machine:
-  - name: "${sensor_name} State Machine"
+  - name: "State Machine"
     id: garage_sm
     diagram: mermaid
-    initial_state: OPEN
+    initial_state: OPENING
     states:
       - name: CLOSED
         on_enter:
@@ -135,8 +137,6 @@ state_machine:
               id: garage
               state: OPEN
               current_operation: OPENING
-          - delay: ${open_duration}
-          - state_machine.transition: TIMEOUT
       - name: OPEN
         on_enter:
           - cover.template.publish:
@@ -150,27 +150,28 @@ state_machine:
               state: OPEN
               current_operation: CLOSING
     inputs:
-      - name: PRESS
-        transitions:
-          - CLOSED -> OPENING
-          - OPENING -> CLOSING
-          - CLOSING -> OPENING
-          - OPEN -> CLOSING
-      - name: TIMEOUT
-        transitions:
-          - OPENING -> OPEN
-        on_input:
-          - logger.log: "Timeout reached"
       - name: DETECTED_OPENING
         transitions:
           - CLOSED -> OPENING
           - CLOSING -> OPENING
+          # If the closed limit sensor turns off while in open we can assume it's actually opening
           - OPEN -> OPENING
+      - name: DETECTED_OPEN
+        transitions:
+          - CLOSING -> OPEN
+          - CLOSED -> OPEN
+          - OPENING -> OPEN
+      - name: DETECTED_CLOSING
+        transitions:
+          - OPENING -> CLOSING
+          - OPEN -> CLOSING
       - name: DETECTED_CLOSED
         transitions:
           - CLOSING -> CLOSED
-          - OPEN -> CLOSED
           - OPENING -> CLOSED
+          # Don't trust it to go open->closed, something's going wrong with the sensors, stay in
+          # some sort of open state
+          # - OPEN -> CLOSED
       - name: REQUEST_OPEN
         transitions:
           - CLOSED -> OPENING
