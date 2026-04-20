@@ -4,35 +4,23 @@ spotify_test_2:
     (as long as the HACS custom component version matches the spotify component and the cast component provided by the OS)
     continue_on_error doesn't appear to work, because it's often an exception/compile error rather than error result 
   sequence:
-    - service: spotcast.start
-      continue_on_error: true
+    - action: media_player.volume_set
       data:
-        # Emily 'favourites'
-        uri: spotify:playlist:6AEjlbDnBRswipN9HOMTrK
-        account: "emily"
-        # uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
-        # Toby football songs
-        #account: "toby"
-        #uri: spotify:playlist:7EbLEaryNgBBqquiY4ALTd
-        # search: "Taylor"
-        # random_song: true
-        start_volume: 10
-        entity_id: media_player.kitchen_speaker
-    # - service: media_player.repeat_set
-    #   target:
-    #     entity_id: media_player.spotify_sarasara_bb    
-    #   data:
-    #     repeat: all
-    # - service: spotcast.start
-    #   data:
-    #     uri: spotify:playlist:0fpnB1xETz7cpfsuZAAgsK
-    #     start_volume: 10
-    #     entity_id: media_player.kitchen_speaker
-    # - service: media_player.repeat_set
-    #   target:
-    #     entity_id: media_player.spotify_matt_sullivan    
-    #   data:
-    #     repeat: all
+        volume_level: "{{states('input_number.toby_start_volume') | int() /100}}"
+      target:
+        entity_id: media_player.kitchen_speaker_ma
+    - action: music_assistant.play_media
+      data:
+        # toby sleep music live from spotify, running under Tobys account
+        media_id: spotify--ZrkegGzq://playlist/7EbLEaryNgBBqquiY4ALTd
+        enqueue: replace
+      target:
+        entity_id: media_player.kitchen_speaker_ma
+    - action: media_player.repeat_set
+      target:
+        entity_id: media_player.kitchen_speaker_ma
+      data:
+        repeat: all
   mode: restart
 
 kids_wakeup:
@@ -129,7 +117,10 @@ toby_sleep_time:
             entity_id: media_player.tobys_bedroom_speaker_ma
         - action: music_assistant.play_media
           data:
-            media_id: library://playlist/6 # toby sleep music
+            # toby sleep music copied to MA
+            #media_id: library://playlist/6
+            # toby sleep music live from spotify, running under Tobys account
+            media_id: spotify--ZrkegGzq://playlist/7EbLEaryNgBBqquiY4ALTd
             enqueue: replace
           target:
             entity_id: media_player.tobys_bedroom_speaker_ma
@@ -243,7 +234,7 @@ emily_sleep_time:
             entity_id: media_player.emilys_bedroom_speaker_ma
         - action: music_assistant.play_media
           data:
-            media_id: library://playlist/7
+            media_id: apple_music--heYPEpYU://playlist/p.rXAJLo5hM1WvLa6
             enqueue: replace
           target:
             entity_id: media_player.emilys_bedroom_speaker_ma
@@ -252,7 +243,6 @@ emily_sleep_time:
             entity_id: media_player.emilys_bedroom_speaker_ma
           data:
             repeat: all
-      # 
       else:
         - service: spotcast.start
           continue_on_error: true
