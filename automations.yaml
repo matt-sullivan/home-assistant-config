@@ -141,8 +141,8 @@
       entity_id: light.bin_light
     data:
       brightness: 255
-      hs_color: "{% if is_state('sensor.brisbane_bin_day_recycle', 'on') %}\n  [60,60]\n{%
-        elif is_state('sensor.brisbane_bin_day', 'on') %}\n  [128,100]\n{% else %}\n
+      hs_color: "{% if is_state('binary_sensor.brisbane_bin_day_recycle', 'on') %}\n  [60,60]\n{%
+        elif is_state('binary_sensor.brisbane_bin_day', 'on') %}\n  [128,100]\n{% else %}\n
         \ [0,0]\n{% endif %}"
     action: light.turn_on
   - alias: Wait until there is no motion from either device
