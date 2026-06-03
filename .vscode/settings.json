@@ -1,6 +1,12 @@
 {
     "files.exclude": {
         "packages/**": false
-      }
+    },
+    "chat.tools.terminal.autoApprove": {
+        "/^ssh -p 22222 root@homeassistant \"docker exec addon_5c53de3b_esphome esphome .*/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }
 
