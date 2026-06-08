@@ -4,7 +4,7 @@ substitutions:
   hotspot_ssid: "Emily Air Con Hotspot"
 
 external_components:
-  - source: github://hoangminh1109/PanaAC_ESPHome@de18d7d053e205eec7f4b9cedbdd61f919357dde
+  - source: github://DomiStyle/esphome-panasonic-ac
 
 esphome:
   name: ${device_name}
@@ -18,7 +18,8 @@ esp32:
 
 # Enable logging
 logger:
-  level: DEBUG
+  level: VERBOSE
+#  hardware_uart: UART0
 
 # Enable Home Assistant API
 api:
@@ -61,25 +62,23 @@ light:
       inverted: True
       ignore_strapping_warning: true
 
-remote_receiver:
-  pin:
-    number: GPIO18
-    inverted: true
-    mode: OUTPUT_OPEN_DRAIN
-    allow_other_uses: True # needed for same pin
-  dump: panasonic
-  tolerance: 55%
-  id: ir_receiver
-  idle: 5ms # required
+uart:
+  - id: debug_uart
+    tx_pin: GPIO16
+    rx_pin: GPIO17
+    baud_rate: 115200
+  - id: uartbus1
+    tx_pin: GPIO18
+    rx_pin: GPIO19
+    baud_rate: 9600
+    parity: EVEN
 
-remote_transmitter:
-  pin:
-    number: GPIO18
-    inverted: True
-    mode: OUTPUT_OPEN_DRAIN
-    allow_other_uses: True # needed for same pin
-  carrier_duty_percent: 50%
-  non_blocking: true
+interval:
+  - interval: 1s
+    then:
+      - uart.write:
+          id: debug_uart
+          data: "hello\n"
 
 button:
   - platform: template
@@ -100,14 +99,38 @@ button:
             swing_mode: BOTH
 
 climate:
-  - platform: panaac
+  - platform: panasonic_ac
     id: climate_entity
     name: None
-    receiver_id: ir_receiver
-    supports_fan_only: true
-    supports_heat: true
-    supports_quiet: true
-    fan_5level: true
-    swing_horizontal: true
-    temp_step: 1.0
-    ir_control: false
+    # For CZ-TACG1
+    type: cnt
+    uart_id: uartbus1
+
+    # For DNSK-P11
+    # type: wlan
+
+    horizontal_swing_select:
+      name: Horizontal Swing Mode
+    vertical_swing_select:
+      name: Vertical Swing Mode
+    outside_temperature:
+      name: Outside Temperature
+
+    # Enable as needed
+    eco_switch:
+      name: Panasonic AC Eco Switch
+    # econavi_switch:
+    #   name: Panasonic AC Econavi Switch
+    # nanoex_switch:
+    #   name: Panasonic AC NanoeX Switch
+    mild_dry_switch:
+      name: Panasonic AC Mild Dry Switch
+    # current_power_consumption:
+    #   name: Panasonic AC Power Consumption
+
+    # Adapt according to your measurements
+    # current_temperature_offset: 0
+    # outside_temperature_offset: 0
+
+    # Useful when the ac does not report a current temperature (CZ-TACG1 only)
+    # current_temperature_sensor: temperature_sensor_id
