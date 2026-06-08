@@ -11,14 +11,12 @@ template:
           {{ is_state('binary_sensor.lights_ensuite_ping', 'on')
             and is_state('binary_sensor.lights_entry_ping', 'on')
             and is_state('binary_sensor.lights_toby_ping', 'on')
-            and is_state('binary_sensor.lights_parents_ping', 'on')
-            and is_state('binary_sensor.wemosd1_garage_ping', 'on') }}
+            and is_state('binary_sensor.lights_parents_ping', 'on') }}
       - name: Network Monitor Hall
         unique_id: network_monitor_hall
         state: >
           {{ is_state('binary_sensor.bluetooth_proxy_2_ping', 'on')
             and is_state('binary_sensor.toothbrush_monitor_2_ping', 'on')
-            and is_state('binary_sensor.lounge_google_tv_ping', 'on')
             and is_state('binary_sensor.emilys_tv_ping', 'on')
             }}
       - name: Network Monitor Outside
