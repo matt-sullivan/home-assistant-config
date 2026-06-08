@@ -44,31 +44,37 @@ views:
         hide_legend: true
   - title: Misc
     cards:
+      - title: Parents
+        type: entities
+        entities:
+          # - cover.parents_front_blind
+          - cover.parents_front_door_blind
+          - cover.parents_side_blind
+          - switch.sara_electric_blanket
+          - switch.matt_electric_blanket
       - title: Misc
         type: entities
         entities:
           # - lock.front_door
           - entity: cover.garage_door
             name: Garage Door
-          - sensor.garage_door_state_machine_state
           - binary_sensor.downstairs_laundry_door
           - binary_sensor.downstairs_deck_door
           - switch.pool_pump
-          # - cover.parents_front_blind
-          - cover.parents_front_door_blind
-          - cover.parents_side_blind
-          - switch.sara_electric_blanket
-          # - switch.matt_electric_blanket
-          - group.family
-          - person.matt
-          - person.sara
-          - input_boolean.visitors_at_home
           - light.study_downlight
           - light.bin_light
           - light.storage_light
+          - sensor.garage_door_state_machine_state
+      - title: Config
+        type: entities
+        entities:
+          - input_boolean.visitors_at_home
           - input_boolean.music_assistant_no_spotify
           - input_number.toby_start_volume
           - input_number.emily_start_volume
+          - group.family
+          - person.matt
+          - person.sara
   - title: Camera Overview
     cards:
       - title: Front Yard Camera
