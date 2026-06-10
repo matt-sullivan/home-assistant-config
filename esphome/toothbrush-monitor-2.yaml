@@ -424,8 +424,16 @@ interval:
         id(_glbl_timeout_ticks) += 1;
         ESP_LOGD("mode", "Ticks=%d", id(_glbl_timeout_ticks));
 
+        // Init mode: if no sensor update arrives within 60s, give up and go to Off
+        if (id(_glbl_mode) == Mode_Init && id(_glbl_timeout_ticks) >= 60)
+        {
+          ESP_LOGI("mode", "Init->Off (timeout, no sensor update)");
+          id(_glbl_mode) = Mode_Off;
+          id(backlight_pwm).turn_off();
+          id(my_display).update();
+        }
         // wait 2 minutes to start brushing
-        if (id(_glbl_mode) == Mode_Welcome && id(_glbl_timeout_ticks) >= 120 )
+        else if (id(_glbl_mode) == Mode_Welcome && id(_glbl_timeout_ticks) >= 120 )
         {
           ESP_LOGI("mode", "Welcome->Off");
           
