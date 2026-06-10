@@ -160,3 +160,7 @@ automation:
         service: homeassistant.turn_off
         target:
           entity_id: input_boolean.holiday_lights_running
+      - alias: "Reset visitors at home when family returns home"
+        service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.visitors_at_home
