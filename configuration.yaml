@@ -92,13 +92,15 @@ spotcast:
       sp_key: !secret spotcast_toby_sp_key
 
 panel_custom:
-  - name: panel-redirect
-    url_path: redirect-supervisor
-    sidebar_title: Supervisor
+  - name: ha_supervisor_apps
+    sidebar_title: Supervisor Apps
     sidebar_icon: mdi:home-assistant
-    module_url: /local/panel-redirect.js
+    js_url: /api/hassio/app/entrypoint.js
+    url_path: 'config/apps'
+    embed_iframe: true
+    require_admin: true
     config:
-      target: /hassio/dashboard
+      ingress: Supervisor
 
 person:
   - name: Sara
@@ -149,3 +151,13 @@ input_number:
     max: 100
     mode: box
     icon: mdi:volume-medium
+  aircon_max_heat_temp:
+    min: 15
+    max: 30
+    mode: box
+    icon: mdi:thermometer-lines
+  aircon_min_cool_temp:
+    min: 15
+    max: 30
+    mode: box
+    icon: mdi:thermometer-lines
