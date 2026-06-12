@@ -151,6 +151,26 @@ input_number:
     max: 100
     mode: box
     icon: mdi:volume-medium
+  toby_alarm_start_volume:
+    min: 0
+    max: 100
+    mode: box
+    icon: mdi:volume-medium
+  emily_alarm_start_volume:
+    min: 0
+    max: 100
+    mode: box
+    icon: mdi:volume-medium
+  toby_alarm_end_volume:
+    min: 0
+    max: 100
+    mode: box
+    icon: mdi:volume-medium
+  emily_alarm_end_volume:
+    min: 0
+    max: 100
+    mode: box
+    icon: mdi:volume-medium
   aircon_max_heat_temp:
     min: 15
     max: 30

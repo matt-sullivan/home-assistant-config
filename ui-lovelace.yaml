@@ -73,7 +73,11 @@ views:
           - input_boolean.visitors_at_home
           - input_boolean.music_assistant_no_spotify
           - input_number.toby_start_volume
+          - input_number.toby_alarm_start_volume
+          - input_number.toby_alarm_end_volume
           - input_number.emily_start_volume
+          - input_number.emily_alarm_start_volume
+          - input_number.emily_alarm_end_volume
           - input_number.aircon_max_heat_temp
           - input_number.aircon_min_cool_temp
           - group.family

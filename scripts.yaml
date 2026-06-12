@@ -23,50 +23,58 @@ spotify_test_2:
         repeat: all
   mode: restart
 
-kids_wakeup:
-  alias: Kids Wake Up
-  description: Start kids wake up music and lights
+toby_wakeup:
+  alias: Toby Wake Up
+  description: >-
+    Alarm-style wake up: plays an alarm-like song via Music Assistant, ramps the
+    volume from the alarm start to end input numbers, turns on the main light and
+    opens the blinds. Intended to be triggered by the scheduler card.
   variables:
-    chromecast_id: media_player.tobys_bedroom_speaker
+    ma_speaker: media_player.tobys_bedroom_speaker_ma
     count: 10
-    start_volume: 0.2
-    max_volume: 0.5
   sequence:
-    - service: spotcast.start
-      continue_on_error: true
+    - action: cover.open_cover
+      target:
+        entity_id:
+          - cover.tobys_front_blind
+          - cover.tobys_side_blind
+    - action: light.turn_on
+      target:
+        entity_id: light.toby_main
+    - action: media_player.volume_set
+      target:
+        entity_id: "{{ ma_speaker }}"
       data:
-        uri: spotify:playlist:4WyHdt802ozHHPWq1BNUUB
-        random_song: true
-        repeat: true
-        shuffle: true
-        start_volume: "{{start_volume * 100}}"
-        entity_id: "{{chromecast_id}}"
+        volume_level: "{{ states('input_number.toby_alarm_start_volume') | float / 100 }}"
+    - action: music_assistant.play_media
+      target:
+        entity_id: "{{ ma_speaker }}"
+      data:
+        # Alarm-like song; change media_id to any track/playlist name in your Music Assistant library
+        media_id: "Alarm Anne-Marie"
+        media_type: track
+        enqueue: replace
+    - action: media_player.repeat_set
+      target:
+        entity_id: "{{ ma_speaker }}"
+      data:
+        repeat: all
     - repeat:
-        count: "{{count}}"
+        count: "{{ count }}"
         sequence:
-          - service: media_player.volume_set
-            data:
-              entity_id: "{{chromecast_id}}"
-              volume_level: "{{start_volume + (max_volume - start_volume) * (repeat.index|float / count)}}"
-          - service: scene.apply
-            data:
-              entities:
-                light.toby_reading_2:
-                  brightness: "{{repeat.index|float / count * 255}}"
-                  state: "on"
-                light.kids_short_w:
-                  brightness: "{{repeat.index|float / count * 255}}"
-                  state: "on"
-                light.kids_short_rgb:
-                  state: "off"
-                light.tobyfroglight:
-                  color_mode: onoff
-                  state: 'on'
           - delay:
               hours: 0
               minutes: 1
               seconds: 0
               milliseconds: 0
+          - action: media_player.volume_set
+            target:
+              entity_id: "{{ ma_speaker }}"
+            data:
+              volume_level: >-
+                {% set s = states('input_number.toby_alarm_start_volume') | float / 100 %}
+                {% set e = states('input_number.toby_alarm_end_volume') | float / 100 %}
+                {{ s + (e - s) * (repeat.index | float / count) }}
   mode: restart
 
 toby_reading_time:
@@ -270,34 +278,56 @@ emily_sleep_time:
 
 emily_wake_up:
   alias: Emily Wake Up
-  description: Emily's morning music
+  description: >-
+    Alarm-style wake up: plays an alarm-like song via Music Assistant, ramps the
+    volume from the alarm start to end input numbers, turns on the main light and
+    opens the blinds. Intended to be triggered by the scheduler card.
   variables:
-    start_volume: 20
-    # Emilys speaker
-    chromecast_id: media_player.emilys_bedroom_speaker
+    ma_speaker: media_player.emilys_bedroom_speaker_ma
+    count: 10
   sequence:
-    - service: spotcast.start
-      continue_on_error: true
-      data:
-        account: "emily"
-        # Emily Morning Wake Up
-        uri: spotify:playlist:4ExKNntDG3GiHdXpieO1fj
-        # repeat: true| all doens't appear to work
-        start_volume: "{{start_volume}}"
-        entity_id: "{{chromecast_id}}"
-    # Setting repeat doens't seem to work. It takes a while before playing on a device appears
-    # against the specific person's account, so maybe I need to wait until that happens before
-    # I can set repeat.
-    - delay:
-        hours: 0
-        minutes: 1
-        seconds: 0
-        milliseconds: 0
-    - service: media_player.repeat_set
+    - action: cover.open_cover
       target:
-        entity_id: media_player.spotify_emily        
+        entity_id:
+          - cover.emilys_door_blind
+          - cover.emilys_side_blind
+    - action: light.turn_on
+      target:
+        entity_id: light.emily_main
+    - action: media_player.volume_set
+      target:
+        entity_id: "{{ ma_speaker }}"
+      data:
+        volume_level: "{{ states('input_number.emily_alarm_start_volume') | float / 100 }}"
+    - action: music_assistant.play_media
+      target:
+        entity_id: "{{ ma_speaker }}"
+      data:
+        # Alarm-like song; change media_id to any track/playlist name in your Music Assistant library
+        media_id: "Alarm Anne-Marie"
+        media_type: track
+        enqueue: replace
+    - action: media_player.repeat_set
+      target:
+        entity_id: "{{ ma_speaker }}"
       data:
         repeat: all
+    - repeat:
+        count: "{{ count }}"
+        sequence:
+          - delay:
+              hours: 0
+              minutes: 1
+              seconds: 0
+              milliseconds: 0
+          - action: media_player.volume_set
+            target:
+              entity_id: "{{ ma_speaker }}"
+            data:
+              volume_level: >-
+                {% set s = states('input_number.emily_alarm_start_volume') | float / 100 %}
+                {% set e = states('input_number.emily_alarm_end_volume') | float / 100 %}
+                {{ s + (e - s) * (repeat.index | float / count) }}
   mode: restart
 
 toby_all_off:
