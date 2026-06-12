@@ -13,6 +13,7 @@ views:
           - cover.emilys_door_blind
           - cover.emilys_side_blind
           - switch.emily_electric_blanket
+          - climate.emily_air_con
           - media_player.emilys_bedroom_speaker
           - media_player.spotify_emily
           - media_player.emilys_bedroom_speaker_ma
@@ -52,6 +53,7 @@ views:
           - cover.parents_side_blind
           - switch.sara_electric_blanket
           - switch.matt_electric_blanket
+          - climate.parents_air_con
       - title: Misc
         type: entities
         entities:
@@ -72,6 +74,8 @@ views:
           - input_boolean.music_assistant_no_spotify
           - input_number.toby_start_volume
           - input_number.emily_start_volume
+          - input_number.aircon_max_heat_temp
+          - input_number.aircon_min_cool_temp
           - group.family
           - person.matt
           - person.sara
@@ -198,3 +202,36 @@ views:
           - binary_sensor.google_home_ping
           - binary_sensor.unifi_router_ping
           - binary_sensor.google_dns_ping
+  - title: Schedules
+    cards:
+      - title: Climate
+        type: custom:scheduler-card
+        include:
+          - light
+          - climate
+          - cover
+          - script
+        display_options:
+          secondary_info:
+            - time
+            - days
+            - additional-tasks
+        show_header_toggle: true
+        show_toggle_switches: true
+        tags: climate
+      - title: Wake Up Alarms
+        type: custom:scheduler-card
+        include:
+          - light
+          - climate
+          - cover
+          - script
+        display_options:
+          secondary_info:
+            - time
+            - days
+            - additional-tasks
+        show_header_toggle: true
+        show_toggle_switches: true
+        tags: alarm
+        discover_existing: false

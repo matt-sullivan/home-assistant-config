@@ -4,6 +4,8 @@ lovelace:
   resources:
     - url: /hacsfiles/advanced-camera-card/advanced-camera-card.js
       type: module
+    - url: /hacsfiles/scheduler-card/scheduler-card.js
+      type: module
   # Add yaml dashboards
   dashboards:
     lovelace:

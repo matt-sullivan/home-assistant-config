@@ -13,6 +13,7 @@ custom_components/**
 home-assistant.log.*
 
 /custom_components-disabled
-/www/community/advanced-camera-card
+/www/community
 .claude/settings.local.json
 .cache/
+.ha_run.lock
