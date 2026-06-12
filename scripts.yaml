@@ -310,6 +310,9 @@ toby_all_off:
       - service: fan.turn_off
         target:
           area_id: kids_bedroom
+      - service: climate.turn_off
+        target:
+          area_id: kids_bedroom
       - action: media_player.turn_off
         target:
           entity_id: media_player.tobys_bedroom_speaker
@@ -325,6 +328,9 @@ emily_all_off:
         target:
           area_id: toy_room
       - service: fan.turn_off
+        target:
+          area_id: toy_room
+      - service: climate.turn_off
         target:
           area_id: toy_room
       - action: media_player.turn_off
@@ -357,6 +363,10 @@ leaving_home:
           entity_id: 
             - script.emily_sleep_time
             - script.toby_sleep_time
+      - service: climate.turn_off
+        target:
+          entity_id: all
+        data: {}
       - if:
           - condition: not
             conditions:

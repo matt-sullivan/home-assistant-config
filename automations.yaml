@@ -446,3 +446,24 @@
     data:
       message: Ping monitoring detected devices down {{now().strftime("%H:%M")}}
   mode: single
+- id: '1780926987208'
+  alias: Limit Emily Air Con
+  description: ''
+  use_blueprint:
+    path: homeassistant/air_con_limits.yaml
+    input:
+      climate_entity: climate.emily_air_con
+      door_sensors:
+      - binary_sensor.emilys_bedroom_emilys_door
+      - binary_sensor.tobys_bedroom_tobys_door
+  mode: single
+- id: '1780926987209'
+  alias: Limit Parents Air Con
+  description: ''
+  use_blueprint:
+    path: homeassistant/air_con_limits.yaml
+    input:
+      climate_entity: climate.parents_air_con
+      door_sensors:
+      - binary_sensor.parents_bedroom_parents_door
+  mode: single

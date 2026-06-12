@@ -1,0 +1,136 @@
+blueprint:
+  name: Air Con Limits
+  description: "Prevent air con waste, turn off if doors open, and limit target temperature by mode: heat clamps to max, cool clamps to min, and auto/heat_cool clamps inside both bounds."
+  domain: automation
+  input:
+    climate_entity:
+      name: Climate entity
+      selector:
+        entity:
+          domain: climate
+    door_sensors:
+      name: Door sensors (optional)
+      description: >-
+        List of door/window binary sensors; if any are open for 5 minutes the
+        climate device will be turned off.
+      default: []
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+
+variables:
+  climate_entity: !input climate_entity
+  door_sensors: !input door_sensors
+  heating_max_temp: "{{ states('input_number.aircon_max_heat_temp') | float }}"
+  cooling_min_temp: "{{ states('input_number.aircon_min_cool_temp') | float }}"
+  auto_min_temp: "{{ [cooling_min_temp, heating_max_temp] | min }}"
+  auto_max_temp: "{{ [cooling_min_temp, heating_max_temp] | max }}"
+  current_target_temp: "{{ state_attr(climate_entity, 'temperature') | float }}"
+
+# Trigger-level variables: !input is substituted here (before Jinja runs), making
+# the entity ids available to the template trigger below. This avoids the
+# "unexpected char '!'" / undefined-variable errors caused by putting !input
+# directly inside a {{ }} template.
+trigger_variables:
+  trig_climate_entity: !input climate_entity
+  trig_door_sensors: !input door_sensors
+
+trigger:
+  - platform: state
+    entity_id: !input climate_entity
+    id: climate_changed
+  - platform: template
+    # fires when any door is open AND the AC is on for 5 continuous minutes
+    value_template: >-
+      {{ not is_state(trig_climate_entity, 'off')
+         and (expand(trig_door_sensors) | selectattr('state', 'equalto', 'on') | list | count > 0) }}
+    for: '00:00:30'
+    id: door_open
+  # Safety net: re-check on HA start/reload, since a template trigger that is
+  # already true at load does not fire on its own (no false->true edge). Shares
+  # the door_open id; the action re-validates the door condition so this only
+  # acts when a door is actually open while the AC is on.
+  - platform: homeassistant
+    event: start
+    id: door_open
+
+action:
+  - choose:
+      # --- Door trigger: fires after door open + AC on for configured time,
+      #     or on HA start if the condition is already true ---
+      - conditions:
+          - condition: trigger
+            id: door_open
+          - condition: template
+            value_template: >-
+              {{ not is_state(climate_entity, 'off')
+                 and (expand(door_sensors) | selectattr('state', 'equalto', 'on') | list | count > 0) }}
+        sequence:
+          - service: climate.turn_off
+            target:
+              entity_id: !input climate_entity
+
+      # --- Climate trigger: clamp temperature by mode (heat) ---
+      - conditions:
+          - condition: trigger
+            id: climate_changed
+          - condition: state
+            entity_id: !input climate_entity
+            state: heat
+          - condition: template
+            value_template: "{{ current_target_temp > heating_max_temp }}"
+        sequence:
+          - service: climate.set_temperature
+            target:
+              entity_id: !input climate_entity
+            data:
+              temperature: "{{ heating_max_temp }}"
+
+      # --- Climate trigger: clamp temperature by mode (cool) ---
+      - conditions:
+          - condition: trigger
+            id: climate_changed
+          - condition: state
+            entity_id: !input climate_entity
+            state: cool
+          - condition: template
+            value_template: "{{ current_target_temp < cooling_min_temp }}"
+        sequence:
+          - service: climate.set_temperature
+            target:
+              entity_id: !input climate_entity
+            data:
+              temperature: "{{ cooling_min_temp }}"
+
+      # --- Climate trigger: clamp temperature by mode (auto/heat_cool) - over max ---
+      - conditions:
+          - condition: trigger
+            id: climate_changed
+          - condition: template
+            value_template: "{{ states(climate_entity) in ['auto', 'heat_cool'] }}"
+          - condition: template
+            value_template: "{{ current_target_temp > auto_max_temp }}"
+        sequence:
+          - service: climate.set_temperature
+            target:
+              entity_id: !input climate_entity
+            data:
+              temperature: "{{ auto_max_temp }}"
+
+      # --- Climate trigger: clamp temperature by mode (auto/heat_cool) - under min ---
+      - conditions:
+          - condition: trigger
+            id: climate_changed
+          - condition: template
+            value_template: "{{ states(climate_entity) in ['auto', 'heat_cool'] }}"
+          - condition: template
+            value_template: "{{ current_target_temp < auto_min_temp }}"
+        sequence:
+          - service: climate.set_temperature
+            target:
+              entity_id: !input climate_entity
+            data:
+              temperature: "{{ auto_min_temp }}"
+
+mode: restart
