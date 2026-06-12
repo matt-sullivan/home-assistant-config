@@ -1,5 +1,6 @@
+# Testing DAIKIN IR interface on ESP8285 IR transceiver board
 substitutions:
-  device_name: air-con-emily
+  device_name: air-con-test
   friendly_name: Test Air Con
   hotspot_ssid: "Test Air Con Hotspot"
 
