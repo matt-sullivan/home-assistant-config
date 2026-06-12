@@ -1,20 +1,23 @@
 - id: '1643034412279'
   alias: Welcome Lights
   description: ''
-  trigger:
-  - platform: state
-    entity_id: group.family
-    from: away
-    to: home
-  condition:
+  triggers:
+  - trigger: state
+    entity_id:
+    - group.family
+    from:
+    - Away
+    to:
+    - home
+  conditions:
   - condition: state
     entity_id: sun.sun
     state: below_horizon
-  action:
-  - service: homeassistant.turn_on
+  actions:
+  - action: homeassistant.turn_on
     target:
       entity_id: group.welcome_lights
-  - service: notify.parents
+  - action: notify.parents
     data:
       message: Welcome lights turned on at {{now().strftime("%H:%M")}}
 - id: debug_matt_location
@@ -141,9 +144,9 @@
       entity_id: light.bin_light
     data:
       brightness: 255
-      hs_color: "{% if is_state('binary_sensor.brisbane_bin_day_recycle', 'on') %}\n  [60,60]\n{%
-        elif is_state('binary_sensor.brisbane_bin_day', 'on') %}\n  [128,100]\n{% else %}\n
-        \ [0,0]\n{% endif %}"
+      hs_color: "{% if is_state('binary_sensor.brisbane_bin_day_recycle', 'on') %}\n
+        \ [60,60]\n{% elif is_state('binary_sensor.brisbane_bin_day', 'on') %}\n  [128,100]\n{%
+        else %}\n  [0,0]\n{% endif %}"
     action: light.turn_on
   - alias: Wait until there is no motion from either device
     wait_template: '{{ not(is_state(''binary_sensor.front_yard_motion_stairs'', ''on''))
