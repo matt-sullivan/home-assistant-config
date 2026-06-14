@@ -455,7 +455,6 @@
       climate_entity: climate.emily_air_con
       door_sensors:
       - binary_sensor.emilys_bedroom_emilys_door
-      - binary_sensor.tobys_bedroom_tobys_door
   mode: single
 - id: '1780926987209'
   alias: Limit Parents Air Con
@@ -467,3 +466,22 @@
       door_sensors:
       - binary_sensor.parents_bedroom_parents_door
   mode: single
+- id: '1781352910573'
+  alias: Limit Toby Air Con
+  description: ''
+  use_blueprint:
+    path: homeassistant/air_con_limits.yaml
+    input:
+      climate_entity: climate.toby_air_con
+      door_sensors:
+      - binary_sensor.tobys_bedroom_tobys_door
+- id: '1781444187793'
+  alias: Limit Living Room Air Con
+  description: ''
+  use_blueprint:
+    path: homeassistant/air_con_limits.yaml
+    input:
+      climate_entity: climate.living_room_air_con
+      door_sensors:
+      - binary_sensor.living_room_back_stairs_door
+      - binary_sensor.kitchen_deck_door

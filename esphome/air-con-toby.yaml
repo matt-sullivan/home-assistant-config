@@ -1,7 +1,7 @@
 substitutions:
-  device_name: air-con-emily
-  friendly_name: "Emily Air Con"
-  hotspot_ssid: "Emily Air Con Hotspot"
+  device_name: air-con-toby
+  friendly_name: "Toby Air Con"
+  hotspot_ssid: "Toby Air Con Hotspot"
 
 external_components:
   - source: github://DomiStyle/esphome-panasonic-ac

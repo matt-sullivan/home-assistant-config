@@ -1,0 +1,239 @@
+substitutions:
+  device_name: air-con-living-room
+  friendly_name: "Living Room Air Con"
+  hotspot_ssid: "Living Room Air Con"
+
+external_components:
+  - source: github://asund/esphome-daikin-s21@main
+    components: [ daikin_s21 ]
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  variant: esp32c6
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+  level: DEBUG
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 24h
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  min_auth_mode: WPA2
+  reboot_timeout: 1h
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${hotspot_ssid}"
+    password: !secret fallback_password
+
+captive_portal:
+
+web_server:
+  port: 80
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
+
+light:
+  - platform: status_led
+    name: "PCB Status LED"
+    pin:
+      number: GPIO8
+      inverted: True
+      ignore_strapping_warning: true
+
+uart:
+  - id: debug_uart
+    tx_pin: GPIO16
+    rx_pin: GPIO17
+    baud_rate: 115200
+  - id: uartbus1
+    tx_pin: GPIO18
+    rx_pin: GPIO19
+    baud_rate: 2400
+    data_bits: 8
+    parity: EVEN
+    stop_bits: 2
+
+button:
+  - platform: template
+    name: "Turn Off"
+    on_press:
+      - climate.control:
+          id: climate_entity
+          mode: "OFF"
+
+  - platform: template
+    name: "Turn On Cooling"
+    on_press:
+      then:
+        - climate.control:
+            id: climate_entity
+            mode: "COOL"
+            target_temperature: 23
+            fan_mode: MEDIUM
+            swing_mode: BOTH
+
+  - platform: template
+    name: "Turn On Heating"
+    on_press:
+      then:
+        - climate.control:
+            id: climate_entity
+            mode: "HEAT"
+            target_temperature: 20
+            fan_mode: MEDIUM
+            swing_mode: BOTH
+
+# The parent UART communication hub platform.
+daikin_s21:
+  uart: uartbus1
+  # debug_protocol: true  # please enable when reporting logs!
+  # update_interval: never  # Communication cycle rate, 'never' for free run
+
+climate:
+  - name: none
+    id: climate_entity
+    platform: daikin_s21
+    # Settings from ESPHome Climate component:
+    # Visual limits and steps can be adjusted to match the granularity of your external sensor:
+    # visual:
+    #   temperature_step:
+    #     target_temperature: 1
+    #     current_temperature: 0.5
+    # Settings from DaikinS21Climate:
+    # supported_modes:  # optional, restricts available climate modes. off is always supported.
+    #   - heat_cool
+    #   - cool
+    #   - heat
+    #   - dry
+    #   - fan_only
+    # supported_swing_modes:  # optional, restricts available swing modes. off is always supported.
+    #   - horizontal
+    #   - vertical
+    #   - both
+    # update_interval: never # Interval used to limit sensor publishing rate, 'never' for free run
+    # offset_interval: 5min # Interval used to adjust the unit's setpoint using finer grained control, 'never' for free run
+    # Optional sensors to use for temperature and humidity references
+    sensor: daikin_temperature  # Internal, see indoor temperature sensor below
+    # sensor: room_temp  # External, see homeassistant sensor below
+    # humidity_sensor: daikin_humidity  # Internal, see humidity sensor below
+    # humidity_sensor: room_humidity  # External, see homeassistant sensor below
+    # or leave unconfigured if unsupported to omit humidity reporting
+    # Mode specific temperature parameters:
+    # heat_cool_mode:
+    #   offset: 0           # offset to apply to unit setpoint in this mode
+    #   min_temperature: 18 # minimum temperature to be sent to the unit in this mode, default probably fine
+    #   max_temperature: 30 # maximum temperature to be sent to the unit in this mode, default probably fine
+    # cool_mode:
+    #   offset: 0
+    #   min_temperature: 18
+    #   max_temperature: 32
+    # heat_mode:
+    #   offset: 0
+    #   min_temperature: 10
+    #   max_temperature: 30
+
+select:
+  - platform: daikin_s21
+    # brightness:
+    #   name: LED Brightness
+    # humidity:
+    #   name: Humidity
+    vertical_swing:
+      name: Vertical Swing
+
+sensor:
+  - platform: daikin_s21
+    # update_interval: never  # Publishing interval, 'never' for immediate updates but may be noisy if you don't use filters
+    # setpoint_temperature: # Unit setpoint. provided for insight on climate adjustment but probably not useful for users.
+    #   name: Setpoint Temperature
+    #   filters:
+    #     - delta: 0.0
+    inside_temperature:
+      id: daikin_temperature
+      name: Inside Temperature
+      filters:
+        - delta: 0.0
+    # target_temperature: # unit control loop setpoint, taking mode modifiers into account. probably only useful when debugging.
+    #   name: Target Temperature
+    #   filters:
+    #     - delta: 0.0
+    outside_temperature:
+      name: Outside Temperature
+      filters:
+        - delta: 0.0
+    coil_temperature:
+      name: Coil Temperature
+      filters:
+        - delta: 0.0
+    fan_speed:
+      name: Fan Speed
+      filters:
+        - delta: 0.0
+    swing_vertical_angle:
+      name: Swing Vertical Angle
+      filters:
+        - delta: 0.0
+    compressor_frequency:
+      name: Compressor Frequency
+      # unit_of_measurement: "RPM"  # if you would prefer RPM, uncomment the following
+      # device_class: ""  # override default "frequency", RPM is not a measurement of frequency in HA
+      filters:
+        # - multiply: 60.0
+        - delta: 0.0
+    demand:
+      name: Demand  # 0-15 demand units by default, use filter to map to 100%
+      filters:
+        - multiply: !lambda return 100.0F / 15.0F;
+        - delta: 0.0
+    energy:
+      name: Energy Consumption
+      filters:
+        - delta: 0.0
+
+binary_sensor:
+  - platform: daikin_s21
+    # unit and system state bitfield derived, not always supported or reliable:
+    defrost:
+      name: Defrost
+    online:
+      name: Online
+    # serial_error:
+    #   name: Serial Error
+    short_cycle:
+      name: Short Cycle
+    system_defrost:
+      name: System Defrost
+    system_online:
+      name: System Online
+
+text_sensor:
+  - platform: daikin_s21
+    software_version:
+      name: Software Version
+    # raw case-sensitive query monitoring for debugging
+    # queries:
+    #   - RK
+
+number:
+  - platform: daikin_s21
+    demand:
+      name: Demand

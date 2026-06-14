@@ -29,6 +29,7 @@ views:
           - cover.tobys_front_blind
           - cover.tobys_side_blind
           - switch.toby_electric_blanket
+          - climate.toby_air_con
           - media_player.tobys_bedroom_speaker
           - media_player.spotify_toby_sullivan
           - media_player.tobys_bedroom_speaker_ma
@@ -62,6 +63,7 @@ views:
             name: Garage Door
           - binary_sensor.downstairs_laundry_door
           - binary_sensor.downstairs_deck_door
+          - climate.living_room_air_con
           - switch.pool_pump
           - light.study_downlight
           - light.bin_light
@@ -214,6 +216,7 @@ views:
           - light
           - climate
           - switch
+          - button
         display_options:
           secondary_info:
             - time
