@@ -213,8 +213,7 @@ views:
         include:
           - light
           - climate
-          - cover
-          - script
+          - switch
         display_options:
           secondary_info:
             - time
@@ -223,6 +222,20 @@ views:
         show_header_toggle: true
         show_toggle_switches: true
         tags: climate
+        discover_existing: false
+      - title: Blinds
+        type: custom:scheduler-card
+        include:
+          - cover
+        display_options:
+          secondary_info:
+            - time
+            - days
+            - additional-tasks
+        show_header_toggle: true
+        show_toggle_switches: true
+        tags: blinds
+        discover_existing: false
       - title: Wake Up Alarms
         type: custom:scheduler-card
         include:
@@ -239,3 +252,14 @@ views:
         show_toggle_switches: true
         tags: alarm
         discover_existing: false
+      - title: Other
+        type: custom:scheduler-card
+        display_options:
+          secondary_info:
+            - time
+            - days
+            - additional-tasks
+        show_header_toggle: true
+        show_toggle_switches: true
+        tags: none
+        discover_existing: true
