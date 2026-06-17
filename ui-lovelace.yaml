@@ -7,6 +7,7 @@ views:
         entities:
           - script.emily_reading_time
           - script.emily_sleep_time
+          - script.emily_wake_up
           - light.emily_reading2
           - light.emily_rgb_strip 
           - light.emily_heart
@@ -22,7 +23,7 @@ views:
         entities:
           - script.toby_reading_time
           - script.toby_sleep_time
-          - script.kids_wakeup
+          - script.toby_wake_up
           - light.toby_reading_2
           - light.tobyfroglight
           - light.toby_star_light

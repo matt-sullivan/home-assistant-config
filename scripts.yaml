@@ -23,7 +23,7 @@ spotify_test_2:
         repeat: all
   mode: restart
 
-toby_wakeup:
+toby_wake_up:
   alias: Toby Wake Up
   description: >-
     Alarm-style wake up: plays an alarm-like song via Music Assistant, ramps the
@@ -50,7 +50,7 @@ toby_wakeup:
       target:
         entity_id: "{{ ma_speaker }}"
       data:
-        # Alarm-like song; change media_id to any track/playlist name in your Music Assistant library
+        # Alarm-like song
         media_id: spotify--ZrkegGzq://track/5GUuLf8s5KOEVYUzKx0PpQ
         media_type: track
         enqueue: replace
@@ -60,7 +60,7 @@ toby_wakeup:
       data:
         repeat: all
     - repeat:
-        count: "{{ count }}"
+        until: "{{ is_state(ma_speaker, 'playing') == false or repeat.index > count }}"
         sequence:
           - delay:
               hours: 0
@@ -75,6 +75,12 @@ toby_wakeup:
                 {% set s = states('input_number.toby_alarm_start_volume') | float / 100 %}
                 {% set e = states('input_number.toby_alarm_end_volume') | float / 100 %}
                 {{ s + (e - s) * (repeat.index | float / count) }}
+    - action: media_player.volume_set
+      target:
+        entity_id: "{{ ma_speaker }}"
+      data:
+        volume_level: "{{ states('input_number.toby_start_volume') | float / 100 }}"
+      continue_on_error: true
   mode: restart
 
 toby_reading_time:
@@ -303,7 +309,7 @@ emily_wake_up:
       target:
         entity_id: "{{ ma_speaker }}"
       data:
-        # Alarm-like song; change media_id to any track/playlist name in your Music Assistant library
+        # Alarm-like song
         media_id: spotify--Dh4cL7cf://track/5GUuLf8s5KOEVYUzKx0PpQ
         media_type: track
         enqueue: replace
@@ -313,7 +319,7 @@ emily_wake_up:
       data:
         repeat: all
     - repeat:
-        count: "{{ count }}"
+        until: "{{ is_state(ma_speaker, 'playing') == false or repeat.index > count }}"
         sequence:
           - delay:
               hours: 0
@@ -328,6 +334,12 @@ emily_wake_up:
                 {% set s = states('input_number.emily_alarm_start_volume') | float / 100 %}
                 {% set e = states('input_number.emily_alarm_end_volume') | float / 100 %}
                 {{ s + (e - s) * (repeat.index | float / count) }}
+    - action: media_player.volume_set
+      target:
+        entity_id: "{{ ma_speaker }}"
+      data:
+        volume_level: "{{ states('input_number.emily_start_volume') | float / 100 }}"
+      continue_on_error: true
   mode: restart
 
 toby_all_off:
