@@ -45,7 +45,7 @@ trigger:
     value_template: >-
       {{ not is_state(trig_climate_entity, 'off')
          and (expand(trig_door_sensors) | selectattr('state', 'equalto', 'on') | list | count > 0) }}
-    for: '00:00:30'
+    for: '00:05:00'
     id: door_open
   # Safety net: re-check on HA start/reload, since a template trigger that is
   # already true at load does not fire on its own (no false->true edge). Shares
@@ -67,6 +67,10 @@ action:
               {{ not is_state(climate_entity, 'off')
                  and (expand(door_sensors) | selectattr('state', 'equalto', 'on') | list | count > 0) }}
         sequence:
+          - service: notify.parents
+            data:
+              message: >-
+                Air con turned off at {{ now().strftime("%H:%M") }} because a door is open: {{ expand(door_sensors) | selectattr('state', 'equalto', 'on') | map(attribute='name') | join(', ') }}
           - service: climate.turn_off
             target:
               entity_id: !input climate_entity
