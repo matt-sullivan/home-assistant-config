@@ -26,7 +26,7 @@ variables:
   cooling_min_temp: "{{ states('input_number.aircon_min_cool_temp') | float }}"
   auto_min_temp: "{{ [cooling_min_temp, heating_max_temp] | min }}"
   auto_max_temp: "{{ [cooling_min_temp, heating_max_temp] | max }}"
-  current_target_temp: "{{ state_attr(climate_entity, 'temperature') | float }}"
+  current_target_temp: "{{ state_attr(climate_entity, 'temperature') | float(0) }}"
 
 # Trigger-level variables: !input is substituted here (before Jinja runs), making
 # the entity ids available to the template trigger below. This avoids the
