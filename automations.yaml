@@ -343,13 +343,13 @@
   description: ''
   triggers:
   - trigger: state
-    entity_id:
-    - event.lights_entry_button_1
-  conditions:
-  - condition: state
     entity_id: event.lights_entry_button_1
     attribute: event_type
-    state: Long Press
+    to: Long Press
+  conditions:
+  - condition: template
+    alias: Only if the event is new (not from device reconnect)
+    value_template: '{{ trigger.from_state is not none and trigger.from_state.state != ''unavailable'' }}'
   actions:
   - action: notify.mobile_app_matt_pixel_8_pro
     data:
