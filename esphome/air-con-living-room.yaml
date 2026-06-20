@@ -2,62 +2,17 @@ substitutions:
   device_name: air-con-living-room
   friendly_name: "Living Room Air Con"
   hotspot_ssid: "Living Room Air Con"
+  wifi_ssid: !secret wifi_ssid
 
 external_components:
   - source: github://asund/esphome-daikin-s21@main
     components: [ daikin_s21 ]
 
-esphome:
-  name: ${device_name}
-  friendly_name: ${friendly_name}
-
-esp32:
-  variant: esp32c6
-  flash_size: 8MB
-  framework:
-    type: esp-idf
-
-# Enable logging
-logger:
-  level: DEBUG
-
-# Enable Home Assistant API
-api:
-  reboot_timeout: 24h
-  encryption:
-    key: !secret api_encryption_key
-
-ota:
-  - platform: esphome
-    id: ota_esphome
-    password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  min_auth_mode: WPA2
-  reboot_timeout: 1h
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "${hotspot_ssid}"
-    password: !secret fallback_password
-
-captive_portal:
-
-web_server:
-  port: 80
-  auth:
-    username: !secret web_server_username
-    password: !secret web_server_password
-
-light:
-  - platform: status_led
-    name: "PCB Status LED"
-    pin:
-      number: GPIO8
-      inverted: True
-      ignore_strapping_warning: true
+packages:
+  common_base: !include packages/common-base.yaml
+  esp32_c6_idf: !include packages/esp32-c6-idf.yaml
+  wifi_common: !include packages/wifi-common.yaml
+  air_con_common: !include packages/air-con-common.yaml
 
 uart:
   - id: debug_uart
@@ -71,36 +26,6 @@ uart:
     data_bits: 8
     parity: EVEN
     stop_bits: 2
-
-button:
-  - platform: template
-    name: "Turn Off"
-    on_press:
-      - climate.control:
-          id: climate_entity
-          mode: "OFF"
-
-  - platform: template
-    name: "Turn On Cooling"
-    on_press:
-      then:
-        - climate.control:
-            id: climate_entity
-            mode: "COOL"
-            target_temperature: 23
-            fan_mode: MEDIUM
-            swing_mode: BOTH
-
-  - platform: template
-    name: "Turn On Heating"
-    on_press:
-      then:
-        - climate.control:
-            id: climate_entity
-            mode: "HEAT"
-            target_temperature: 20
-            fan_mode: MEDIUM
-            swing_mode: BOTH
 
 # The parent UART communication hub platform.
 daikin_s21:

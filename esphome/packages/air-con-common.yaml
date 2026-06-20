@@ -1,0 +1,37 @@
+light:
+  - platform: status_led
+    name: "PCB Status LED"
+    pin:
+      number: GPIO8
+      inverted: True
+      ignore_strapping_warning: true
+
+button:
+  - platform: template
+    name: "Turn Off"
+    on_press:
+      - climate.control:
+          id: climate_entity
+          mode: "OFF"
+
+  - platform: template
+    name: "Turn On Cooling"
+    on_press:
+      then:
+        - climate.control:
+            id: climate_entity
+            mode: "COOL"
+            target_temperature: 23
+            fan_mode: MEDIUM
+            swing_mode: BOTH
+
+  - platform: template
+    name: "Turn On Heating"
+    on_press:
+      then:
+        - climate.control:
+            id: climate_entity
+            mode: "HEAT"
+            target_temperature: 20
+            fan_mode: MEDIUM
+            swing_mode: BOTH
