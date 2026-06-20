@@ -6,11 +6,13 @@
 # 24v, 0v when running, and 30v spikes. I wanted to use a transistor to pull D2 & D3 down but think
 # it's cause problems on D3 at boot. I gave up, it's ok to have just the limit inputs.
 substitutions:
-  device_name: "Garage Wemos D1"
+  device_name: wemosd1-garage
+  friendly_name: "Garage Wemos D1"
   sensor_name: "Garage Door"
+  hotspot_ssid: "Wemosd1-Garage"
+  wifi_ssid: !secret wifi_ssid_front
 
 esphome:
-  name: wemosd1-garage
   on_boot:
     priority: 600
     then:
@@ -21,59 +23,17 @@ esphome:
           state: OPEN
           current_operation: OPENING
 
-esp8266:
-  board: d1_mini
-
-# Enable logging
-logger:
-  level: DEBUG
-
-wifi:
-  ssid: !secret wifi_ssid_front
-  password: !secret wifi_password
-  min_auth_mode: WPA2
-  reboot_timeout: 1h
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Wemosd1-Garage"
-    password: !secret fallback_password
-
-captive_portal:
-
-# Enable Home Assistant API
-api:
-  reboot_timeout: 24h
-
-ota:
-  platform: esphome
-  password: !secret ota_password
+packages:
+  common_base: !include packages/common-base.yaml
+  esp8266_d1_mini: !include packages/esp8266-d1-mini.yaml
+  wifi_common: !include packages/wifi-common.yaml
+  reboot_common: !include packages/reboot-common.yaml
 
 external_components:  
   - source:
       type: git
       url: https://github.com/muxa/esphome-state-machine
     refresh: 1h
-
-# The web_server & sensor components can be removed without affecting core functionaility.
-web_server:
-  port: 80
-  auth:
-    username: !secret web_server_username
-    password: !secret web_server_password
-
-sensor:
-  - platform: wifi_signal
-    name: "${device_name} WiFi Signal"
-    update_interval: 5min
-
-  - platform: uptime
-    name: "Uptime"
-    filters:
-      - lambda: return x / 86400.0;
-    unit_of_measurement: "d"
-    accuracy_decimals: 1
-    update_interval: 5min
 
 switch:
   - platform: gpio

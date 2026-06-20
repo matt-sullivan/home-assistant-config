@@ -1,0 +1,36 @@
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+logger:
+  level: DEBUG
+
+api:
+  reboot_timeout: 24h
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+captive_portal:
+
+web_server:
+  port: 80
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
+
+sensor:
+  - platform: wifi_signal
+    name: "Wifi Signal Strength"
+    update_interval: 60s
+
+  - platform: uptime
+    name: "Uptime"
+    filters:
+      - lambda: return x / 86400.0;
+    unit_of_measurement: "d"
+    accuracy_decimals: 1
+    update_interval: 5min

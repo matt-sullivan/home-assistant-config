@@ -1,0 +1,13 @@
+script:
+  - id: long_press_reboot
+    mode: single
+    then:
+      - lambda: |-
+          ESP_LOGW("reboot", "Long-press detected on ${device_name} -- rebooting in 2s");
+      - delay: 2s
+      - lambda: |-
+          App.safe_reboot();
+
+switch:
+  - platform: restart
+    name: "Reboot"

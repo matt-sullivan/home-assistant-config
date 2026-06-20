@@ -3,47 +3,12 @@ substitutions:
   device_name: air-con-test
   friendly_name: Test Air Con
   hotspot_ssid: "Test Air Con Hotspot"
+  wifi_ssid: !secret wifi_ssid
 
-esphome:
-  name: ${device_name}
-  friendly_name: ${friendly_name}
-
-esp8266:
-  board: esp8285
-
-# Enable logging
-logger:
-  level: DEBUG
-
-# Enable Home Assistant API
-api:
-  reboot_timeout: 24h
-  encryption:
-    key: !secret api_encryption_key
-
-ota:
-  - platform: esphome
-    id: ota_esphome
-    password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  min_auth_mode: WPA2
-  reboot_timeout: 1h
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "${hotspot_ssid}"
-    password: !secret fallback_password
-
-captive_portal:
-
-web_server:
-  port: 80
-  auth:
-    username: !secret web_server_username
-    password: !secret web_server_password
+packages:
+  common_base: !include packages/common-base.yaml
+  esp8266_esp8285: !include packages/esp8266-esp8285.yaml
+  wifi_common: !include packages/wifi-common.yaml
 
 remote_receiver:
   pin:
