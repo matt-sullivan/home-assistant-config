@@ -8,6 +8,9 @@ packages:
   common_base: !include packages/common-base.yaml
   wifi_common: !include packages/wifi-common.yaml
 
+preferences:
+  flash_write_interval: never
+
 esphome:
   includes:
     - toothbrush_days_to_show.h

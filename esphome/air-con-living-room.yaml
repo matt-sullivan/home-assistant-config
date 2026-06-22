@@ -14,6 +14,9 @@ packages:
   wifi_common: !include packages/wifi-common.yaml
   air_con_common: !include packages/air-con-common.yaml
 
+preferences:
+  flash_write_interval: never
+
 uart:
   - id: debug_uart
     tx_pin: GPIO16

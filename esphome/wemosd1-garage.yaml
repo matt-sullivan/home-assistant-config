@@ -23,6 +23,12 @@ esphome:
           state: OPEN
           current_operation: OPENING
 
+preferences:
+  flash_write_interval: never
+
+esp8266:
+  restore_from_flash: false
+
 packages:
   common_base: !include packages/common-base.yaml
   esp8266_d1_mini: !include packages/esp8266-d1-mini.yaml

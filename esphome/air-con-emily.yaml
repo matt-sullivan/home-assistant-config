@@ -12,3 +12,6 @@ packages:
   wifi_front_and_hall: !include packages/wifi-front-and-hall.yaml
   air_con_common: !include packages/air-con-common.yaml
   air_con_panasonic: !include packages/air-con-panasonic.yaml
+
+preferences:
+  flash_write_interval: never

@@ -10,6 +10,9 @@ api:
   encryption:
     key: !secret api_encryption_key
 
+preferences:
+  flash_write_interval: 1min
+
 ota:
   - platform: esphome
     password: !secret ota_password
