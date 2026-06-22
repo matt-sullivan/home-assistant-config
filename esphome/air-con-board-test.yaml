@@ -23,48 +23,144 @@ light:
       ignore_strapping_warning: true
 
 uart:
-  - id: debug_uart
+  - id: prog_uart
     tx_pin: GPIO16
     rx_pin: GPIO17
-    baud_rate: 9600
-    debug:
-      direction: BOTH
-      dummy_receiver: true
-      debug_prefix: "[UARTPROG] "
-      after:
-        delimiter: "\n"
-      sequence:
-        - lambda: UARTDebug::log_string(direction, bytes, debug_prefix);
-  - id: uartbus1
-    tx_pin: GPIO18
-    rx_pin: GPIO19
-    baud_rate: 9600
-    debug:
-      direction: BOTH
-      dummy_receiver: true
-      debug_prefix: "[UARTCOMMS] "
-      after:
-        delimiter: "\n"
-      sequence:
-        - lambda: UARTDebug::log_string(direction, bytes, debug_prefix);
+    baud_rate: 115200
 
+  # - id: comms_uart
+  #   tx_pin: GPIO18
+  #   rx_pin: GPIO19
+  #   baud_rate: 115200
 
+i2c:
+  sda: GPIO6
+  scl: GPIO7
+  scan: true
 
-interval:
-  - interval: 1s
-    then:
-      - logger.log: "Sending test data to UARTs"
-      - uart.write:
-          id: debug_uart
-          data: "hello 0123456789 0123456789 0123456789 0123456789 0123456789\n"
-      - uart.write:
-          id: uartbus1
-          data: "hello 0123456789 0123456789 0123456789 0123456789 0123456789\n"
-      - lambda: |-
-          id(debug_uart).flush();
-          id(uartbus1).flush();
+ads1115:
+  - address: 0x48
 
-text_sensor:
-  - platform: version
-    name: "Firmware Version"
-    entity_category: diagnostic
+one_wire:
+  - platform: gpio
+    pin: GPIO15
+
+event:
+  - platform: template
+    id: button_1
+    name: Button 1
+    device_class: "button"
+    event_types:
+      - "Long Press"
+
+binary_sensor:
+  - platform: gpio
+    name: "Boot"
+    pin:
+      number: GPIO9
+      inverted: true
+    on_multi_click:
+      - timing:
+          - on for at least 1s
+        then:
+          - event.trigger:
+              id: button_1
+              event_type: "Long Press"
+
+  - platform: gpio
+    name: "5V #1"
+    pin:
+      number: GPIO18
+      mode: INPUT_OUTPUT_OPEN_DRAIN
+      allow_other_uses: true
+
+  - platform: gpio
+    name: "5V #2"
+    pin:
+      number: GPIO19
+      mode: INPUT_OUTPUT_OPEN_DRAIN
+      allow_other_uses: true
+
+  - platform: gpio
+    name: "5V #3"
+    pin:
+      number: GPIO20
+      mode: INPUT_OUTPUT_OPEN_DRAIN
+      allow_other_uses: true
+
+  - platform: gpio
+    name: "24V #1"
+    pin:
+      number: GPIO21
+      inverted: true
+
+  - platform: gpio
+    name: "24V #2"
+    pin:
+      number: GPIO22
+      inverted: true
+
+  - platform: gpio
+    name: "24V #3"
+    pin:
+      number: GPIO23
+      inverted: true
+
+switch:
+  - platform: gpio
+    name: "5V #1"
+    pin:
+      number: GPIO18
+      mode: INPUT_OUTPUT_OPEN_DRAIN
+      allow_other_uses: true
+
+  - platform: gpio
+    name: "5V #2"
+    pin:
+      number: GPIO19
+      mode: INPUT_OUTPUT_OPEN_DRAIN
+      allow_other_uses: true
+
+  - platform: gpio
+    name: "5V #3"
+    pin:
+      number: GPIO20
+      mode: INPUT_OUTPUT_OPEN_DRAIN
+      allow_other_uses: true
+
+  - platform: gpio
+    name: "24V #1"
+    pin:
+      number: GPIO2
+      inverted: true
+
+  - platform: gpio
+    name: "24V #2"
+    pin:
+      number: GPIO3
+      inverted: true
+
+sensor:
+  - platform: pulse_counter
+    pin:
+      number: GPIO20
+      mode: INPUT_OUTPUT_OPEN_DRAIN
+      allow_other_uses: true
+    name: "Pulse Counter"
+
+  - platform: dallas_temp
+    name: Temperature
+    update_interval: 60s
+
+  - platform: ads1115
+    name: "Analog Input 1"
+    multiplexer: 'A0_GND'
+    gain: 2.048
+    update_interval: 60s
+
+  - platform: ads1115
+    name: "Analog Input 2"
+    multiplexer: 'A1_GND'
+    gain: 2.048
+    update_interval: 60s
+
