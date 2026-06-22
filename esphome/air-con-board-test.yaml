@@ -63,3 +63,8 @@ interval:
       - lambda: |-
           id(debug_uart).flush();
           id(uartbus1).flush();
+
+text_sensor:
+  - platform: version
+    name: "Firmware Version"
+    entity_category: diagnostic
