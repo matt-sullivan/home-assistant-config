@@ -485,3 +485,22 @@
       door_sensors:
       - binary_sensor.living_room_back_stairs_door
       - binary_sensor.kitchen_deck_door
+- id: '1782139633606'
+  alias: test air con long press
+  description: ''
+  triggers:
+  - trigger: event.received
+    target:
+      entity_id: event.emilys_bedroom_air_con_board_test_button_1
+    options:
+      event_type:
+      - Long Press
+  conditions: []
+  actions:
+  - action: notify.send_message
+    metadata: {}
+    data:
+      message: test button long press
+    target:
+      device_id: 87793a362a9ae8561ceeace0d6537f22
+  mode: single
