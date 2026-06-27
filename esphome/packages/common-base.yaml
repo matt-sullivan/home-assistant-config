@@ -37,3 +37,8 @@ sensor:
     unit_of_measurement: "d"
     accuracy_decimals: 1
     update_interval: 5min
+
+text_sensor:
+  - platform: version
+    name: "Firmware Version"
+    entity_category: diagnostic
