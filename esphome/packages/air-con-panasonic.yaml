@@ -1,9 +1,9 @@
 uart:
-  - id: debug_uart
+  - id: prog_uart
     tx_pin: GPIO16
     rx_pin: GPIO17
     baud_rate: 115200
-  - id: uartbus1
+  - id: comms_uart
     tx_pin: GPIO18
     rx_pin: GPIO19
     baud_rate: 9600
@@ -15,7 +15,7 @@ climate:
     name: None
     # For CZ-TACG1
     type: cnt
-    uart_id: uartbus1
+    uart_id: comms_uart
 
     # For DNSK-P11
     # type: wlan
