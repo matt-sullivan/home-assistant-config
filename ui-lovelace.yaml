@@ -70,6 +70,14 @@ views:
           - light.bin_light
           - light.storage_light
           - sensor.garage_door_state_machine_state
+      - title: Hot Water
+        type: entities
+        entities:
+          - sensor.hot_water_duration
+          - binary_sensor.hot_water_running
+          - sensor.hot_water_sensor_flow
+          - sensor.hot_water_sensor_total
+          - sensor.hot_water_sensor_temperature
       - title: Config
         type: entities
         entities:

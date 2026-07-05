@@ -19,7 +19,8 @@ packages:
 
 sensor:
   - platform: pulse_counter
-    name: "Hot Water Flow"
+    name: "Flow"
+    icon: "mdi:water-pump"
     pin:
       number: D5
       mode: INPUT
@@ -33,7 +34,8 @@ sensor:
     filters:
       - multiply: 0.001741 
     total:
-      name: "Hot Water Total"
+      name: "Total"
+      icon: "mdi:bucket"
       unit_of_measurement: 'L'
       state_class: total_increasing
       filters:
@@ -41,7 +43,7 @@ sensor:
 
   - platform: adc
     pin: A0
-    name: "Water Temperature Voltage"
+    name: "Temperature Voltage"
     id: ntc_voltage
     internal: true
     update_interval: 10s
@@ -51,7 +53,7 @@ sensor:
       - multiply: 3.13   # wemos board has (220k+100k)/100k divider, I measured 2.19V reported as 0.70
 
   - platform: template
-    name: "Water Temperature Resistance"
+    name: "Temperature Resistance"
     id: ntc_resistance
     internal: true
     unit_of_measurement: "Ω"
@@ -67,7 +69,8 @@ sensor:
 
   - platform: ntc
     sensor: ntc_resistance
-    name: "Water Temperature"
+    name: "Temperature"
+    icon: "mdi:water-thermometer"
     calibration:
       - 137.1kOhm -> 4.8°C
       - 68.0kOhm -> 18.7°C

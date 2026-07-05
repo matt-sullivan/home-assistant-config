@@ -1,0 +1,31 @@
+template:
+  - binary_sensor:
+      - name: "Hot Water Running"
+        unique_id: hot_water_running
+        state: "{{ states('sensor.hot_water_sensor_flow') | float(0) > 0.5 }}"
+        icon: "{{ 'mdi:water-pump' if is_state(this.entity_id, 'on') else 'mdi:water-pump-off' }}"
+
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.hot_water_running
+      - platform: time_pattern
+        seconds: "/5"
+    sensor:
+      - name: "Hot Water Duration"
+        unique_id: hot_water_duration
+        unit_of_measurement: "s"
+        state_class: measurement
+        icon: "mdi:timer"
+        state: >
+          {%- if is_state('binary_sensor.hot_water_running', 'on') -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.hot_water_running.last_changed)) | int(0) }}
+          {%- else -%}
+            {{ state_attr(this.entity_id, 'last_duration') | default(0) }}
+          {%- endif -%}
+        attributes:
+          last_duration: >
+            {%- if is_state('binary_sensor.hot_water_running', 'on') -%}
+              {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.hot_water_running.last_changed)) | int(0) }}
+            {%- else -%}
+              {{ state_attr(this.entity_id, 'last_duration') | default(0) }}
+            {%- endif -%}
