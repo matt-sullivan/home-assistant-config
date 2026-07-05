@@ -1,0 +1,74 @@
+substitutions:
+  device_name: hot-water-sensor
+  friendly_name: "Hot Water Sensor"
+  sensor_name: "Hot Water Sensor"
+  hotspot_ssid: "Hot Water Sensor"
+  wifi_ssid: !secret wifi_ssid_outside
+
+preferences:
+  flash_write_interval: never
+
+esp8266:
+  restore_from_flash: false
+
+packages:
+  common_base: !include packages/common-base.yaml
+  esp8266_d1_mini: !include packages/esp8266-d1-mini.yaml
+  wifi_common: !include packages/wifi-common.yaml
+  reboot_common: !include packages/reboot-common.yaml
+
+sensor:
+  - platform: pulse_counter
+    name: "Hot Water Flow"
+    pin:
+      number: D5
+      mode: INPUT
+    update_interval: 10s
+    unit_of_measurement: 'L/min'
+    state_class: measurement
+    # Spec says pulse freq = 11 * L/min, esphome normalizes to /min
+    # So divide by 60 x 11 = 660 to get L/min
+    # Real world measurement is 9L in 1:51 = 4.86 L/min, and HA reported 4.23
+    # so adjust the scale to 0.001741 
+    filters:
+      - multiply: 0.001741 
+    total:
+      name: "Hot Water Total"
+      unit_of_measurement: 'L'
+      state_class: total_increasing
+      filters:
+        - multiply: 0.001741
+
+  - platform: adc
+    pin: A0
+    name: "Water Temperature Voltage"
+    id: ntc_voltage
+    internal: true
+    update_interval: 10s
+    samples: 10
+    accuracy_decimals: 3
+    filters:
+      - multiply: 3.13   # wemos board has (220k+100k)/100k divider, I measured 2.19V reported as 0.70
+
+  - platform: template
+    name: "Water Temperature Resistance"
+    id: ntc_resistance
+    internal: true
+    unit_of_measurement: "Ω"
+    lambda: |-
+      float vcc = 3.3;
+      float r_top = 27000.0;
+      float r_wemos = 320000.0;
+      float v = id(ntc_voltage).state;
+      float x = r_top * v / (vcc - v);        // effective bottom resistance (NTC || 320k)
+      float r_ntc = x * r_wemos / (r_wemos - x);  // solve out the 320k to get true NTC value
+      return r_ntc;
+    update_interval: 10s
+
+  - platform: ntc
+    sensor: ntc_resistance
+    name: "Water Temperature"
+    calibration:
+      - 137.1kOhm -> 4.8°C
+      - 68.0kOhm -> 18.7°C
+      - 5.05kOhm -> 83.5°C
