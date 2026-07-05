@@ -12,17 +12,6 @@ substitutions:
   hotspot_ssid: "Wemosd1-Garage"
   wifi_ssid: !secret wifi_ssid_front
 
-esphome:
-  on_boot:
-    priority: 600
-    then:
-      - cover.template.publish:
-          id: garage
-          # assuming opening where neither limit is active
-          # and it can change to either open or closed
-          state: OPEN
-          current_operation: OPENING
-
 preferences:
   flash_write_interval: never
 
@@ -62,10 +51,27 @@ binary_sensor:
     filters:
       - delayed_on: 200ms
       - delayed_off: 200ms
-    on_press:
-      - state_machine.transition: DETECTED_CLOSED
-    on_release:
-      - state_machine.transition: DETECTED_OPENING
+    # Use on_state_change instead of on_press/on_release to be triggered after boot from unknown
+    # and have access to the previous state value.
+    on_state_change:
+      then:
+        - if:
+            # ON: door has reached closed limit (initial boot or runtime)
+            condition:
+              lambda: return x.has_value() && x.value();
+            then:
+              - state_machine.transition: DETECTED_CLOSED
+            else:
+              # OFF: only treat as motion if we previously had a known state, i.e. we can
+              # confidently say the door just started opening.
+              # We'd expect this sensor to transition from unknown to off after a reboot when the
+              # door is partially or fully open, but don't know which state so don't treat it as
+              # an opening event, just let the default state and fully open sensor handle it.
+              if:
+                condition:
+                  lambda: return x_previous.has_value();
+                then:
+                  - state_machine.transition: DETECTED_OPENING
   - platform: gpio
     name: "Fully Open"
     pin:
@@ -75,10 +81,24 @@ binary_sensor:
     filters:
       - delayed_on: 200ms
       - delayed_off: 200ms
-    on_press:
-      - state_machine.transition: DETECTED_OPEN
-    on_release:
-      - state_machine.transition: DETECTED_CLOSING
+    on_state_change:
+      then:
+        - if:
+            # ON: door has reached open limit (initial boot or runtime)
+            condition:
+              lambda: return x.has_value() && x.value();
+            then:
+              - state_machine.transition: DETECTED_OPEN
+            else:
+              # OFF: only treat as motion if we previously had a known state, we expect this to
+              # transition from unknown to off after a reboot when the door is closed or partially
+              # closed, but we don't know which state so don't treat it as a closing event, just
+              # let the default state and closed sensor handle it.
+              if:
+                condition:
+                  lambda: return x_previous.has_value();
+                then:
+                  - state_machine.transition: DETECTED_CLOSING
 
 text_sensor:
   - platform: state_machine
