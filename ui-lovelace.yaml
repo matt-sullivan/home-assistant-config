@@ -78,6 +78,15 @@ views:
           - sensor.hot_water_sensor_flow
           - sensor.hot_water_sensor_total
           - sensor.hot_water_sensor_temperature
+      - title: Hot Water Sessions Today
+        type: markdown
+        content: >-
+          {% set sessions = state_attr('sensor.hot_water_sessions_today', 'sessions_text') %}
+          {% if sessions in [none, '', 'none', 'unknown', 'unavailable'] %}
+          none
+          {% else %}
+          {{ sessions | replace('\n', '  \n') }}
+          {% endif %}
       - title: Config
         type: entities
         entities:

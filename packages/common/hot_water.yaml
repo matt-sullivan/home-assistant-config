@@ -29,3 +29,103 @@ template:
             {%- else -%}
               {{ state_attr(this.entity_id, 'last_duration') | default(0) }}
             {%- endif -%}
+
+  - trigger:
+      - platform: time
+        at: "00:00:05"
+      - platform: event
+        event_type: hot_water_session_finished
+    sensor:
+      - name: "Hot Water Sessions Today"
+        unique_id: hot_water_sessions_today
+        icon: "mdi:shower"
+        state: "see sessions_text attribute"
+        attributes:
+          sessions_text: >
+            {% if trigger.platform == 'time' %}
+              none
+            {% else %}
+              {% set current = state_attr(this.entity_id, 'sessions_text') | default('', true) | trim %}
+              {% set start_iso = trigger.event.data.start_time | default(now().isoformat(), true) %}
+              {% set start_local = as_local(as_datetime(start_iso)) %}
+              {% set duration_text = trigger.event.data.duration_display | default((trigger.event.data.duration | default(0) | int) ~ ' seconds', true) %}
+              {% set new_entry = start_local.strftime('%H:%M') ~ ' - ' ~ duration_text %}
+              {% if current in ['', 'none', 'unknown', 'unavailable'] %}
+                {{ new_entry }}
+              {% else %}
+                {{ current ~ '\n' ~ new_entry }}
+              {% endif %}
+            {% endif %}
+
+automation:
+  - id: hot_water_session_log
+    alias: "Log Hot Water Session"
+    description: "Record long hot water runs in the logbook and fire a custom event for reporting."
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.hot_water_running
+        from: "on"
+        to: "off"
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none
+             and trigger.to_state is not none
+             and (as_timestamp(trigger.to_state.last_changed) - as_timestamp(trigger.from_state.last_changed)) | int(0) > 60 }}
+    actions:
+      - variables:
+          hot_water_start_text: "{{ as_local(trigger.from_state.last_changed).strftime('%H:%M') }}"
+          hot_water_end_text: "{{ as_local(trigger.to_state.last_changed).strftime('%H:%M') }}"
+          hot_water_duration_seconds: >-
+            {{ (as_timestamp(trigger.to_state.last_changed) - as_timestamp(trigger.from_state.last_changed)) | int(0) }}
+          hot_water_duration_minutes: >-
+            {{ ((as_timestamp(trigger.to_state.last_changed) - as_timestamp(trigger.from_state.last_changed)) / 60) | round(2) }}
+          hot_water_duration_display: >-
+            {% set seconds = (as_timestamp(trigger.to_state.last_changed) - as_timestamp(trigger.from_state.last_changed)) | int(0) %}
+            {% set minutes = seconds // 60 %}
+            {% set remaining_seconds = seconds % 60 %}
+            {% if minutes > 0 %}
+              {{ minutes }} minute{{ 's' if minutes != 1 else '' }} and {{ remaining_seconds }} second{{ 's' if remaining_seconds != 1 else '' }}
+            {% else %}
+              {{ remaining_seconds }} second{{ 's' if remaining_seconds != 1 else '' }}
+            {% endif %}
+      - action: logbook.log
+        data:
+          name: "Hot Water Session"
+          domain: binary_sensor
+          entity_id: binary_sensor.hot_water_running
+          message: >-
+            Shower or bath started at {{ hot_water_start_text }} finished after {{ hot_water_duration_display | trim }}.
+      - event: hot_water_session_finished
+        event_data:
+          entity_id: binary_sensor.hot_water_running
+          threshold_seconds: 60
+          start_time: "{{ as_local(trigger.from_state.last_changed).isoformat() }}"
+          end_time: "{{ as_local(trigger.to_state.last_changed).isoformat() }}"
+          duration: "{{ hot_water_duration_seconds }}"
+          duration_display: "{{ hot_water_duration_display | trim }}"
+
+script:
+  hot_water_duration_announce:
+    alias: "Announce Hot Water Duration"
+    description: "Announce the hot water/shower duration via kitchen speaker TTS"
+    sequence:
+      - service: tts.speak
+        target:
+          entity_id: tts.home_assistant_cloud
+        data:
+          media_player_entity_id: media_player.kitchen_speaker_2
+          message: >
+            {%- set seconds = states('sensor.hot_water_duration') | int(0) -%}
+            {%- set rounded_seconds = ((seconds / 10) | round(0) * 10) | int(0) -%}
+            {%- set minutes = (rounded_seconds / 60) | int(0) -%}
+            {%- set remaining_seconds = rounded_seconds % 60 -%}
+            {%- if is_state('binary_sensor.hot_water_running', 'off') -%}
+              The hot water is stopped, it last ran for
+            {%- else -%}
+              The hot water has been running for
+            {%- endif -%}
+            {%- if rounded_seconds < 60 %} {{ remaining_seconds }} seconds
+            {%- else %} {{ minutes }} minutes and {{ remaining_seconds }} seconds
+            {%- endif -%}
