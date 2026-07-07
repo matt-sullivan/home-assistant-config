@@ -37,8 +37,21 @@ trigger_variables:
   trig_door_sensors: !input door_sensors
 
 trigger:
+  # Explicitly trigger on state changes to the climate entity, or changes to the temperature
+  # attribute, so we can clamp the target temperature if it goes out of bounds, but we don't get
+  # spurious triggers from other attribute changes (e.g. current temp). 
   - platform: state
     entity_id: !input climate_entity
+    attribute: temperature
+    id: climate_changed
+  - platform: state
+    entity_id: !input climate_entity
+    to:
+      - "off"
+      - heat
+      - cool
+      - auto
+      - heat_cool
     id: climate_changed
   - platform: template
     # fires when any door is open AND the AC is on for 5 continuous minutes
