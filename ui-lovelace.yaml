@@ -70,23 +70,6 @@ views:
           - light.bin_light
           - light.storage_light
           - sensor.garage_door_state_machine_state
-      - title: Hot Water
-        type: entities
-        entities:
-          - sensor.hot_water_duration
-          - binary_sensor.hot_water_running
-          - sensor.hot_water_sensor_flow
-          - sensor.hot_water_sensor_total
-          - sensor.hot_water_sensor_temperature
-      - title: Hot Water Sessions Today
-        type: markdown
-        content: >-
-          {% set sessions = state_attr('sensor.hot_water_sessions_today', 'sessions_text') %}
-          {% if sessions in [none, '', 'none', 'unknown', 'unavailable'] %}
-          none
-          {% else %}
-          {{ sessions | replace('\n', '  \n') }}
-          {% endif %}
       - title: Config
         type: entities
         entities:
@@ -103,6 +86,70 @@ views:
           - group.family
           - person.matt
           - person.sara
+  - title: Hot Water
+    cards:
+      - title: Showers and Baths Today
+        type: markdown
+        content: >-
+          {% set sessions = state_attr('sensor.hot_water_sessions_today', 'sessions_text') %}
+          {% if sessions in [none, '', 'none', 'unknown', 'unavailable'] %}
+          none
+          {% else %}
+          {{ sessions | replace('\n', '  \n') }}
+          {% endif %}
+      - label: Hot Water Valve
+        type: custom:button-card
+        entity: valve.outside_hot_water_valve
+        layout: icon_state
+        show_state: true
+        show_name: false
+        show_label: true
+        state_display: >
+          [[[ if (entity.state === 'open') return 'On';
+              if (entity.state === 'closed') return 'Off';
+              return entity.state; ]]]
+        state:
+          - value: open
+            icon: mdi:water-check
+          - value: closed
+            icon: mdi:water-off
+            color: red
+        tap_action:
+          action: toggle
+        styles:
+          card:
+            - height: 160px
+          grid:
+            - grid-template-areas: '"l l" "i s"'
+            - grid-template-rows: min-content 1fr
+          label:
+            - text-align: start
+            - justify-self: start
+            - align-self: start
+            - width: 100%
+            - font-size: var(--ha-card-header-font-size, 24px)
+            - font-weight: var(--ha-card-header-font-weight, 400)
+            - line-height: var(--ha-card-header-line-height, 1.2)
+            - padding: 16px 16px 0 16px
+      - title: Sensors
+        type: entities
+        entities:
+          - sensor.hot_water_today
+          - sensor.hot_water_duration
+          - binary_sensor.hot_water_running
+          - sensor.hot_water_sensor_flow
+          - sensor.hot_water_sensor_total
+          - sensor.hot_water_sensor_temperature
+      - title: Daily Usage
+        type: statistics-graph
+        entities:
+          - sensor.hot_water_sensor_total
+        days_to_show: 7
+        period: day
+        chart_type: bar
+        stat_types:
+          - change
+        hide_legend: true          
   - title: Camera Overview
     cards:
       - title: Front Yard Camera

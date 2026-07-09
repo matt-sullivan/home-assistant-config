@@ -483,3 +483,24 @@
     target:
       device_id: 87793a362a9ae8561ceeace0d6537f22
   mode: single
+- id: '1783575609915'
+  alias: Hot Water Back On
+  description: 'Turn the hot water back on after off for 2 minutes'
+  triggers:
+  - trigger: state
+    entity_id:
+    - valve.outside_hot_water_valve
+    to:
+    - closed
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  conditions: []
+  actions:
+  - action: valve.open_valve
+    metadata: {}
+    target:
+      entity_id: valve.outside_hot_water_valve
+    data: {}
+  mode: single

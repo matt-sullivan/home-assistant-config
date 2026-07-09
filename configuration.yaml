@@ -63,8 +63,8 @@ logger:
 media_source:
 
 zha:
-   enable_quirks: true
-#    custom_quirks_path: /config/zha_quirks/
+  enable_quirks: true
+  custom_quirks_path: /config/zha_quirks/
 
 recorder:
   commit_interval: 30

@@ -6,6 +6,8 @@ lovelace:
       type: module
     - url: /hacsfiles/scheduler-card/scheduler-card.js
       type: module
+    - url: /hacsfiles/button-card/button-card.js
+      type: module
   # Add yaml dashboards
   dashboards:
     lovelace:
@@ -20,14 +22,4 @@ lovelace:
       icon: mdi:pool
       show_in_sidebar: false
       filename: "ui-lovelace-pool.yaml"
-    lovelace-all:
-      mode: yaml
-      title: All Items
-      icon: mdi:view-dashboard-outline
-      show_in_sidebar: true
-      filename: notexist.yaml
-    lovelace-diags:
-      mode: yaml
-      title: z Diagnostics
-      show_in_sidebar: false
-      filename: "ui-lovelace-diags.yaml"
+ 

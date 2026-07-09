@@ -57,6 +57,13 @@ template:
               {% endif %}
             {% endif %}
 
+utility_meter:
+  hot_water_today:
+    name: "Hot Water Used Today"
+    unique_id: hot_water_today
+    source: sensor.hot_water_sensor_total
+    cycle: daily
+
 automation:
   - id: hot_water_session_log
     alias: "Log Hot Water Session"
