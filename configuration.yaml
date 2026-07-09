@@ -13,6 +13,8 @@ scene: !include scenes.yaml
 logger:
   default: info
   logs:
+    homeassistant.helpers.script.trigger_update_coordinator: warning
+    hass_nabucasa.google_report_state: warning
     # custom_components.bne_wc: debug
     homeassistant.core: info
     homeassistant.components.automation: info
