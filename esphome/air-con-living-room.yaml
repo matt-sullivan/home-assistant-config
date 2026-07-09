@@ -132,10 +132,6 @@ sensor:
       filters:
         - multiply: !lambda return 100.0F / 15.0F;
         - delta: 0.0
-    energy:
-      name: Energy Consumption
-      filters:
-        - delta: 0.0
 
 binary_sensor:
   - platform: daikin_s21
