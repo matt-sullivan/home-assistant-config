@@ -74,23 +74,6 @@ recorder:
 tts:
   - platform: google_translate
 
-spotcast:
-  sp_dc: !secret spotcast_matt_sp_dc
-  sp_key: !secret spotcast_matt_sp_key
-  accounts:
-    emily:
-      sp_dc: !secret spotcast_emily_sp_dc
-      sp_key: !secret spotcast_emily_sp_key
-    sara:
-      sp_dc: !secret spotcast_sara_sp_dc
-      sp_key: !secret spotcast_sara_sp_key
-    matt:
-      sp_dc: !secret spotcast_matt_sp_dc
-      sp_key: !secret spotcast_matt_sp_key
-    toby:
-      sp_dc: !secret spotcast_toby_sp_dc
-      sp_key: !secret spotcast_toby_sp_key
-
 panel_custom:
   - name: ha_supervisor_apps
     sidebar_title: Supervisor Apps
