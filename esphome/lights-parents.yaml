@@ -8,6 +8,7 @@ packages:
   common_base: !include packages/common-base.yaml
   esp8266_overlay: !include packages/esp8266-overlay.yaml
   wifi_common: !include packages/wifi-common.yaml
+  reboot_common: !include packages/reboot-common.yaml
 
 light:
   - platform: binary
@@ -19,16 +20,6 @@ status_led:
   pin:
     number: GPIO3
     inverted: True
-
-script:
-  - id: long_press_reboot
-    mode: single
-    then:
-      - lambda: |-
-            ESP_LOGW("reboot", "Long-press detected on ${device_name} — rebooting in 2s");
-      - delay: 2s
-      - lambda: |-
-            App.safe_reboot();
 
 output:
   - platform: gpio

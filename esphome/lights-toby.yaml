@@ -8,6 +8,7 @@ packages:
   common_base: !include packages/common-base.yaml
   bk72xx_overlay: !include packages/bk72xx-overlay.yaml
   wifi_common: !include packages/wifi-common.yaml
+  reboot_common: !include packages/reboot-common.yaml
 
 light:
   - platform: binary
@@ -21,16 +22,6 @@ status_led:
     # WB3S RX1 (IC pin 10)
     number: RX1
     inverted: True
-
-script:
-  - id: long_press_reboot
-    mode: single
-    then:
-      - lambda: |-
-            ESP_LOGW("reboot", "Long-press detected on ${device_name} — rebooting in 2s");
-      - delay: 2s
-      - lambda: |-
-            App.safe_reboot();
 
 output:
   - platform: gpio
