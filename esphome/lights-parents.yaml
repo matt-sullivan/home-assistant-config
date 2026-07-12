@@ -21,6 +21,14 @@ status_led:
     number: GPIO3
     inverted: True
 
+event:
+  - platform: template
+    id: button_1
+    name: Button 1
+    device_class: "button"
+    event_types:
+      - "Long Press"
+
 output:
   - platform: gpio
     id: relay_light
@@ -84,10 +92,12 @@ binary_sensor:
     # Fallback for manual reboot to reconnect to HA after wifi problems
     on_multi_click:
       - timing:
-          - on for at least 10s
+          - on for at least 1s
         then:
-          - script.execute: long_press_reboot
-  
+          - event.trigger:
+              id: button_1
+              event_type: "Long Press"
+
   - platform: gpio
     id: fan_power_button
     pin:
@@ -118,6 +128,12 @@ binary_sensor:
     on_press:
       then:
         - fan.cycle_speed: fan_1
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
 
 fan:
   - platform: speed
