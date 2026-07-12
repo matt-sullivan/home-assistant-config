@@ -1,0 +1,180 @@
+substitutions:
+  device_name: power-meter
+  friendly_name: "Power Meter"
+  hotspot_ssid: "Power Meter Hotspot"
+  wifi_ssid: !secret wifi_ssid_front
+
+packages:
+  common_base: !include packages/common-base.yaml
+  wifi_front_and_hall: !include packages/wifi-front-and-hall.yaml
+
+esp32:
+  board: esp32-s2-saola-1
+  framework:
+    type: esp-idf
+
+preferences:
+  flash_write_interval: never
+
+# spi:
+#   clk_pin: GPIO12
+#   mosi_pin: GPIO11
+
+time:
+  - platform: homeassistant
+    id: esptime
+
+sensor:    
+  - platform: adc
+    pin: GPIO1
+    id: Input_1
+    attenuation: 12db
+    update_interval: 1s
+    
+  - platform: adc
+    pin: GPIO2
+    id: Input_2
+    attenuation: 12db
+    update_interval: 1s
+    
+  # - platform: adc
+  #   pin: GPIO3
+  #   id: Input_3
+  #   attenuation: 12db
+  #   update_interval: 1s
+    
+  - platform: adc
+    pin: GPIO4
+    id: Input_4
+    attenuation: 12db
+    update_interval: 1s
+    
+  - platform: adc
+    pin: GPIO5
+    id: Input_5
+    attenuation: 12db
+    update_interval: 1s
+    
+  # - platform: adc
+  #   pin: GPIO6
+  #   id: Input_6
+  #   attenuation: 12db
+  #   update_interval: 1s
+
+  - platform: ct_clamp
+    sensor: Input_1
+    id: Probe_1
+    name: "Probe 1"
+    sample_duration: 200ms
+    update_interval: 1s
+    filters:
+      - calibrate_linear:
+          - 0 -> 0
+          - 0.069 -> 5.9
+  
+  - platform: ct_clamp
+    sensor: Input_2
+    name: "Probe 2"
+    id: Probe_2
+    sample_duration: 200ms
+    update_interval: 1s
+    filters:
+      - calibrate_linear:
+          - 0 -> 0
+          # guess
+          - 0.046 -> 4.0
+    
+  - platform: ct_clamp
+    sensor: Input_4
+    name: "Probe 4"
+    id: Probe_4
+    sample_duration: 200ms
+    update_interval: 1s
+    filters:
+      - calibrate_linear:
+          - 0 -> 0
+          - 0.046 -> 4.0
+
+  - platform: ct_clamp
+    sensor: Input_5
+    name: "Probe 5"
+    id: Probe_5
+    sample_duration: 200ms
+    update_interval: 1s
+    filters:
+      - calibrate_linear:
+          - 0 -> 0
+          # - 0.040 -> 4.0
+          - 0.055 -> 5.9
+          
+  - platform: integration
+    id: energy_total
+    name: "Total Energy"
+    sensor: power_total
+    time_unit: min
+    unit_of_measurement: 'kWh'
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 1
+
+  - platform: integration
+    id: energy_hot_water
+    name: 'Hot Water Energy'
+    sensor: power_hot_water
+    time_unit: min
+    unit_of_measurement: 'kWh'
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 1
+
+  - platform: integration
+    id: energy_gpo
+    name: 'GPO Energy'
+    sensor: power_gpo
+    time_unit: min
+    unit_of_measurement: 'kWh'
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 1
+
+  - platform: integration
+    id: energy_air_con
+    name: 'Air Con Energy'
+    sensor: power_air_con
+    time_unit: min
+    unit_of_measurement: 'kWh'
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 1
+
+  - platform: template
+    id: power_total
+    name: "Total Power"
+    lambda: return (id(Probe_1).state) * 235.0 / 1000;
+    unit_of_measurement: 'kW'
+    update_interval: 5s
+    accuracy_decimals: 1
+
+  - platform: template
+    id: power_hot_water
+    name: "Hot Water Power"
+    lambda: return (id(Probe_2).state) * 235.0 / 1000; 
+    unit_of_measurement: 'kW'
+    update_interval: 5s
+    accuracy_decimals: 1
+
+  - platform: template
+    id: power_gpo
+    name: "GPO Power"
+    lambda: return (id(Probe_4).state) * 235.0 / 1000; 
+    unit_of_measurement: 'kW'
+    update_interval: 5s
+    accuracy_decimals: 1
+
+  - platform: template
+    id: power_air_con
+    name: "Air Con Power"
+    lambda: return (id(Probe_5).state) * 235.0 / 1000; 
+    unit_of_measurement: 'kW'
+    update_interval: 5s
+    accuracy_decimals: 1

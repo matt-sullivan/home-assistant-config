@@ -97,6 +97,16 @@ views:
           {% else %}
           {{ sessions | replace('\n', '  \n') }}
           {% endif %}
+      - title: Power Usage Today
+        type: statistics-graph
+        entities:
+          - sensor.power_meter_hot_water_energy
+        days_to_show: 1
+        period: hour
+        chart_type: bar
+        stat_types:
+          - change
+        hide_legend: true          
       - label: Hot Water Valve
         type: custom:button-card
         entity: valve.outside_hot_water_valve
@@ -144,6 +154,29 @@ views:
         type: statistics-graph
         entities:
           - sensor.hot_water_sensor_total
+        days_to_show: 7
+        period: day
+        chart_type: bar
+        stat_types:
+          - change
+        hide_legend: true          
+  - title: Power
+    cards:
+      - title: Sensors
+        type: entities
+        entities:
+          - sensor.power_meter_total_power
+          - sensor.power_meter_total_energy
+          - sensor.power_meter_hot_water_power
+          - sensor.power_meter_hot_water_energy
+          - sensor.power_meter_gpo_power
+          - sensor.power_meter_gpo_energy
+          - sensor.power_meter_air_con_power
+          - sensor.power_meter_air_con_energy
+      - title: Daily Usage
+        type: statistics-graph
+        entities:
+          - sensor.power_meter_total_energy
         days_to_show: 7
         period: day
         chart_type: bar
