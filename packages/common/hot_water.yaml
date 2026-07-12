@@ -29,6 +29,13 @@ template:
             {%- else -%}
               {{ state_attr(this.entity_id, 'last_duration') | default(0) }}
             {%- endif -%}
+          # Capture the starting reading in L to calculate the amount consumed at the end
+          last_start_reading: >
+            {%- if trigger.platform == 'state' and trigger.to_state.state == 'on' -%}
+              {{ states('sensor.hot_water_sensor_total') | float(0) }}
+            {%- else -%}
+              {{ state_attr(this.entity_id, 'last_start_reading') | default(0) }}
+            {%- endif -%}
 
   - trigger:
       - platform: time
@@ -49,7 +56,9 @@ template:
               {% set start_iso = trigger.event.data.start_time | default(now().isoformat(), true) %}
               {% set start_local = as_local(as_datetime(start_iso)) %}
               {% set duration_text = trigger.event.data.duration_display | default((trigger.event.data.duration | default(0) | int) ~ ' seconds', true) %}
-              {% set new_entry = start_local.strftime('%H:%M') ~ ' - ' ~ duration_text %}
+              {% set water_used = trigger.event.data.water_used | default(0) | float(0) %}
+              {% set water_text = (water_used | round(0)) ~ 'L' if water_used > 0 else 'N/A' %}
+              {% set new_entry = start_local.strftime('%H:%M') ~ ' - ' ~ duration_text ~ ' - ' ~ water_text %}
               {% if current in ['', 'none', 'unknown', 'unavailable'] %}
                 {{ new_entry }}
               {% else %}
@@ -97,13 +106,17 @@ automation:
             {% else %}
               {{ remaining_seconds }} second{{ 's' if remaining_seconds != 1 else '' }}
             {% endif %}
+          water_used: >-
+            {% set start_reading = state_attr('sensor.hot_water_duration', 'last_start_reading') | float(0) %}
+            {% set end_reading = states('sensor.hot_water_sensor_total') | float(0) %}
+            {{ (end_reading - start_reading) | round(1) }}
       - action: logbook.log
         data:
           name: "Hot Water Session"
           domain: binary_sensor
           entity_id: binary_sensor.hot_water_running
           message: >-
-            Shower or bath started at {{ hot_water_start_text }} finished after {{ hot_water_duration_display | trim }}.
+            Shower or bath started at {{ hot_water_start_text }} finished after {{ hot_water_duration_display | trim }} using {{ (water_used | float(0) | round(1)) }} liters.
       - event: hot_water_session_finished
         event_data:
           entity_id: binary_sensor.hot_water_running
@@ -112,6 +125,7 @@ automation:
           end_time: "{{ as_local(trigger.to_state.last_changed).isoformat() }}"
           duration: "{{ hot_water_duration_seconds }}"
           duration_display: "{{ hot_water_duration_display | trim }}"
+          water_used: "{{ water_used }}"
 
 script:
   hot_water_duration_announce:
