@@ -71,6 +71,12 @@ zha:
 recorder:
   commit_interval: 30
   purge_keep_days: 31
+  exclude:
+    entities:
+      - sensor.power_meter_probe_1
+      - sensor.power_meter_probe_2
+      - sensor.power_meter_probe_4
+      - sensor.power_meter_probe_5
 
 # Text to speech
 tts:
