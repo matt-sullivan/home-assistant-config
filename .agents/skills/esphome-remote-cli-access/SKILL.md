@@ -24,26 +24,12 @@ Use this skill to run ESPHome commands on Home Assistant when not running on the
  ssh homeassistant -p 22222 'docker exec addon_5c53de3b_esphome esphome <esphome-subcommand-and-args>'
 ```
 
-Replace esphome-subcommand-and-args with the desired ESPHome CLI command and its arguments, such as `config-hash /config/esphome/lights-emily.yaml`.
+(Replace esphome-subcommand-and-args with the desired ESPHome CLI command and its arguments, such as `config-hash /config/esphome/lights-emily.yaml`.)
 
 ## Example Use Case: Get Config Hash
 
 ```bash
  ssh homeassistant -p 22222 'docker exec addon_5c53de3b_esphome esphome config-hash /config/esphome/lights-emily.yaml'
-```
-
-## Quick Commands
-
-Resolve container once:
-
-```bash
-ssh -p 22222 homeassistant 'docker ps --format "{{.Names}}" | grep -i esphome | head -1'
-```
-
-Run one-off command:
-
-```bash
-ssh -p 22222 homeassistant 'c=$(docker ps --format "{{.Names}}" | grep -i esphome | head -1); docker exec "$c" esphome <subcommand> /config/esphome/<file>.yaml'
 ```
 
 ## What This Skill Avoids
@@ -68,5 +54,7 @@ ssh -p 22222 homeassistant 'docker ps --format "{{.Names}}" | grep -i "esphome" 
 3. Verify ESPHome CLI availability inside that container.
 
 ```bash
-ssh -p 22222 homeassistant 'c=$(docker ps --format "{{.Names}}" | grep -i esphome | head -1); docker exec "$c" esphome version'
+ssh -p 22222 homeassistant 'docker exec <container name> esphome version'
 ```
+
+(replace `<container name>` with the actual container name found in step 2)
