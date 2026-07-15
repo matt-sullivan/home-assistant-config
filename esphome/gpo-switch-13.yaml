@@ -2,11 +2,10 @@ substitutions:
   device_name: gpo-switch-13
   friendly_name: "Smart Plug 13"
   hotspot_ssid: "Smart Plug 13"
-  wifi_ssid: !secret wifi_ssid_upstairs
 
 packages:
   common_base: !include packages/common-base.yaml
-  wifi_common: !include packages/wifi-common.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
 
 # From https://devices.esphome.io/devices/arlec-pc191ha-plug/
@@ -29,7 +28,7 @@ binary_sensor: # the button
       inverted: true
     name: Button
     id: button
-    device_class: window
+    disabled_by_default: true
     # when button is pressed, toggle the switch on/off
     on_press:
       then:
