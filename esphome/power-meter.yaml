@@ -3,6 +3,7 @@ substitutions:
   friendly_name: "Power Meter"
   hotspot_ssid: "Power Meter Hotspot"
   wifi_ssid: !secret wifi_ssid_front
+  assumed_voltage: "235.0"
 
 packages:
   common_base: !include packages/common-base.yaml
@@ -107,51 +108,13 @@ sensor:
           # - 0.040 -> 4.0
           - 0.055 -> 5.9
           
-  - platform: integration
-    id: energy_total
-    name: "Total Energy"
-    sensor: power_total
-    time_unit: h
-    unit_of_measurement: 'kWh'
-    state_class: total_increasing
-    device_class: energy
-    accuracy_decimals: 1
-
-  - platform: integration
-    id: energy_hot_water
-    name: 'Hot Water Energy'
-    sensor: power_hot_water
-    time_unit: h
-    unit_of_measurement: 'kWh'
-    state_class: total_increasing
-    device_class: energy
-    accuracy_decimals: 1
-
-  - platform: integration
-    id: energy_gpo
-    name: 'GPO Energy'
-    sensor: power_gpo
-    time_unit: h
-    unit_of_measurement: 'kWh'
-    state_class: total_increasing
-    device_class: energy
-    accuracy_decimals: 1
-
-  - platform: integration
-    id: energy_air_con
-    name: 'Air Con Energy'
-    sensor: power_air_con
-    time_unit: h
-    unit_of_measurement: 'kWh'
-    state_class: total_increasing
-    device_class: energy
-    accuracy_decimals: 1
-
   - platform: template
     id: power_total
     name: "Total Power"
-    lambda: return (id(Probe_1).state) * 235.0 / 1000;
-    unit_of_measurement: 'kW'
+    lambda: return (id(Probe_1).state) * ${assumed_voltage};
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
     update_interval: 5s
     accuracy_decimals: 1
     filters:
@@ -160,8 +123,10 @@ sensor:
   - platform: template
     id: power_hot_water
     name: "Hot Water Power"
-    lambda: return (id(Probe_2).state) * 235.0 / 1000; 
-    unit_of_measurement: 'kW'
+    lambda: return (id(Probe_2).state) * ${assumed_voltage}; 
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
     update_interval: 5s
     accuracy_decimals: 1
     filters:
@@ -170,8 +135,10 @@ sensor:
   - platform: template
     id: power_gpo
     name: "GPO Power"
-    lambda: return (id(Probe_4).state) * 235.0 / 1000; 
-    unit_of_measurement: 'kW'
+    lambda: return (id(Probe_4).state) * ${assumed_voltage}; 
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
     update_interval: 5s
     accuracy_decimals: 1
     filters:
@@ -180,8 +147,10 @@ sensor:
   - platform: template
     id: power_air_con
     name: "Air Con Power"
-    lambda: return (id(Probe_5).state) * 235.0 / 1000; 
-    unit_of_measurement: 'kW'
+    lambda: return (id(Probe_5).state) * ${assumed_voltage}; 
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
     update_interval: 5s
     accuracy_decimals: 1
     filters:
