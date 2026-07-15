@@ -13,7 +13,6 @@ views:
           - light.emily_heart
           - cover.emilys_door_blind
           - cover.emilys_side_blind
-          - switch.emily_electric_blanket
           - climate.emily_air_con
           - media_player.emilys_bedroom_speaker
           - media_player.spotify_emily
@@ -29,7 +28,7 @@ views:
           - light.toby_star_light
           - cover.tobys_front_blind
           - cover.tobys_side_blind
-          - switch.toby_electric_blanket
+          - switch.tobys_bedroom_toby_electric_blanket
           - climate.toby_air_con
           - media_player.tobys_bedroom_speaker
           - media_player.spotify_toby_sullivan
@@ -53,8 +52,8 @@ views:
           # - cover.parents_front_blind
           - cover.parents_front_door_blind
           - cover.parents_side_blind
-          - switch.sara_electric_blanket
-          - switch.matt_electric_blanket
+          - switch.parents_bedroom_sara_electric_blanket
+          - switch.parents_bedroom_matt_electric_blanket
           - climate.parents_air_con
       - title: Misc
         type: entities
@@ -65,7 +64,7 @@ views:
           - binary_sensor.downstairs_laundry_door
           - binary_sensor.downstairs_deck_door
           - climate.living_room_air_con
-          - switch.pool_pump
+          - switch.outside_pool_pump
           - light.study_downlight
           - light.bin_light
           - light.storage_light
