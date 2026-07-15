@@ -1,10 +1,7 @@
 {
   "servers": {
     "Home Assistant": {
-      "command": "uvx",
-      "args": [
-        "ha-mcp"
-      ]
+      "command": "./scripts/ha-mcp-launch.sh"
     }
   }
 }
