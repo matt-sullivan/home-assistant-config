@@ -56,57 +56,76 @@ sensor:
     attenuation: 12db
     update_interval: 1s
     
-  # - platform: adc
-  #   pin: GPIO6
-  #   id: Input_6
-  #   attenuation: 12db
-  #   update_interval: 1s
+  - platform: adc
+    pin: GPIO6
+    id: Input_6
+    attenuation: 12db
+    update_interval: 1s
 
   - platform: ct_clamp
     sensor: Input_1
     id: Probe_1
-    name: "Probe 1"
+    name: "Total Current"
     sample_duration: 200ms
     update_interval: 1s
     filters:
       - calibrate_linear:
+          # This probe is a 100A CT clamp, and has a different calibration to the others
+          # I measured 0.069 -> 5.9, but I'm scaling up by 1.05 to make it more closely match the
+          # GPO probe which is the biggest load and I tested with everything else turned off.
           - 0 -> 0
-          - 0.069 -> 5.9
+          - 0.069 -> 6.195
   
   - platform: ct_clamp
     sensor: Input_2
-    name: "Probe 2"
+    name: "Hot Water Current"
     id: Probe_2
     sample_duration: 200ms
     update_interval: 1s
     filters:
       - calibrate_linear:
           - 0 -> 0
-          # guess
-          - 0.046 -> 4.0
+          # hot water wasn't available at the time of calibration
+          # copy this from probe 4 & 5 that are roughly 110x factor
+          - 0.055 -> 5.9
     
   - platform: ct_clamp
     sensor: Input_4
-    name: "Probe 4"
+    name: "GPO Current"
     id: Probe_4
     sample_duration: 200ms
     update_interval: 1s
     filters:
       - calibrate_linear:
           - 0 -> 0
-          - 0.046 -> 4.0
+          # Measured multiple times
+          - 0.074 -> 8.25 # 111.5
+          - 0.075 -> 8.32 # 110.9
+          - 0.076 -> 8.45 # 111.2
+          # this one seems an anomality
+          # - 0.081 -> 8.85 # 109.3
 
   - platform: ct_clamp
     sensor: Input_5
-    name: "Probe 5"
+    name: "Air Con Current"
     id: Probe_5
     sample_duration: 200ms
     update_interval: 1s
     filters:
       - calibrate_linear:
           - 0 -> 0
-          # - 0.040 -> 4.0
           - 0.055 -> 5.9
+          
+  - platform: ct_clamp
+    sensor: Input_6
+    name: "Lights Current"
+    id: Probe_6
+    sample_duration: 200ms
+    update_interval: 1s
+    filters:
+      - calibrate_linear:
+          - 0 -> 0
+          - 0.058 -> 6.45
           
   - platform: template
     id: power_total
@@ -148,6 +167,18 @@ sensor:
     id: power_air_con
     name: "Air Con Power"
     lambda: return (id(Probe_5).state) * ${assumed_voltage}; 
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
+    update_interval: 5s
+    accuracy_decimals: 1
+    filters:
+      - delta: 0.05
+
+  - platform: template
+    id: power_lights
+    name: "Lights Power"
+    lambda: return (id(Probe_6).state) * ${assumed_voltage}; 
     unit_of_measurement: 'W'
     device_class: power
     state_class: measurement
