@@ -24,6 +24,7 @@ web_server:
   auth:
     username: !secret web_server_username
     password: !secret web_server_password
+    type: digest
 
 sensor:
   - platform: wifi_signal
