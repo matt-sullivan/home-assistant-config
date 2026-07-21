@@ -64,7 +64,7 @@ views:
           - binary_sensor.downstairs_laundry_door
           - binary_sensor.downstairs_deck_door
           - climate.living_room_air_con
-          - switch.outside_pool_pump
+          - switch.pool_pool_pump
           - light.study_downlight
           - light.bin_light
           - light.storage_light
@@ -161,27 +161,159 @@ views:
         hide_legend: true          
   - title: Power
     cards:
-      - title: Sensors
+      - title: Current Power - Overview
         type: entities
         entities:
-          - sensor.power_meter_total_power
-          - sensor.power_meter_total_energy
-          - sensor.power_meter_hot_water_power
-          - sensor.power_meter_hot_water_energy
-          - sensor.power_meter_gpo_power
-          - sensor.power_meter_gpo_energy
-          - sensor.power_meter_air_con_power
-          - sensor.power_meter_air_con_energy
-      - title: Daily Usage
-        type: statistics-graph
+          - sensor.power_house_total
+          - sensor.power_house_outlets
+          - sensor.power_house_air_con
+          - sensor.power_house_lights
+          - sensor.power_house_hot_water
+          - sensor.power_house_other
+      - title: Current Power - Outlets
+        type: entities
         entities:
-          - sensor.power_meter_total_energy
-        days_to_show: 7
-        period: day
-        chart_type: bar
-        stat_types:
-          - change
-        hide_legend: true          
+          - sensor.pool_pool_pump_power
+          - sensor.pool_pool_heater_power
+          - sensor.kitchen_kitchen_fridge_power
+          - sensor.upstairs_deck_outside_fridge_power
+          - sensor.downstairs_downstairs_fridge_power
+          - sensor.kitchen_dishwasher_power
+          - sensor.kitchen_air_fryer_power
+          - sensor.downstairs_washing_machine_power
+          - sensor.downstairs_clothes_dryer_power
+          - sensor.downstairs_computer_server_power
+          - sensor.parents_bedroom_sara_electric_blanket_power
+          - sensor.tobys_bedroom_toby_electric_blanket_power
+          - sensor.power_outlets_other
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: Daily Energy Usage Trend
+          show_states: false
+        graph_span: 7d
+        span:
+          start: day
+          offset: -6d
+        apex_config:
+          chart:
+            type: bar
+            stacked: true
+        series:
+          - entity: sensor.power_house_outlets_energy_daily
+            name: Outlets
+            type: column
+            group_by:
+              duration: 1d
+              func: max
+          - entity: sensor.power_house_air_con_energy_daily
+            name: Air Con
+            type: column
+            group_by:
+              duration: 1d
+              func: max
+          - entity: sensor.power_house_lights_energy_daily
+            name: Lights
+            type: column
+            group_by:
+              duration: 1d
+              func: max
+          - entity: sensor.power_house_hot_water_energy_daily
+            name: Hot Water
+            type: column
+            group_by:
+              duration: 1d
+              func: max
+      - type: custom:apexcharts-card
+        chart_type: pie
+        header:
+          show: true
+          title: Energy Usage Today
+          show_states: false
+        series:
+          - entity: sensor.power_outlet_pool_pool_pump_energy_daily
+            name: Pool Pump
+          - entity: sensor.power_outlet_pool_pool_heater_energy_daily
+            name: Pool Heater
+          - entity: sensor.power_outlet_kitchen_kitchen_fridge_energy_daily
+            name: Kitchen Fridge
+          - entity: sensor.power_outlet_upstairs_deck_outside_fridge_energy_daily
+            name: Outside Fridge
+          - entity: sensor.power_outlet_downstairs_downstairs_fridge_energy_daily
+            name: Downstairs Fridge
+          - entity: sensor.power_outlet_kitchen_dishwasher_energy_daily
+            name: Dishwasher
+          - entity: sensor.power_outlet_kitchen_air_fryer_energy_daily
+            name: Air Fryer
+          - entity: sensor.power_outlet_downstairs_washing_machine_energy_daily
+            name: Washing Machine
+          - entity: sensor.power_outlet_downstairs_clothes_dryer_energy_daily
+            name: Clothes Dryer
+          - entity: sensor.power_outlet_downstairs_computer_server_energy_daily
+            name: Computer Server
+          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_daily
+            name: Sara Electric Blanket
+          - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_daily
+            name: Toby Electric Blanket
+          - entity: sensor.power_outlets_other_energy_daily
+            name: Other Outlets
+          - entity: sensor.living_room_air_con_energy_daily
+            name: Living Room Air Con
+          - entity: sensor.power_air_con_parents_air_con_power_monitor_energy_daily
+            name: Parents Air Con
+          - entity: sensor.power_air_con_emily_air_con_power_monitor_energy_daily
+            name: Emily Air Con
+          - entity: sensor.power_air_con_toby_air_con_power_monitor_energy_daily
+            name: Toby Air Con
+          - entity: sensor.power_house_lights_energy_daily
+            name: Lights
+          - entity: sensor.power_house_hot_water_energy_daily
+            name: Hot Water
+      - type: custom:apexcharts-card
+        chart_type: pie
+        header:
+          show: true
+          title: Energy Usage This Month
+          show_states: false
+        series:
+          - entity: sensor.power_outlet_pool_pool_pump_energy_monthly
+            name: Pool Pump
+          - entity: sensor.power_outlet_pool_pool_heater_energy_monthly
+            name: Pool Heater
+          - entity: sensor.power_outlet_kitchen_kitchen_fridge_energy_monthly
+            name: Kitchen Fridge
+          - entity: sensor.power_outlet_upstairs_deck_outside_fridge_energy_monthly
+            name: Outside Fridge
+          - entity: sensor.power_outlet_downstairs_downstairs_fridge_energy_monthly
+            name: Downstairs Fridge
+          - entity: sensor.power_outlet_kitchen_dishwasher_energy_monthly
+            name: Dishwasher
+          - entity: sensor.power_outlet_kitchen_air_fryer_energy_monthly
+            name: Air Fryer
+          - entity: sensor.power_outlet_downstairs_washing_machine_energy_monthly
+            name: Washing Machine
+          - entity: sensor.power_outlet_downstairs_clothes_dryer_energy_monthly
+            name: Clothes Dryer
+          - entity: sensor.power_outlet_downstairs_computer_server_energy_monthly
+            name: Computer Server
+          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_monthly
+            name: Sara Electric Blanket
+          - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_monthly
+            name: Toby Electric Blanket
+          - entity: sensor.power_outlets_other_energy_monthly
+            name: Other Outlets
+          - entity: sensor.living_room_air_con_energy_monthly
+            name: Living Room Air Con
+          - entity: sensor.power_air_con_parents_air_con_power_monitor_energy_monthly
+            name: Parents Air Con
+          - entity: sensor.power_air_con_emily_air_con_power_monitor_energy_monthly
+            name: Emily Air Con
+          - entity: sensor.power_air_con_toby_air_con_power_monitor_energy_monthly
+            name: Toby Air Con
+          - entity: sensor.power_house_lights_energy_monthly
+            name: Lights
+          - entity: sensor.power_house_hot_water_energy_monthly
+            name: Hot Water
   - title: Camera Overview
     cards:
       - title: Front Yard Camera

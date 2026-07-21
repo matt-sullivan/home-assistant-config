@@ -1,0 +1,207 @@
+sensor:
+  - platform: integration
+    source: sensor.power_house_total
+    name: "Power House Total Energy Counter"
+    unique_id: power_house_total_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.power_house_outlets
+    name: "Power House Outlets Energy Counter"
+    unique_id: power_house_outlets_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.power_house_air_con
+    name: "Power House Air Con Energy Counter"
+    unique_id: power_house_air_con_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.power_house_lights
+    name: "Power House Lights Energy Counter"
+    unique_id: power_house_lights_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.power_house_hot_water
+    name: "Power House Hot Water Energy Counter"
+    unique_id: power_house_hot_water_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.power_house_other
+    name: "Power House Other Energy Counter"
+    unique_id: power_house_other_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.power_outlets_other
+    name: "Power Outlets Other Energy Counter"
+    unique_id: power_outlets_other_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.downstairs_clothes_dryer_power
+    name: "Clothes Dryer Energy Counter"
+    unique_id: power_outlet_downstairs_clothes_dryer_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.downstairs_computer_server_power
+    name: "Computer Server Energy Counter"
+    unique_id: power_outlet_downstairs_computer_server_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.downstairs_downstairs_fridge_power
+    name: "Downstairs Fridge Energy Counter"
+    unique_id: power_outlet_downstairs_downstairs_fridge_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.downstairs_washing_machine_power
+    name: "Washing Machine Energy Counter"
+    unique_id: power_outlet_downstairs_washing_machine_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.kitchen_air_fryer_power
+    name: "Air Fryer Energy Counter"
+    unique_id: power_outlet_kitchen_air_fryer_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.kitchen_dishwasher_power
+    name: "Dishwasher Energy Counter"
+    unique_id: power_outlet_kitchen_dishwasher_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.kitchen_kitchen_fridge_power
+    name: "Kitchen Fridge Energy Counter"
+    unique_id: power_outlet_kitchen_kitchen_fridge_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.parents_bedroom_sara_electric_blanket_power
+    name: "Sara Electric Blanket Energy Counter"
+    unique_id: power_outlet_parents_bedroom_sara_electric_blanket_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.tobys_bedroom_toby_electric_blanket_power
+    name: "Toby Electric Blanket Energy Counter"
+    unique_id: power_outlet_tobys_bedroom_toby_electric_blanket_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.upstairs_deck_outside_fridge_power
+    name: "Outside Fridge Energy Counter"
+    unique_id: power_outlet_upstairs_deck_outside_fridge_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.parents_air_con_power_monitor_power
+    name: "Parents Air Con Power Monitor Energy Counter"
+    unique_id: power_air_con_parents_air_con_power_monitor_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.emily_air_con_power_monitor_power
+    name: "Emily Air Con Power Monitor Energy Counter"
+    unique_id: power_air_con_emily_air_con_power_monitor_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.toby_air_con_power_monitor_power
+    name: "Toby Air Con Power Monitor Energy Counter"
+    unique_id: power_air_con_toby_air_con_power_monitor_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.living_room_air_con_power
+    name: "Living Room Air Con Energy Counter"
+    unique_id: living_room_air_con_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.pool_pool_pump_power
+    name: "Pool Pump Energy Counter"
+    unique_id: power_outlet_pool_pool_pump_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.pool_pool_heater_power
+    name: "Pool Heater Energy Counter"
+    unique_id: power_outlet_pool_pool_heater_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
