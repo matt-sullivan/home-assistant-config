@@ -94,8 +94,6 @@ toby_reading_time:
             state: "on"
           light.tobyfroglight:
             state: 'on'
-          light.toby_star_light:
-            state: 'on'
           light.toby_main:
             state: "off"
 
@@ -115,8 +113,6 @@ toby_sleep_time:
           light.toby_reading_2:
             state: "off"
           light.tobyfroglight:
-            state: 'on'
-          light.toby_star_light:
             state: 'on'
     - if:
         - alias: "Use Music Assistant not spotify"

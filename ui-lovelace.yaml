@@ -25,7 +25,6 @@ views:
           - script.toby_wake_up
           - light.toby_reading_2
           - light.tobyfroglight
-          - light.toby_star_light
           - cover.tobys_front_blind
           - cover.tobys_side_blind
           - switch.tobys_bedroom_toby_electric_blanket
