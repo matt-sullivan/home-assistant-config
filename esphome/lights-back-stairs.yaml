@@ -20,14 +20,7 @@ status_led:
     number: P24
     inverted: true
 
-## ------------------ ##
-##    Generic Sensors ##
-## ------------------ ##
 switch:
-  - platform: restart
-    id: restart_device
-    name: "Reboot"
-
   # Relay
   - platform: gpio
     id: relay_1

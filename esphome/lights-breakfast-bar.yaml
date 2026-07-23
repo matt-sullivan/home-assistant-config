@@ -21,14 +21,6 @@ status_led:
     number: P9
     inverted: true
 
-## ------------------ ##
-##    Generic Sensors ##
-## ------------------ ##
-switch:
-  - platform: restart
-    id: restart_device
-    name: "Reboot"
-
 ## ---------------- ##
 ##      Relays      ##
 ## ---------------- ##
