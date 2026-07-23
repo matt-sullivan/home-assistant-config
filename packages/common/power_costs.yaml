@@ -1,0 +1,626 @@
+input_number:
+  power_tariff_peak_c_per_kwh:
+    name: Power Tariff Peak (c/kWh)
+    min: 0
+    max: 200
+    step: 0.001
+    unit_of_measurement: c/kWh
+    mode: box
+    initial: 47.785
+
+  power_tariff_shoulder_c_per_kwh:
+    name: Power Tariff Shoulder (c/kWh)
+    min: 0
+    max: 200
+    step: 0.001
+    unit_of_measurement: c/kWh
+    mode: box
+    initial: 25.296
+
+  power_tariff_off_peak_c_per_kwh:
+    name: Power Tariff Off-Peak (c/kWh)
+    min: 0
+    max: 200
+    step: 0.001
+    unit_of_measurement: c/kWh
+    mode: box
+    initial: 6.984
+
+  power_tariff_hot_water_c_per_kwh:
+    name: Power Tariff Hot Water (c/kWh)
+    min: 0
+    max: 200
+    step: 0.001
+    unit_of_measurement: c/kWh
+    mode: box
+    initial: 19.45
+
+automation:
+  - alias: Power Costs - Apply TOU Tariff
+    id: power_costs_apply_tou_tariff
+    mode: single
+    trigger:
+      - platform: time
+        at: "16:00:00"
+        id: peak
+      - platform: time
+        at: "21:00:00"
+        id: shoulder
+      - platform: time
+        at: "11:00:00"
+        id: off_peak
+    variables:
+      tariff: >
+        {% if trigger.id == 'peak' %}
+          peak
+        {% elif trigger.id == 'shoulder' %}
+          shoulder
+        {% else %}
+          off-peak
+        {% endif %}
+      utility_meter_tariff_selects: >
+        {{
+          integration_entities('utility_meter')
+          | select('match', '^select\\.power_.*_energy_(daily|monthly)$')
+          | reject('search', '_hot_water_')
+          | list
+        }}
+    action:
+      - service: select.select_option
+        target:
+          entity_id: "{{ utility_meter_tariff_selects }}"
+        data:
+          option: "{{ tariff }}"
+
+template:
+  - sensor:
+      - name: power_house_total_cost_daily
+        unique_id: power_house_total_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_total_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_total_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_total_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_hot_water_cost_daily
+        unique_id: power_house_hot_water_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_hot_water_energy_daily") | float(0))
+            * (states("input_number.power_tariff_hot_water_c_per_kwh") | float(0))) / 100)
+            | round(2)
+          }}
+
+      - name: power_house_hot_water_cost_monthly
+        unique_id: power_house_hot_water_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_hot_water_energy_monthly") | float(0))
+            * (states("input_number.power_tariff_hot_water_c_per_kwh") | float(0))) / 100)
+            | round(2)
+          }}
+
+      - name: power_house_total_cost_monthly
+        unique_id: power_house_total_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_total_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_total_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_total_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_outlets_cost_daily
+        unique_id: power_house_outlets_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_outlets_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_outlets_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_outlets_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_outlets_cost_monthly
+        unique_id: power_house_outlets_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_outlets_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_outlets_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_outlets_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_air_con_cost_daily
+        unique_id: power_house_air_con_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_air_con_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_air_con_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_air_con_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_air_con_cost_monthly
+        unique_id: power_house_air_con_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_air_con_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_air_con_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_air_con_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_lights_cost_daily
+        unique_id: power_house_lights_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_lights_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_lights_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_lights_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_lights_cost_monthly
+        unique_id: power_house_lights_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_lights_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_lights_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_lights_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_other_cost_daily
+        unique_id: power_house_other_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_other_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_other_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_other_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_house_other_cost_monthly
+        unique_id: power_house_other_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_house_other_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_other_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_house_other_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlets_other_cost_daily
+        unique_id: power_outlets_other_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlets_other_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlets_other_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlets_other_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlets_other_cost_monthly
+        unique_id: power_outlets_other_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlets_other_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlets_other_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlets_other_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_clothes_dryer_cost_daily
+        unique_id: power_outlet_downstairs_clothes_dryer_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_clothes_dryer_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_clothes_dryer_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_clothes_dryer_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_clothes_dryer_cost_monthly
+        unique_id: power_outlet_downstairs_clothes_dryer_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_clothes_dryer_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_clothes_dryer_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_clothes_dryer_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_computer_server_cost_daily
+        unique_id: power_outlet_downstairs_computer_server_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_computer_server_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_computer_server_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_computer_server_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_computer_server_cost_monthly
+        unique_id: power_outlet_downstairs_computer_server_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_computer_server_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_computer_server_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_computer_server_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_downstairs_fridge_cost_daily
+        unique_id: power_outlet_downstairs_downstairs_fridge_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_downstairs_fridge_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_downstairs_fridge_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_downstairs_fridge_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_downstairs_fridge_cost_monthly
+        unique_id: power_outlet_downstairs_downstairs_fridge_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_downstairs_fridge_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_downstairs_fridge_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_downstairs_fridge_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_washing_machine_cost_daily
+        unique_id: power_outlet_downstairs_washing_machine_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_washing_machine_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_washing_machine_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_washing_machine_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_downstairs_washing_machine_cost_monthly
+        unique_id: power_outlet_downstairs_washing_machine_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_downstairs_washing_machine_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_washing_machine_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_downstairs_washing_machine_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_kitchen_air_fryer_cost_daily
+        unique_id: power_outlet_kitchen_air_fryer_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_kitchen_air_fryer_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_air_fryer_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_air_fryer_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_kitchen_air_fryer_cost_monthly
+        unique_id: power_outlet_kitchen_air_fryer_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_kitchen_air_fryer_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_air_fryer_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_air_fryer_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_kitchen_dishwasher_cost_daily
+        unique_id: power_outlet_kitchen_dishwasher_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_kitchen_dishwasher_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_dishwasher_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_dishwasher_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_kitchen_dishwasher_cost_monthly
+        unique_id: power_outlet_kitchen_dishwasher_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_kitchen_dishwasher_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_dishwasher_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_dishwasher_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_kitchen_kitchen_fridge_cost_daily
+        unique_id: power_outlet_kitchen_kitchen_fridge_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_kitchen_kitchen_fridge_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_kitchen_fridge_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_kitchen_fridge_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_kitchen_kitchen_fridge_cost_monthly
+        unique_id: power_outlet_kitchen_kitchen_fridge_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_kitchen_kitchen_fridge_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_kitchen_fridge_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_kitchen_kitchen_fridge_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_parents_bedroom_sara_electric_blanket_cost_daily
+        unique_id: power_outlet_parents_bedroom_sara_electric_blanket_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_parents_bedroom_sara_electric_blanket_cost_monthly
+        unique_id: power_outlet_parents_bedroom_sara_electric_blanket_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_tobys_bedroom_toby_electric_blanket_cost_daily
+        unique_id: power_outlet_tobys_bedroom_toby_electric_blanket_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_tobys_bedroom_toby_electric_blanket_cost_monthly
+        unique_id: power_outlet_tobys_bedroom_toby_electric_blanket_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_upstairs_deck_outside_fridge_cost_daily
+        unique_id: power_outlet_upstairs_deck_outside_fridge_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_upstairs_deck_outside_fridge_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_upstairs_deck_outside_fridge_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_upstairs_deck_outside_fridge_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_upstairs_deck_outside_fridge_cost_monthly
+        unique_id: power_outlet_upstairs_deck_outside_fridge_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_upstairs_deck_outside_fridge_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_upstairs_deck_outside_fridge_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_upstairs_deck_outside_fridge_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_parents_air_con_power_monitor_cost_daily
+        unique_id: power_air_con_parents_air_con_power_monitor_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_parents_air_con_power_monitor_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_parents_air_con_power_monitor_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_parents_air_con_power_monitor_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_parents_air_con_power_monitor_cost_monthly
+        unique_id: power_air_con_parents_air_con_power_monitor_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_parents_air_con_power_monitor_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_parents_air_con_power_monitor_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_parents_air_con_power_monitor_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_emily_air_con_power_monitor_cost_daily
+        unique_id: power_air_con_emily_air_con_power_monitor_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_emily_air_con_power_monitor_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_emily_air_con_power_monitor_cost_monthly
+        unique_id: power_air_con_emily_air_con_power_monitor_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_toby_air_con_power_monitor_cost_daily
+        unique_id: power_air_con_toby_air_con_power_monitor_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_toby_air_con_power_monitor_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_toby_air_con_power_monitor_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_toby_air_con_power_monitor_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_toby_air_con_power_monitor_cost_monthly
+        unique_id: power_air_con_toby_air_con_power_monitor_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_toby_air_con_power_monitor_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_toby_air_con_power_monitor_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_toby_air_con_power_monitor_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_living_room_air_con_cost_daily
+        unique_id: power_air_con_living_room_air_con_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_living_room_air_con_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_living_room_air_con_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_living_room_air_con_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_living_room_air_con_cost_monthly
+        unique_id: power_air_con_living_room_air_con_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_living_room_air_con_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_living_room_air_con_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_living_room_air_con_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_pool_pool_pump_cost_daily
+        unique_id: power_outlet_pool_pool_pump_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_pool_pool_pump_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_pump_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_pump_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_pool_pool_pump_cost_monthly
+        unique_id: power_outlet_pool_pool_pump_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_pool_pool_pump_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_pump_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_pump_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_pool_pool_heater_cost_daily
+        unique_id: power_outlet_pool_pool_heater_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_pool_pool_heater_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_heater_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_heater_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_outlet_pool_pool_heater_cost_monthly
+        unique_id: power_outlet_pool_pool_heater_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_outlet_pool_pool_heater_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_heater_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_outlet_pool_pool_heater_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+

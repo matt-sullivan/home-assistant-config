@@ -257,7 +257,7 @@ views:
             name: Toby Electric Blanket
           - entity: sensor.power_outlets_other_energy_daily
             name: Other Outlets
-          - entity: sensor.living_room_air_con_energy_daily
+          - entity: sensor.power_air_con_living_room_air_con_energy_daily
             name: Living Room Air Con
           - entity: sensor.power_air_con_parents_air_con_power_monitor_energy_daily
             name: Parents Air Con
@@ -302,7 +302,7 @@ views:
             name: Toby Electric Blanket
           - entity: sensor.power_outlets_other_energy_monthly
             name: Other Outlets
-          - entity: sensor.living_room_air_con_energy_monthly
+          - entity: sensor.power_air_con_living_room_air_con_energy_monthly
             name: Living Room Air Con
           - entity: sensor.power_air_con_parents_air_con_power_monitor_energy_monthly
             name: Parents Air Con
