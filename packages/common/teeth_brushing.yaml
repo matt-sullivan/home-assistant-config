@@ -26,13 +26,15 @@ template:
         state_class: measurement
         device_class: "temperature"
         unit_of_measurement: °C
+        availability: >
+          {{ trigger.id == 'reset' or has_value('sensor.toby_toothbrush_duration') }}
         state: >
           {% if trigger.id == 'reset' %}
             0
           {% elif states('sensor.toby_toothbrush_duration') | int(0) > 0 %}
-            {{states('sensor.toby_toothbrush_duration') | int(0) }}
+            {{ states('sensor.toby_toothbrush_duration') | int(0) }}
           {% else %}
-            {{states('sensor.toby_toothbrush_duration') }}
+            {{ states('sensor.toby_toothbrush_duration') }}
           {% endif %}
   - binary_sensor:
       - name: "Toby Brushed Teeth"
@@ -50,7 +52,8 @@ template:
         unique_id: toby_brushing_duration_am 
         state_class: measurement
         unit_of_measurement: s
-        state: "{{states('sensor.toby_brushing_duration')}}"
+        availability: "{{ has_value('sensor.toby_brushing_duration') }}"
+        state: "{{ states('sensor.toby_brushing_duration') | int(0) }}"
   - triggers:
       - trigger: state
         entity_id: sensor.toby_brushing_duration
@@ -62,7 +65,8 @@ template:
         unique_id: toby_brushing_duration_pm 
         state_class: measurement
         unit_of_measurement: s
-        state: "{{states('sensor.toby_brushing_duration')}}"
+        availability: "{{ has_value('sensor.toby_brushing_duration') }}"
+        state: "{{ states('sensor.toby_brushing_duration') | int(0) }}"
   - trigger:
       - trigger: state
         entity_id:
