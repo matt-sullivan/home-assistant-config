@@ -160,31 +160,134 @@ views:
         hide_legend: true          
   - title: Power
     cards:
-      - title: Current Power - Overview
-        type: entities
-        entities:
-          - sensor.power_house_total
-          - sensor.power_house_outlets
-          - sensor.power_house_air_con
-          - sensor.power_house_lights
-          - sensor.power_house_hot_water
-          - sensor.power_house_other
-      - title: Current Power - Outlets
-        type: entities
-        entities:
-          - sensor.pool_pool_pump_power
-          - sensor.pool_pool_heater_power
-          - sensor.kitchen_kitchen_fridge_power
-          - sensor.upstairs_deck_outside_fridge_power
-          - sensor.downstairs_downstairs_fridge_power
-          - sensor.kitchen_dishwasher_power
-          - sensor.kitchen_air_fryer_power
-          - sensor.downstairs_washing_machine_power
-          - sensor.downstairs_clothes_dryer_power
-          - sensor.downstairs_computer_server_power
-          - sensor.parents_bedroom_sara_electric_blanket_power
-          - sensor.tobys_bedroom_toby_electric_blanket_power
-          - sensor.power_outlets_other
+      - type: custom:apexcharts-card
+        chart_type: pie
+        header:
+          show: true
+          title: Energy Costs Today
+          show_states: false
+        series:
+          - entity: sensor.power_outlet_pool_pool_pump_cost_daily
+            name: Pool Pump
+            float_precision: 2  
+          - entity: sensor.power_outlet_pool_pool_heater_cost_daily
+            name: Pool Heater
+            float_precision: 2  
+          - entity: sensor.power_outlet_kitchen_kitchen_fridge_cost_daily
+            name: Kitchen Fridge
+            float_precision: 2  
+          - entity: sensor.power_outlet_upstairs_deck_outside_fridge_cost_daily
+            name: Outside Fridge
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_downstairs_fridge_cost_daily
+            name: Downstairs Fridge
+            float_precision: 2
+          - entity: sensor.power_outlet_kitchen_dishwasher_cost_daily
+            name: Dishwasher
+            float_precision: 2  
+          - entity: sensor.power_outlet_kitchen_air_fryer_cost_daily
+            name: Air Fryer
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_washing_machine_cost_daily
+            name: Washing Machine
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_clothes_dryer_cost_daily
+            name: Clothes Dryer
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_computer_server_cost_daily
+            name: Computer Server
+            float_precision: 2  
+          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_cost_daily
+            name: Sara Electric Blanket
+            float_precision: 2  
+          - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_cost_daily
+            name: Toby Electric Blanket
+            float_precision: 2  
+          - entity: sensor.power_outlets_other_cost_daily
+            name: Other Outlets
+            float_precision: 2  
+          - entity: sensor.power_air_con_living_room_air_con_cost_daily
+            name: Living Room Air Con
+            float_precision: 2  
+          - entity: sensor.power_air_con_parents_air_con_power_monitor_cost_daily
+            name: Parents Air Con
+            float_precision: 2  
+          - entity: sensor.power_air_con_emily_air_con_power_monitor_cost_daily
+            name: Emily Air Con
+            float_precision: 2  
+          - entity: sensor.power_air_con_toby_air_con_power_monitor_cost_daily
+            name: Toby Air Con
+            float_precision: 2  
+          - entity: sensor.power_house_lights_cost_daily
+            name: Lights
+            float_precision: 2  
+          - entity: sensor.power_house_hot_water_cost_daily
+            name: Hot Water
+            float_precision: 2  
+      - type: custom:apexcharts-card
+        chart_type: pie
+        header:
+          show: true
+          title: Energy Costs This Month
+          show_states: false
+        series:
+          - entity: sensor.power_outlet_pool_pool_pump_cost_monthly
+            name: Pool Pump
+            float_precision: 2  
+          - entity: sensor.power_outlet_pool_pool_heater_cost_monthly
+            name: Pool Heater
+            float_precision: 2  
+          - entity: sensor.power_outlet_kitchen_kitchen_fridge_cost_monthly
+            name: Kitchen Fridge
+            float_precision: 2  
+          - entity: sensor.power_outlet_upstairs_deck_outside_fridge_cost_monthly
+            name: Outside Fridge
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_downstairs_fridge_cost_monthly
+            name: Downstairs Fridge
+            float_precision: 2
+          - entity: sensor.power_outlet_kitchen_dishwasher_cost_monthly
+            name: Dishwasher
+            float_precision: 2  
+          - entity: sensor.power_outlet_kitchen_air_fryer_cost_monthly
+            name: Air Fryer
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_washing_machine_cost_monthly
+            name: Washing Machine
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_clothes_dryer_cost_monthly
+            name: Clothes Dryer
+            float_precision: 2  
+          - entity: sensor.power_outlet_downstairs_computer_server_cost_monthly
+            name: Computer Server
+            float_precision: 2  
+          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_cost_monthly
+            name: Sara Electric Blanket
+            float_precision: 2  
+          - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_cost_monthly
+            name: Toby Electric Blanket
+            float_precision: 2  
+          - entity: sensor.power_outlets_other_cost_monthly
+            name: Other Outlets
+            float_precision: 2  
+          - entity: sensor.power_air_con_living_room_air_con_cost_monthly
+            name: Living Room Air Con
+            float_precision: 2  
+          - entity: sensor.power_air_con_parents_air_con_power_monitor_cost_monthly
+            name: Parents Air Con
+            float_precision: 2  
+          - entity: sensor.power_air_con_emily_air_con_power_monitor_cost_monthly
+            name: Emily Air Con
+            float_precision: 2  
+          - entity: sensor.power_air_con_toby_air_con_power_monitor_cost_monthly
+            name: Toby Air Con
+            float_precision: 2  
+          - entity: sensor.power_house_lights_cost_monthly
+            name: Lights
+            float_precision: 2  
+          - entity: sensor.power_house_hot_water_cost_monthly
+            name: Hot Water
+            float_precision: 2  
       - type: custom:apexcharts-card
         header:
           show: true
@@ -223,6 +326,31 @@ views:
             group_by:
               duration: 1d
               func: max
+      - title: Current Power - Overview
+        type: entities
+        entities:
+          - sensor.power_house_total
+          - sensor.power_house_outlets
+          - sensor.power_house_air_con
+          - sensor.power_house_lights
+          - sensor.power_house_hot_water
+          - sensor.power_house_other
+      - title: Current Power - Outlets
+        type: entities
+        entities:
+          - sensor.pool_pool_pump_power
+          - sensor.pool_pool_heater_power
+          - sensor.kitchen_kitchen_fridge_power
+          - sensor.upstairs_deck_outside_fridge_power
+          - sensor.downstairs_downstairs_fridge_power
+          - sensor.kitchen_dishwasher_power
+          - sensor.kitchen_air_fryer_power
+          - sensor.downstairs_washing_machine_power
+          - sensor.downstairs_clothes_dryer_power
+          - sensor.downstairs_computer_server_power
+          - sensor.parents_bedroom_sara_electric_blanket_power
+          - sensor.tobys_bedroom_toby_electric_blanket_power
+          - sensor.power_outlets_other
       - type: custom:apexcharts-card
         chart_type: pie
         header:
