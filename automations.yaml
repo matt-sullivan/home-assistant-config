@@ -50,7 +50,7 @@
     value_template: '{{state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
       ''connected_paired_devices'') | contains(''B8:9F:09:62:F7:7F (BMW 93379)'')
       or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'', ''connected_paired_devices'')
-      | contains(''00:02:5B:BE:23:C0 (CAR6509)'') or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
+      | contains(''00:02:5B:BE:23:C0 (MattMazda)'') or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
       ''connected_paired_devices'') | contains(''00:0A:30:92:D6:C7 (Mazda)'')}}'
   action:
   - service: cover.stop_cover
@@ -485,7 +485,7 @@
   mode: single
 - id: '1783575609915'
   alias: Hot Water Back On
-  description: 'Turn the hot water back on after off for 2 minutes'
+  description: Turn the hot water back on after off for 2 minutes
   triggers:
   - trigger: state
     entity_id:
