@@ -8,7 +8,7 @@ utility_meter:
       - off-peak
   power_house_total_energy_monthly:
     source: sensor.power_house_total_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -23,7 +23,7 @@ utility_meter:
       - off-peak
   power_house_outlets_energy_monthly:
     source: sensor.power_house_outlets_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -38,7 +38,7 @@ utility_meter:
       - off-peak
   power_house_air_con_energy_monthly:
     source: sensor.power_house_air_con_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -53,7 +53,7 @@ utility_meter:
       - off-peak
   power_house_lights_energy_monthly:
     source: sensor.power_house_lights_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -64,7 +64,7 @@ utility_meter:
     cycle: daily
   power_house_hot_water_energy_monthly:
     source: sensor.power_house_hot_water_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
 
   power_house_other_energy_daily:
     source: sensor.power_house_other_energy_counter
@@ -75,7 +75,7 @@ utility_meter:
       - off-peak
   power_house_other_energy_monthly:
     source: sensor.power_house_other_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -90,7 +90,7 @@ utility_meter:
       - off-peak
   power_outlets_other_energy_monthly:
     source: sensor.power_outlets_other_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -105,7 +105,7 @@ utility_meter:
       - off-peak
   power_outlet_downstairs_clothes_dryer_energy_monthly:
     source: sensor.power_outlet_downstairs_clothes_dryer_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -120,7 +120,7 @@ utility_meter:
       - off-peak
   power_outlet_downstairs_computer_server_energy_monthly:
     source: sensor.power_outlet_downstairs_computer_server_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -135,7 +135,7 @@ utility_meter:
       - off-peak
   power_outlet_downstairs_matt_office_energy_monthly:
     source: sensor.power_outlet_downstairs_matt_office_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -150,7 +150,7 @@ utility_meter:
       - off-peak
   power_outlet_downstairs_downstairs_fridge_energy_monthly:
     source: sensor.power_outlet_downstairs_downstairs_fridge_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -165,7 +165,7 @@ utility_meter:
       - off-peak
   power_outlet_downstairs_washing_machine_energy_monthly:
     source: sensor.power_outlet_downstairs_washing_machine_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -180,7 +180,7 @@ utility_meter:
       - off-peak
   power_outlet_kitchen_air_fryer_energy_monthly:
     source: sensor.power_outlet_kitchen_air_fryer_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -195,7 +195,7 @@ utility_meter:
       - off-peak
   power_outlet_kitchen_dishwasher_energy_monthly:
     source: sensor.power_outlet_kitchen_dishwasher_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -210,7 +210,7 @@ utility_meter:
       - off-peak
   power_outlet_kitchen_kitchen_fridge_energy_monthly:
     source: sensor.power_outlet_kitchen_kitchen_fridge_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -225,7 +225,7 @@ utility_meter:
       - off-peak
   power_outlet_parents_bedroom_sara_electric_blanket_energy_monthly:
     source: sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -240,7 +240,7 @@ utility_meter:
       - off-peak
   power_outlet_tobys_bedroom_toby_electric_blanket_energy_monthly:
     source: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -255,7 +255,7 @@ utility_meter:
       - off-peak
   power_outlet_upstairs_deck_outside_fridge_energy_monthly:
     source: sensor.power_outlet_upstairs_deck_outside_fridge_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -270,7 +270,7 @@ utility_meter:
       - off-peak
   power_outlet_living_room_living_room_tv_energy_monthly:
     source: sensor.power_outlet_living_room_living_room_tv_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -285,7 +285,7 @@ utility_meter:
       - off-peak
   power_air_con_parents_air_con_power_monitor_energy_monthly:
     source: sensor.power_air_con_parents_air_con_power_monitor_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -300,7 +300,7 @@ utility_meter:
       - off-peak
   power_air_con_emily_air_con_power_monitor_energy_monthly:
     source: sensor.power_air_con_emily_air_con_power_monitor_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -315,7 +315,7 @@ utility_meter:
       - off-peak
   power_air_con_toby_air_con_power_monitor_energy_monthly:
     source: sensor.power_air_con_toby_air_con_power_monitor_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -330,7 +330,7 @@ utility_meter:
       - off-peak
   power_air_con_living_room_air_con_energy_monthly:
     source: sensor.living_room_air_con_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -345,7 +345,7 @@ utility_meter:
       - off-peak
   power_outlet_pool_pool_pump_energy_monthly:
     source: sensor.power_outlet_pool_pool_pump_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
@@ -360,7 +360,7 @@ utility_meter:
       - off-peak
   power_outlet_pool_pool_heater_energy_monthly:
     source: sensor.power_outlet_pool_pool_heater_energy_counter
-    cycle: monthly
+    cron: "0 0 26 * *"
     tariffs:
       - peak
       - shoulder
