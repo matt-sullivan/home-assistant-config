@@ -6,6 +6,10 @@
         "/^ssh -p 22222 root@homeassistant \"docker exec addon_5c53de3b_esphome esphome .*/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^cd /root/homeassistant && ha core check$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }

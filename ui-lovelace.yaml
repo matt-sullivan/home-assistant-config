@@ -319,25 +319,25 @@ views:
             type: column
             group_by:
               duration: 1d
-              func: max
+              func: last
           - entity: sensor.power_house_air_con_energy_daily
             name: Air Con
             type: column
             group_by:
               duration: 1d
-              func: max
+              func: last
           - entity: sensor.power_house_lights_energy_daily
             name: Lights
             type: column
             group_by:
               duration: 1d
-              func: max
+              func: last
           - entity: sensor.power_house_hot_water_energy_daily
             name: Hot Water
             type: column
             group_by:
               duration: 1d
-              func: max
+              func: last
       - title: Current Power - Overview
         type: entities
         entities:
