@@ -171,6 +171,15 @@ sensor:
       minutes: 5
 
   - platform: integration
+    source: sensor.living_room_network_it_power
+    name: "Network IT Energy Counter"
+    unique_id: power_outlet_living_room_network_it_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
     source: sensor.parents_air_con_power_monitor_power
     name: "Parents Air Con Power Monitor Energy Counter"
     unique_id: power_air_con_parents_air_con_power_monitor_energy_counter

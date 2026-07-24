@@ -203,6 +203,9 @@ views:
           - entity: sensor.power_outlet_living_room_living_room_tv_cost_daily
             name: Living Room TV
             float_precision: 2
+          - entity: sensor.power_outlet_living_room_network_it_cost_daily
+            name: Network IT
+            float_precision: 2
           - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_cost_daily
             name: Sara Electric Blanket
             float_precision: 2  
@@ -272,6 +275,9 @@ views:
             float_precision: 2
           - entity: sensor.power_outlet_living_room_living_room_tv_cost_monthly
             name: Living Room TV
+            float_precision: 2
+          - entity: sensor.power_outlet_living_room_network_it_cost_monthly
+            name: Network IT
             float_precision: 2
           - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_cost_monthly
             name: Sara Electric Blanket
@@ -362,6 +368,7 @@ views:
           - sensor.downstairs_computer_server_power
           - sensor.downstairs_matt_office_power
           - sensor.living_room_living_room_tv_power
+          - sensor.living_room_network_it_power
           - sensor.parents_bedroom_sara_electric_blanket_power
           - sensor.tobys_bedroom_toby_electric_blanket_power
           - sensor.power_outlets_other
@@ -396,6 +403,8 @@ views:
             name: Matt Office
           - entity: sensor.power_outlet_living_room_living_room_tv_energy_daily
             name: Living Room TV
+          - entity: sensor.power_outlet_living_room_network_it_energy_daily
+            name: Network IT
           - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_daily
             name: Sara Electric Blanket
           - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_daily
@@ -445,6 +454,8 @@ views:
             name: Matt Office
           - entity: sensor.power_outlet_living_room_living_room_tv_energy_monthly
             name: Living Room TV
+          - entity: sensor.power_outlet_living_room_network_it_energy_monthly
+            name: Network IT
           - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_monthly
             name: Sara Electric Blanket
           - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_monthly
