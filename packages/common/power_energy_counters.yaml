@@ -81,6 +81,15 @@ sensor:
       minutes: 5
 
   - platform: integration
+    source: sensor.downstairs_matt_office_power
+    name: "Matt Office Energy Counter"
+    unique_id: power_outlet_downstairs_matt_office_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
     source: sensor.downstairs_downstairs_fridge_power
     name: "Downstairs Fridge Energy Counter"
     unique_id: power_outlet_downstairs_downstairs_fridge_energy_counter
@@ -147,6 +156,15 @@ sensor:
     source: sensor.upstairs_deck_outside_fridge_power
     name: "Outside Fridge Energy Counter"
     unique_id: power_outlet_upstairs_deck_outside_fridge_energy_counter
+    unit_prefix: k
+    round: 2
+    max_sub_interval:
+      minutes: 5
+
+  - platform: integration
+    source: sensor.living_room_living_room_tv_power
+    name: "Living Room TV Energy Counter"
+    unique_id: power_outlet_living_room_living_room_tv_energy_counter
     unit_prefix: k
     round: 2
     max_sub_interval:

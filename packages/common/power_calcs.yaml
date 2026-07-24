@@ -94,6 +94,8 @@ template:
             - states('sensor.downstairs_washing_machine_power') | float(0)
             - states('sensor.downstairs_clothes_dryer_power') | float(0)
             - states('sensor.downstairs_computer_server_power') | float(0)
+            - states('sensor.downstairs_matt_office_power') | float(0)
+            - states('sensor.living_room_living_room_tv_power') | float(0)
             - states('sensor.pool_pool_pump_power') | float(0)
             - states('sensor.pool_pool_heater_power') | float(0)
             - states('sensor.parents_bedroom_sara_electric_blanket_power') | float(0)
