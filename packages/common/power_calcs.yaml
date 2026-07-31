@@ -111,5 +111,5 @@ template:
         state_class: measurement
         state: >
           {{ (
-            states('sensor.power_monitor_air_con') | float(0)
+            states('sensor.power_meter_air_con_power') | float(0)
           ) | round(3) }}
