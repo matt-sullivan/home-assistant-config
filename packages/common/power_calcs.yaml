@@ -99,8 +99,8 @@ template:
             - states('sensor.living_room_network_it_power') | float(0)
             - states('sensor.pool_pool_pump_power') | float(0)
             - states('sensor.pool_pool_heater_power') | float(0)
-            - states('sensor.parents_bedroom_sara_electric_blanket_power') | float(0)
             - states('sensor.tobys_bedroom_toby_electric_blanket_power') | float(0)
+            - states('sensor.tobys_bedroom_toby_tv_power') | float(0)
           ) | round(3) }}
 
       - name: "Power - Living Room Air Con"

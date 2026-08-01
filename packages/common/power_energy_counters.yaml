@@ -135,18 +135,18 @@ sensor:
       minutes: 5
 
   - platform: integration
-    source: sensor.parents_bedroom_sara_electric_blanket_power
-    name: "Sara Electric Blanket Energy Counter"
-    unique_id: power_outlet_parents_bedroom_sara_electric_blanket_energy_counter
+    source: sensor.tobys_bedroom_toby_electric_blanket_power
+    name: "Toby Electric Blanket Energy Counter"
+    unique_id: power_outlet_tobys_bedroom_toby_electric_blanket_energy_counter
     unit_prefix: k
     round: 2
     max_sub_interval:
       minutes: 5
 
   - platform: integration
-    source: sensor.tobys_bedroom_toby_electric_blanket_power
-    name: "Toby Electric Blanket Energy Counter"
-    unique_id: power_outlet_tobys_bedroom_toby_electric_blanket_energy_counter
+    source: sensor.tobys_bedroom_toby_tv_power
+    name: "Toby TV Energy Counter"
+    unique_id: power_outlet_tobys_bedroom_toby_tv_energy_counter
     unit_prefix: k
     round: 2
     max_sub_interval:

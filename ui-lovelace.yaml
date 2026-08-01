@@ -206,9 +206,9 @@ views:
           - entity: sensor.power_outlet_living_room_network_it_cost_daily
             name: Network IT
             float_precision: 2
-          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_cost_daily
-            name: Sara Electric Blanket
-            float_precision: 2  
+          - entity: sensor.power_outlet_tobys_bedroom_toby_tv_cost_daily
+            name: Toby TV
+            float_precision: 2
           - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_cost_daily
             name: Toby Electric Blanket
             float_precision: 2  
@@ -279,9 +279,9 @@ views:
           - entity: sensor.power_outlet_living_room_network_it_cost_monthly
             name: Network IT
             float_precision: 2
-          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_cost_monthly
-            name: Sara Electric Blanket
-            float_precision: 2  
+          - entity: sensor.power_outlet_tobys_bedroom_toby_tv_cost_monthly
+            name: Toby TV
+            float_precision: 2
           - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_cost_monthly
             name: Toby Electric Blanket
             float_precision: 2  
@@ -369,8 +369,8 @@ views:
           - sensor.downstairs_matt_office_power
           - sensor.living_room_living_room_tv_power
           - sensor.living_room_network_it_power
-          - sensor.parents_bedroom_sara_electric_blanket_power
           - sensor.tobys_bedroom_toby_electric_blanket_power
+          - sensor.tobys_bedroom_toby_tv_power
           - sensor.power_outlets_other
       - type: custom:apexcharts-card
         chart_type: pie
@@ -405,8 +405,8 @@ views:
             name: Living Room TV
           - entity: sensor.power_outlet_living_room_network_it_energy_daily
             name: Network IT
-          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_daily
-            name: Sara Electric Blanket
+          - entity: sensor.power_outlet_tobys_bedroom_toby_tv_energy_daily
+            name: Toby TV
           - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_daily
             name: Toby Electric Blanket
           - entity: sensor.power_outlets_other_energy_daily
@@ -456,8 +456,8 @@ views:
             name: Living Room TV
           - entity: sensor.power_outlet_living_room_network_it_energy_monthly
             name: Network IT
-          - entity: sensor.power_outlet_parents_bedroom_sara_electric_blanket_energy_monthly
-            name: Sara Electric Blanket
+          - entity: sensor.power_outlet_tobys_bedroom_toby_tv_energy_monthly
+            name: Toby TV
           - entity: sensor.power_outlet_tobys_bedroom_toby_electric_blanket_energy_monthly
             name: Toby Electric Blanket
           - entity: sensor.power_outlets_other_energy_monthly
