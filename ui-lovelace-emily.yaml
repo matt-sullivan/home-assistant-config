@@ -1,0 +1,59 @@
+title: Emilys Bedroom
+kiosk_mode:
+  kiosk: true
+views:
+  - type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: tile
+            entity: light.emilys_bedroom_emily_light_bar
+            name: Light Bar
+            hide_state: true
+            vertical: false
+            features:
+              - type: light-color-favorites
+              - type: light-brightness
+            features_position: bottom
+          - type: tile
+            entity: light.emily_makeup
+            features:
+              - type: toggle
+      - type: grid
+        cards:
+          - type: tile
+            entity: media_player.emilys_bedroom_speaker
+            features:
+              - type: "media-player-playback"
+                controls:
+                  - media_play_pause
+                  - media_previous_track
+                  - media_next_track
+              - type: "media-player-volume-buttons"
+          - type: tile
+            entity: media_player.emilys_bedroom_speaker_ma
+            features:
+              - type: "media-player-playback"
+                controls:
+                  - media_play_pause
+                  - media_previous_track
+                  - media_next_track
+              - type: "media-player-volume-buttons"
+          - type: tile
+            entity: media_player.spotify_emily
+            features:
+              - type: "media-player-playback"
+                controls:
+                  - media_play_pause
+                  - media_previous_track
+                  - media_next_track
+              - type: "media-player-volume-buttons"
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: script.emily_reading_time
+              - entity: script.emily_sleep_time
+    cards: []
+    max_columns: 2
+    dense_section_placement: true

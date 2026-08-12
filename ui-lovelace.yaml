@@ -9,6 +9,7 @@ views:
           - script.emily_sleep_time
           - script.emily_wake_up
           - light.emily_makeup
+          - light.emilys_bedroom_emily_light_bar
           - media_player.emilys_bedroom_speaker
           - media_player.spotify_emily
           - media_player.emilys_bedroom_speaker_ma
@@ -18,7 +19,8 @@ views:
           - script.toby_reading_time
           - script.toby_sleep_time
           - script.toby_wake_up
-          - light.toby_reading_2
+          - light.tobys_bedroom_toby_reading_light
+          - light.tobys_bedroom_toby_light_bar
           - light.tobyfroglight
           - cover.tobys_front_blind
           - cover.tobys_side_blind
