@@ -1,8 +1,8 @@
 substitutions:
-  device_name: lights-emily
-  friendly_name: "Emily Lights"
+  device_name: lights-sara-office
+  friendly_name: "Sara Office Lights"
   deviceicon: "mdi:light-recessed"
-  hotspot_ssid: "Emily Lights Recovery"
+  hotspot_ssid: "Sara Office Lights Recovery"
   wifi_ssid: !secret wifi_ssid
 # Pin assignments for 2 gang 2 way model. (6952HA)
 # P6 - Relay 2
@@ -28,7 +28,7 @@ light:
   # relay. That's implemented by ignoring state changes soon after the power sensor has changed.
   - platform: binary
     id: light1
-    name: "Light"
+    name: None
     icon: ${deviceicon}
     output: dummy1
     # I'd prefer 'on_state' to handle turn off and turn on (given the actions are the same,) but

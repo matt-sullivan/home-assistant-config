@@ -8,12 +8,7 @@ views:
           - script.emily_reading_time
           - script.emily_sleep_time
           - script.emily_wake_up
-          - light.emily_reading2
-          - light.emily_rgb_strip 
-          - light.emily_heart
-          - cover.emilys_door_blind
-          - cover.emilys_side_blind
-          - climate.emily_air_con
+          - light.emily_makeup
           - media_player.emilys_bedroom_speaker
           - media_player.spotify_emily
           - media_player.emilys_bedroom_speaker_ma
@@ -29,6 +24,7 @@ views:
           - cover.tobys_side_blind
           - switch.tobys_bedroom_toby_electric_blanket
           - climate.toby_air_con
+          - binary_sensor.tobys_bedroom_tobys_door
           - media_player.tobys_bedroom_speaker
           - media_player.spotify_toby_sullivan
           - media_player.tobys_bedroom_speaker_ma
@@ -43,17 +39,25 @@ views:
           - max
         days_to_show: 7
         hide_legend: true
-  - title: Misc
+  - title: Parents
     cards:
-      - title: Parents
+      - title: Parents Bedroom
         type: entities
         entities:
-          # - cover.parents_front_blind
           - cover.parents_front_door_blind
           - cover.parents_side_blind
+          - climate.parents_air_con
+          - binary_sensor.parents_bedroom_parents_door
           - switch.parents_bedroom_sara_electric_blanket
           - switch.parents_bedroom_matt_electric_blanket
-          - climate.parents_air_con
+      - title: Sara Office
+        type: entities
+        entities:
+          - light.sara_office_sara_office_lights
+          - climate.sara_office_sara_air_con
+          - cover.sara_office_sara_side_blind
+          - cover.sara_office_sara_door_blind
+          - binary_sensor.sara_office_sara_office_door
       - title: Misc
         type: entities
         entities:
@@ -62,6 +66,8 @@ views:
             name: Garage Door
           - binary_sensor.downstairs_laundry_door
           - binary_sensor.downstairs_deck_door
+          - binary_sensor.living_room_back_stairs_door
+          - binary_sensor.kitchen_deck_door
           - climate.living_room_air_con
           - switch.pool_pool_pump
           - light.study_downlight

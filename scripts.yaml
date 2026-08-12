@@ -288,11 +288,6 @@ emily_wake_up:
     ma_speaker: media_player.emilys_bedroom_speaker_ma
     count: 10
   sequence:
-    - action: cover.open_cover
-      target:
-        entity_id:
-          - cover.emilys_door_blind
-          - cover.emilys_side_blind
     - action: light.turn_on
       target:
         entity_id: light.emily_main

@@ -4,7 +4,7 @@ secrets.yaml
 *.xml
 *.db*
 *.sqlite
-.storage/
+.storage*/
 /.mr.sullivan@gmail.com.august.conf
 /.cloud/
 __pycache__
