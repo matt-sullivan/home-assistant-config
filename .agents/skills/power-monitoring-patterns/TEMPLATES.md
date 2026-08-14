@@ -15,6 +15,14 @@ Placeholder tokens:
 - `<power_source_entity_id>`: source power sensor in W (must exist)
 - `<title>`: human-friendly display name
 
+Integration counter naming pattern:
+
+- `name`: short, human-readable label — this is what HA uses to derive the initial `entity_id` on first load.
+- `unique_id`: full taxonomic slug — this is what all downstream `source:` references use.
+- After first load the counter will have a short name-derived entity_id. **Rename it to match `unique_id`** (through the HA UI or MCP). The registry then owns that entity_id permanently.
+- Template sensors use `default_entity_id` and do not need this rename step.
+- Utility meters and helpers use the YAML key as entity_id and do not need this rename step.
+
 ## 1) Optional Power Calc Template
 
 File: `packages/common/power_calcs.yaml`
@@ -64,6 +72,12 @@ sensor:
 ```
 
 If your source is not `sensor.<slug>`, point `source` to the true power sensor entity.
+
+Post-load rename step (required for device-level counters):
+
+- After first HA load this entity will have a short name-derived entity_id (e.g. `sensor.kitchen_toaster_energy_counter`).
+- Rename it to `sensor.<slug>_energy_counter` via the HA UI or by calling `ha_set_entity(entity_id=..., new_entity_id=...)`.
+- The utility meter `source:` already references the full slug and will start resolving correctly after the rename.
 
 ## 3) Utility Meter Templates
 
@@ -226,5 +240,6 @@ If your slug does not start with `power_`, your tariff select may not be auto-sw
 4. Add TOU energy total templates if using tariffs.
 5. Add daily and monthly cost templates.
 6. Update residual bucket formulas when carving out a device from `other`.
-7. Run `ha core check`.
-8. Verify entities in HA state UI.
+7. Run `ha core check` and restart/reload.
+8. Rename the new integration counter's entity_id to `sensor.<slug>_energy_counter` (via HA UI or MCP).
+9. Verify utility meter and cost sensor entities are populating (not unknown/unavailable).

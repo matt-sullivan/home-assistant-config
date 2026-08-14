@@ -117,6 +117,28 @@ For a given slug `<x>`, keep aligned:
 
 If one layer deviates, downstream sensors either break or silently read zero.
 
+### Integration Counter Naming Pattern (Important)
+
+Integration counters intentionally use **two separate identifiers** with different purposes:
+
+- `name`: short, human-readable display label (e.g. `"Clothes Dryer Energy Counter"`)
+- `unique_id`: full taxonomic slug matching the downstream pipeline (e.g. `power_outlet_downstairs_clothes_dryer_energy_counter`)
+
+On first load, HA derives `entity_id` from `name`, producing a short slug. **Renaming the entity to match `unique_id` is a required post-load step** — via the HA UI or MCP calling `ha_set_entity(entity_id=..., new_entity_id=...)`. Once renamed, the registry owns that entity_id permanently — subsequent `name` changes in YAML have no effect on it.
+
+This is the established pattern across all device-level counters in this repo. The house-level group counters (`Power House Total...` etc.) happen to not need this rename because their readable names already slug to the correct full unique_id.
+
+Layer comparison:
+
+| Layer | entity_id source | Rename needed? |
+|---|---|---|
+| Template sensors (`power_calcs.yaml`) | `default_entity_id` field | No — pinned in YAML |
+| Integration counters | Derived from `name` on first load, then registry-owned | **Yes — rename in UI after first load** |
+| Utility meters | YAML key is the entity_id directly | No — deterministic |
+| Input numbers / helpers | YAML key is the entity_id directly | No — deterministic |
+
+Fresh-install caveat: if `.storage` is lost (full reinstall), the registry rename is gone and entity_ids revert to name-derived slugs. Downstream utility meter `source:` references will break. This is an accepted trade-off; normal HA restore practice preserves `.storage`.
+
 ## Grouping Model
 
 ### House-Level Groups
@@ -160,7 +182,9 @@ This keeps both explicit device tracking and a balancing "other" bucket.
 2. Decide grouping impact in `power_calcs.yaml`:
 - If this device should move from `power_outlets_other` to explicit tracking, subtract it there.
 - If it changes category boundaries, update the relevant house group formulas.
-3. Add integration counter in `power_energy_counters.yaml`.
+3. Add integration counter in `power_energy_counters.yaml`:
+- Set `name` to a short human-readable label.
+- Set `unique_id` to the full taxonomic slug (`<slug>_energy_counter`).
 4. Add utility meters in `power_energy_periods.yaml`:
 - Daily and monthly.
 - Add TOU tariffs unless this is a non-TOU special case.
@@ -168,7 +192,9 @@ This keeps both explicit device tracking and a balancing "other" bucket.
 6. Add template cost sensors in `power_costs.yaml`:
 - Daily and monthly.
 - Use TOU formula or flat tariff formula per model.
-7. Validate.
+7. Validate with `ha core check` and restart/reload.
+8. **Immediately after first load**: verify the counter's entity_id — it will be name-derived (short form). Rename it to `sensor.<unique_id>` (the full slug) via the HA UI or MCP.
+9. Verify the counter entity_id now matches the `source:` value in the utility meter config.
 
 ## How To Update or Rename Existing Monitoring
 
@@ -192,6 +218,7 @@ ha core check
 Then verify in HA:
 
 - Counter sensor increments over time.
+- Counter `entity_id` is exactly what downstream `utility_meter.source` expects.
 - Daily/monthly utility entities exist.
 - TOU entities (`*_peak`, `*_shoulder`, `*_off_peak`) appear where expected.
 - Template total kWh updates.
