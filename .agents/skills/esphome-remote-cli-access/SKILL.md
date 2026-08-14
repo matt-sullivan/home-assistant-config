@@ -1,11 +1,11 @@
 ---
 name: esphome-remote-cli-access
-description: "Get ESPHome CLI access when not running on the home assistant server. Use when: ESPHome command is missing locally, you need config hash/compile/run logs. Keywords: esphome cli, remote esphome, esphome container, config hash."
+description: "Use when: you need to run ESPHome commands to get a config hash, validate, compile or install, or get logs. Keywords: esphome, esphome cli, remote esphome, esphome container, compile, validate, install, logs."
 ---
 
 # ESPHome Remote CLI Access
 
-Use this skill to run ESPHome commands on Home Assistant when not running on the home assistant server.
+Use this skill to run ESPHome commands. It's necessary because the standard home assistant shell runs within the home assistant core container, esphome is only available in a home assistant add-on container.
 
 ## Outcome
 
@@ -34,7 +34,8 @@ Use this skill to run ESPHome commands on Home Assistant when not running on the
 
 ## What This Skill Avoids
 
-- Assuming local ESPHome is installed.
+- Running ESPHome commands in a shell that doesn't have ESPHome installed.
+- Assuming ESPHome is available directly to the agent.
 - Using non-ESPHome hash approximations when exact parity is required.
 
 ## Potential Diagnostic Steps if not working
