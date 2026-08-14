@@ -306,15 +306,25 @@ utility_meter:
       - shoulder
       - off-peak
 
-  power_air_con_emily_air_con_power_monitor_energy_daily:
-    source: sensor.power_air_con_emily_air_con_power_monitor_energy_counter
+  # Emily air con no longer exists, but I'm keeping this to keep historical data until
+  # the month rolls over
+  power_air_con_emily_air_con_power_monitor_energy_monthly:
+    source: sensor.unavailable
+    cron: "0 0 26 * *"
+    tariffs:
+      - peak
+      - shoulder
+      - off-peak
+
+  power_air_con_sara_office_air_con_power_monitor_energy_daily:
+    source: sensor.power_air_con_sara_office_air_con_power_monitor_energy_counter
     cycle: daily
     tariffs:
       - peak
       - shoulder
       - off-peak
-  power_air_con_emily_air_con_power_monitor_energy_monthly:
-    source: sensor.power_air_con_emily_air_con_power_monitor_energy_counter
+  power_air_con_sara_office_air_con_power_monitor_energy_monthly:
+    source: sensor.power_air_con_sara_office_air_con_power_monitor_energy_counter
     cron: "0 0 26 * *"
     tariffs:
       - peak
@@ -1009,6 +1019,36 @@ template:
               (states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_peak") | float(0))
               + (states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_shoulder") | float(0))
               + (states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_off_peak") | float(0))
+            ) | round(3)
+          }}
+
+
+      - name: power_air_con_sara_office_air_con_power_monitor_energy_daily
+        unique_id: power_air_con_sara_office_air_con_power_monitor_energy_daily
+        device_class: energy
+        state_class: total
+        unit_of_measurement: kWh
+        state: >
+          {{
+            (
+              (states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_daily_peak") | float(0))
+              + (states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_daily_shoulder") | float(0))
+              + (states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_daily_off_peak") | float(0))
+            ) | round(3)
+          }}
+
+
+      - name: power_air_con_sara_office_air_con_power_monitor_energy_monthly
+        unique_id: power_air_con_sara_office_air_con_power_monitor_energy_monthly
+        device_class: energy
+        state_class: total
+        unit_of_measurement: kWh
+        state: >
+          {{
+            (
+              (states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_monthly_peak") | float(0))
+              + (states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_monthly_shoulder") | float(0))
+              + (states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_monthly_off_peak") | float(0))
             ) | round(3)
           }}
 

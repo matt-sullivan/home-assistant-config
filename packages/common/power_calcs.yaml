@@ -22,7 +22,7 @@ template:
           {{ (
             states('sensor.power_meter_gpo_power') | float(0)
             - states('sensor.parents_air_con_power_monitor_power') | float(0)
-            - states('sensor.emily_air_con_power_monitor_power') | float(0)
+            - states('sensor.sara_office_air_con_power_monitor_power') | float(0)
             - states('sensor.toby_air_con_power_monitor_power') | float(0)
           ) | round(3) }}
 
@@ -36,7 +36,7 @@ template:
           {{ (
             states('sensor.power_meter_air_con_power') | float(0)
             + states('sensor.parents_air_con_power_monitor_power') | float(0)
-            + states('sensor.emily_air_con_power_monitor_power') | float(0)
+            + states('sensor.sara_office_air_con_power_monitor_power') | float(0)
             + states('sensor.toby_air_con_power_monitor_power') | float(0)
           ) | round(3) }}
 

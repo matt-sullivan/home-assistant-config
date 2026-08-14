@@ -189,9 +189,9 @@ sensor:
       minutes: 5
 
   - platform: integration
-    source: sensor.emily_air_con_power_monitor_power
-    name: "Emily Air Con Power Monitor Energy Counter"
-    unique_id: power_air_con_emily_air_con_power_monitor_energy_counter
+    source: sensor.sara_office_air_con_power_monitor_power
+    name: "Sara Office Air Con Power Monitor Energy Counter"
+    unique_id: power_air_con_sara_office_air_con_power_monitor_energy_counter
     unit_prefix: k
     round: 2
     max_sub_interval:

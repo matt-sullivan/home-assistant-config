@@ -576,18 +576,6 @@ template:
             / 100
           | round(2) }}
 
-      - name: power_air_con_emily_air_con_power_monitor_cost_daily
-        unique_id: power_air_con_emily_air_con_power_monitor_cost_daily
-        unit_of_measurement: "$"
-        device_class: monetary
-        state: >
-          {{
-            (((states("sensor.power_air_con_emily_air_con_power_monitor_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
-            + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
-            + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
-            / 100
-          | round(2) }}
-
       - name: power_air_con_emily_air_con_power_monitor_cost_monthly
         unique_id: power_air_con_emily_air_con_power_monitor_cost_monthly
         unit_of_measurement: "$"
@@ -597,6 +585,30 @@ template:
             (((states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
             + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
             + ((states("sensor.power_air_con_emily_air_con_power_monitor_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_sara_office_air_con_power_monitor_cost_daily
+        unique_id: power_air_con_sara_office_air_con_power_monitor_cost_daily
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_daily_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_daily_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_daily_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
+            / 100
+          | round(2) }}
+
+      - name: power_air_con_sara_office_air_con_power_monitor_cost_monthly
+        unique_id: power_air_con_sara_office_air_con_power_monitor_cost_monthly
+        unit_of_measurement: "$"
+        device_class: monetary
+        state: >
+          {{
+            (((states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_monthly_peak") | float(0)) * (states("input_number.power_tariff_peak_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_monthly_shoulder") | float(0)) * (states("input_number.power_tariff_shoulder_c_per_kwh") | float(0)))
+            + ((states("sensor.power_air_con_sara_office_air_con_power_monitor_energy_monthly_off_peak") | float(0)) * (states("input_number.power_tariff_off_peak_c_per_kwh") | float(0))))
             / 100
           | round(2) }}
 

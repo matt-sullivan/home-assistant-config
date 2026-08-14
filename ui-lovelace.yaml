@@ -229,8 +229,8 @@ views:
           - entity: sensor.power_air_con_parents_air_con_power_monitor_cost_daily
             name: Parents Air Con
             float_precision: 2  
-          - entity: sensor.power_air_con_emily_air_con_power_monitor_cost_daily
-            name: Emily Air Con
+          - entity: sensor.power_air_con_sara_office_air_con_power_monitor_cost_daily
+            name: Sara Office Air Con
             float_precision: 2  
           - entity: sensor.power_air_con_toby_air_con_power_monitor_cost_daily
             name: Toby Air Con
@@ -304,6 +304,9 @@ views:
             float_precision: 2  
           - entity: sensor.power_air_con_emily_air_con_power_monitor_cost_monthly
             name: Emily Air Con
+            float_precision: 2  
+          - entity: sensor.power_air_con_sara_office_air_con_power_monitor_cost_monthly
+            name: Sara Office Air Con
             float_precision: 2  
           - entity: sensor.power_air_con_toby_air_con_power_monitor_cost_monthly
             name: Toby Air Con
@@ -423,8 +426,8 @@ views:
             name: Living Room Air Con
           - entity: sensor.power_air_con_parents_air_con_power_monitor_energy_daily
             name: Parents Air Con
-          - entity: sensor.power_air_con_emily_air_con_power_monitor_energy_daily
-            name: Emily Air Con
+          - entity: sensor.power_air_con_sara_office_air_con_power_monitor_energy_daily
+            name: Sara Office Air Con
           - entity: sensor.power_air_con_toby_air_con_power_monitor_energy_daily
             name: Toby Air Con
           - entity: sensor.power_house_lights_energy_daily
@@ -476,6 +479,8 @@ views:
             name: Parents Air Con
           - entity: sensor.power_air_con_emily_air_con_power_monitor_energy_monthly
             name: Emily Air Con
+          - entity: sensor.power_air_con_sara_office_air_con_power_monitor_energy_monthly
+            name: Sara Office Air Con
           - entity: sensor.power_air_con_toby_air_con_power_monitor_energy_monthly
             name: Toby Air Con
           - entity: sensor.power_house_lights_energy_monthly
