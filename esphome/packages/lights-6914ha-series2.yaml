@@ -1,0 +1,14 @@
+# Grid Connect 3-button light switch with fan, 6914HA series 2 (WB3S module)
+substitutions:
+  # Series 2 (WB3S) pin names
+  status_led_pin: RX1
+  relay_light_pin: PWM5
+  fan_light_button_pin: P14
+  fan_power_button_pin: P1
+  fan_speed_button_pin: P8
+  relay_fan_1_pin: P6
+  relay_fan_2_pin: P7
+  relay_fan_3_pin: P9
+
+packages:
+  lights_6914ha_common: !include lights-6914ha-common.yaml

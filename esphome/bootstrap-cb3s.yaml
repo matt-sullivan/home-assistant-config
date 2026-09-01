@@ -1,0 +1,11 @@
+substitutions:
+  device_name: bootstrap-cb3s
+  friendly_name: "bootstrap-cb3s"
+  hotspot_ssid: "bootstrap-cb3s"
+  wifi_ssid: !secret wifi_ssid_upstairs
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu_overlay: !include packages/bk7231n-cb3s-overlay.yaml
+  wifi_common: !include packages/wifi-common.yaml
+  reboot_common: !include packages/reboot-common.yaml

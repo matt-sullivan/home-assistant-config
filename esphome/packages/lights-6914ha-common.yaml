@@ -1,0 +1,186 @@
+# Grid connect light switch with fan speed control, 6914HA - shared logic
+# Pin substitutions must be provided by series2/series3 packages:
+# status_led_pin, relay_light_pin, fan_light_button_pin, fan_power_button_pin,
+# fan_speed_button_pin, relay_fan_1_pin, relay_fan_2_pin, relay_fan_3_pin
+
+light:
+  - platform: binary
+    output: relay_light
+    id: light1
+    name: "${entity_prefix} Main"
+
+status_led:
+  pin:
+    number: ${status_led_pin}
+    inverted: True
+
+output:
+  - platform: gpio
+    id: relay_light
+    pin: ${relay_light_pin}
+  - platform: template
+    id: fan_speed
+    type: float
+    write_action:
+      - then:
+        - if:
+            condition:
+              lambda: return ((state > 0) && (state < .4));
+            then:
+              - switch.turn_on: relay_fan_1
+              - delay: 20ms
+              - switch.turn_off: relay_fan_2
+              - delay: 20ms
+              - switch.turn_off: relay_fan_3
+        - if:
+            condition:
+              lambda: return ((state > .4) && (state < .7));
+            then:
+              - switch.turn_on: relay_fan_1
+              - delay: 20ms
+              - switch.turn_on: relay_fan_2
+              - delay: 20ms
+              - switch.turn_off: relay_fan_3
+        - if:
+            condition:
+              lambda: return (state > .7);
+            then:
+              - switch.turn_on: relay_fan_1
+              - delay: 20ms
+              - switch.turn_on: relay_fan_2
+              - delay: 20ms
+              - switch.turn_on: relay_fan_3
+        - if:
+            condition:
+              lambda: return (state < 0.01);
+            then:
+              - switch.turn_off: relay_fan_1
+              - delay: 20ms
+              - switch.turn_off: relay_fan_2
+              - delay: 20ms
+              - switch.turn_off: relay_fan_3
+
+binary_sensor:
+  - platform: gpio
+    id: fan_light_button
+    pin:
+      number: ${fan_light_button_pin}
+      mode: INPUT
+      inverted: True
+    on_click:
+      - light.toggle: light1
+    on_multi_click:
+      - timing:
+          - on for at least 1s
+        then:
+          - event.trigger:
+              id: button_1
+              event_type: "Long Press"
+      # Fallback for manual reboot to reconnect to HA after wifi problems
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+
+  - platform: gpio
+    id: fan_power_button
+    pin:
+      number: ${fan_power_button_pin}
+      mode: INPUT
+      inverted: True
+    on_press:
+      then:
+        # Toggle the fan off or on, with a special case to set the speed > 0 when turning on
+        # It's off and zero after a power cycle and without this logic the button acheives nothing
+        - if:
+            condition:
+              lambda: |-
+                return !id(fan_1).state && id(fan_1).speed == 0;
+            then:
+              - fan.turn_on:
+                  id: fan_1
+                  speed: 1
+            else:
+              - fan.toggle: fan_1
+
+  - platform: gpio
+    id: fan_speed_button
+    pin:
+      number: ${fan_speed_button_pin}
+      mode: INPUT
+      inverted: True
+    on_press:
+      then:
+        - fan.cycle_speed: fan_1
+
+fan:
+  - platform: speed
+    id: fan_1
+    output: fan_speed
+    name: "${entity_prefix} Fan"
+    speed_count: 3
+
+switch:
+  - platform: gpio
+    id: relay_fan_1
+    pin: ${relay_fan_1_pin}
+  - platform: gpio
+    id: relay_fan_2
+    pin: ${relay_fan_2_pin}
+  - platform: gpio
+    id: relay_fan_3
+    pin: ${relay_fan_3_pin}
+  - platform: template
+    id: update_fan_speed
+    optimistic: True
+    turn_on_action:
+      then:
+        - delay: 200ms
+        - if:
+            condition:
+              and:
+                - switch.is_off: relay_fan_1
+                - switch.is_off: relay_fan_2
+                - switch.is_off: relay_fan_3
+            then:
+              - fan.turn_off: fan_1
+        - if:
+            condition:
+              and:
+                - switch.is_on: relay_fan_1
+                - switch.is_off: relay_fan_2
+                - switch.is_off: relay_fan_3
+            then:
+              - fan.turn_on:
+                  id: fan_1
+                  speed: 1
+        - if:
+            condition:
+              and:
+                - switch.is_on: relay_fan_1
+                - switch.is_on: relay_fan_2
+                - switch.is_off: relay_fan_3
+            then:
+              - fan.turn_on:
+                  id: fan_1
+                  speed: 2
+        - if:
+            condition:
+              and:
+                - switch.is_on: relay_fan_1
+                - switch.is_off: relay_fan_2
+                - switch.is_on: relay_fan_3
+            then:
+              - fan.turn_on:
+                  id: fan_1
+                  speed: 3
+
+##########################
+# Event exposed to HA (doesn't trigger anything within this ESPHome device)
+event:
+  - platform: template
+    id: button_1
+    name: Button 1
+    device_class: "button"
+    event_types:
+      - "Long Press"
