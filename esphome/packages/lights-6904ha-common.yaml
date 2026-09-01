@@ -1,0 +1,199 @@
+# Grid Connect 4-gang light switch, 6904HA series common
+# Shared logic for both Series 2 (ESP8266) and Series 3 (BK7231T)
+# Pin mappings provided by including package (series2 or series3)
+
+substitutions:
+  light_1_group: ""
+  light_2_group: ""
+  light_3_group: ""
+  light_4_group: ""
+  # Pin substitutions - must be provided by series2/series3 packages:
+  # status_led_pin, relay1_pin, relay2_pin, relay3_pin, relay4_pin
+  # button1_pin, button2_pin, button3_pin, button4_pin
+
+status_led:
+  pin:
+    number: ${status_led_pin}
+    inverted: True
+
+output:
+  # 1st button
+  - platform: gpio
+    pin: ${relay1_pin}
+    id: relay1
+
+  # 2nd button
+  - platform: gpio
+    pin: ${relay2_pin}
+    id: relay2
+
+  # 3rd button
+  - platform: gpio
+    pin: ${relay3_pin}
+    id: relay3
+
+  # 4th button
+  - platform: gpio
+    pin: ${relay4_pin}
+    id: relay4
+
+light:
+  # 1st button
+  - platform: binary
+    name: "${light_1_name}"
+    output: relay1
+    id: light_1
+
+  # 2nd button
+  - platform: binary
+    name: "${light_2_name}"
+    output: relay2
+    id: light_2
+
+  # 3rd button
+  - platform: binary
+    name: "${light_3_name}"
+    output: relay3
+    id: light_3
+
+  # 4th button
+  - platform: binary
+    name: "${light_4_name}"
+    output: relay4
+    id: light_4
+
+# Buttons (kept internal so they do not create HA entities)
+binary_sensor:
+  # 1st button
+  - platform: gpio
+    id: button_input_1
+    internal: true
+    pin:
+      number: ${button1_pin}
+      mode: INPUT
+      inverted: True
+    on_click:
+      - light.toggle: light_1
+      - if:
+          condition:
+            lambda: return strlen("${light_1_group}") > 0;
+          then:
+            - if:
+                condition:
+                  light.is_on: light_1
+                then:
+                  - homeassistant.service:
+                      service: homeassistant.turn_on
+                      data:
+                        entity_id: ${light_1_group}
+                else:
+                  - homeassistant.service:
+                      service: homeassistant.turn_off
+                      data:
+                        entity_id: ${light_1_group}
+    on_multi_click:
+      - timing:
+          - on for at least 1s
+        then:
+          - event.trigger:
+              id: button_1
+              event_type: "Long Press"
+      # Fallback for manual reboot to reconnect to HA after wifi problems
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+
+  # 2nd button
+  - platform: gpio
+    id: button_input_2
+    internal: true
+    pin:
+      number: ${button2_pin}
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - light.toggle: light_2
+      - if:
+          condition:
+            lambda: return strlen("${light_2_group}") > 0;
+          then:
+            - if:
+                condition:
+                  light.is_on: light_2
+                then:
+                  - homeassistant.service:
+                      service: homeassistant.turn_on
+                      data:
+                        entity_id: ${light_2_group}
+                else:
+                  - homeassistant.service:
+                      service: homeassistant.turn_off
+                      data:
+                        entity_id: ${light_2_group}
+
+  # 3rd button
+  - platform: gpio
+    id: button_input_3
+    internal: true
+    pin:
+      number: ${button3_pin}
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - light.toggle: light_3
+      - if:
+          condition:
+            lambda: return strlen("${light_3_group}") > 0;
+          then:
+            - if:
+                condition:
+                  light.is_on: light_3
+                then:
+                  - homeassistant.service:
+                      service: homeassistant.turn_on
+                      data:
+                        entity_id: ${light_3_group}
+                else:
+                  - homeassistant.service:
+                      service: homeassistant.turn_off
+                      data:
+                        entity_id: ${light_3_group}
+
+  # 4th button
+  - platform: gpio
+    id: button_input_4
+    internal: true
+    pin:
+      number: ${button4_pin}
+      mode: INPUT_PULLUP
+      inverted: True
+    on_press:
+      - light.toggle: light_4
+      - if:
+          condition:
+            lambda: return strlen("${light_4_group}") > 0;
+          then:
+            - if:
+                condition:
+                  light.is_on: light_4
+                then:
+                  - homeassistant.service:
+                      service: homeassistant.turn_on
+                      data:
+                        entity_id: ${light_4_group}
+                else:
+                  - homeassistant.service:
+                      service: homeassistant.turn_off
+                      data:
+                        entity_id: ${light_4_group}
+
+##########################
+# Event exposed to HA (doesn't trigger anything within this ESPHome device)
+event:
+  - platform: template
+    id: button_1
+    name: Button 1
+    device_class: "button"
+    event_types:
+      - "Long Press"

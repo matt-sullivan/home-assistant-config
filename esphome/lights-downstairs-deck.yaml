@@ -1,0 +1,15 @@
+substitutions:
+  device_name: lights-downstairs-deck
+  friendly_name: "Downstairs Deck Lights"
+  hotspot_ssid: "Downstairs Deck Lights"
+  light_1_name: "Deck"
+  light_2_name: "Garden"
+  light_3_name: "Pool"
+  light_4_name: "Yard"
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu_overlay: !include packages/bk7231n-cb3s-overlay.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
+  reboot_common: !include packages/reboot-common.yaml
+  lights: !include packages/lights-6904ha-series3.yaml

@@ -1,0 +1,19 @@
+# Grid Connect 4-gang light switch, 6904HA series 3 (CB3S module with BK7231N)
+substitutions:
+  light_1_group: ""
+  light_2_group: ""
+  light_3_group: ""
+  light_4_group: ""
+  # Series 3 (CB3S) pin mappings - converted from WB3S positions
+  status_led_pin: P21
+  relay1_pin: P7
+  relay2_pin: P26
+  relay3_pin: P9
+  relay4_pin: P24
+  button1_pin: P14
+  button2_pin: P8
+  button3_pin: P6
+  button4_pin: P10
+
+packages:
+  lights_6904ha_common: !include lights-6904ha-common.yaml

@@ -3,125 +3,16 @@ substitutions:
   friendly_name: "Kitchen Lights"
   hotspot_ssid: "EspHomeKitchenLights"
   wifi_ssid: !secret wifi_ssid
+  light_2_group: group.hallway_lights
+  light_1_name: "Kitchen"
+  light_2_name: "Hallway Kitchen"
+  light_3_name: "Lounge Dining"
+  light_4_name: "Lounge"
 
 packages:
   common_base: !include packages/common-base.yaml
   esp8266_overlay: !include packages/esp8266-overlay.yaml
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
-
-#################################
-
-status_led:
-  pin:
-    number: GPIO0
-    inverted: True
-
-output:
-  # 1st button
-  - platform: gpio
-    pin: GPIO5
-    id: relay1
-
-  # 2nd button
-  - platform: gpio
-    pin: GPIO14
-    id: relay2
-
-  # 3rd button
-  - platform: gpio
-    pin: GPIO12
-    id: relay3
-
-  # 4th button
-  - platform: gpio
-    pin: GPIO15
-    id: relay4
-
-light:
-  # 1st button
-  - platform: binary
-    name: "Kitchen"
-    output: relay1
-    id: kitchen
-
-  # 2nd button
-  - platform: binary
-    name: "Hallway Kitchen"
-    output: relay2
-    id: hallway_kitchen
-
-  # 3rd button
-  - platform: binary
-    name: "Lounge Dining"
-    output: relay3
-    id: lounge_dining
-
-  # 4th button
-  - platform: binary
-    name: "Lounge"
-    output: relay4
-    id: lounge
-
-# Buttons
-binary_sensor:
-  # 1st button
-  - platform: gpio
-    pin:
-      number: GPIO16
-      mode: INPUT
-      inverted: True
-    name: "Kitchen Light Button"
-    #toggle relay on push
-    on_press:
-      - light.toggle: kitchen
-
-  # 2nd button
-  - platform: gpio
-    pin:
-      number: GPIO4
-      mode: INPUT_PULLUP
-      inverted: True
-    name: "Hallway Lights Kitchen Button"
-    #toggle relay on push
-    on_press:
-      - light.toggle: hallway_kitchen
-      # Propogate to the HA group it belongs to
-      # this should be safer than an automation within HA because it only fires on the button press
-      # so it can't get in a loop/race between updates
-      - if:
-          condition:
-            light.is_on: hallway_kitchen
-          then:
-            - homeassistant.service:
-                service: homeassistant.turn_on
-                data:
-                  entity_id: group.hallway_lights
-          else:
-            - homeassistant.service:
-                service: homeassistant.turn_off
-                data:
-                  entity_id: group.hallway_lights
-
-  # 3rd button
-  - platform: gpio
-    pin:
-      number: GPIO3
-      mode: INPUT_PULLUP
-      inverted: True
-    name: "Lounge Dining Lights Button"
-    #toggle relay on push
-    on_press:
-      - light.toggle: lounge_dining
-
-  # 4th button
-  - platform: gpio
-    pin:
-      number: GPIO13
-      mode: INPUT_PULLUP
-      inverted: True
-    name: "Lounge Lights Button"
-    #toggle relay on push
-    on_press:
-      - light.toggle: lounge
+  lights: !include packages/lights-6904ha-series2.yaml
 

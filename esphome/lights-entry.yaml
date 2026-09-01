@@ -3,152 +3,15 @@ substitutions:
   friendly_name: "Entry Lights"
   hotspot_ssid: "Entry Lights Recovery"
   wifi_ssid: !secret wifi_ssid_front
+  light_1_group: group.hallway_lights
+  light_1_name: "Hallway Entry"
+  light_2_name: "Front Deck"
+  light_3_name: "Front Yard Sensor Light"
+  light_4_name: "Mailbox"
 
 packages:
   common_base: !include packages/common-base.yaml
   esp8266_overlay: !include packages/esp8266-overlay.yaml
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
-
-## ---------------- ##
-##    Status LED    ##
-## ---------------- ##
-status_led:
-  pin:
-    number: GPIO0
-    inverted: True
-
-output:
-  # 1st button
-  - platform: gpio
-    pin: GPIO5
-    id: relay1
-
-  # 2nd button
-  - platform: gpio
-    pin: GPIO14
-    id: relay2
-
-  # 3rd button
-  - platform: gpio
-    pin: GPIO12
-    id: relay3
-
-  # 4th button
-  - platform: gpio
-    pin: GPIO15
-    id: relay4
-
-light:
-  # 1st button
-  - platform: binary
-    name: "Hallway Entry"
-    output: relay1
-    id: hallway_entry
-
-  # 2nd button
-  - platform: binary
-    name: "Front Deck"
-    output: relay2
-    id: front_deck
-
-  # 3rd button
-  - platform: binary
-    name: "Front Yard Sensor Light"
-    output: relay3
-    id: front_yard_sensor
-
-  # 4th button
-  - platform: binary
-    name: "Mailbox"
-    output: relay4
-    id: mailbox
-
-# Buttons
-binary_sensor:
-  # 1st button
-  - platform: gpio
-    pin:
-      number: GPIO16
-      mode: INPUT
-      inverted: True
-    name: "Hallway Lights Front Entry Button"
-    #toggle relay on push
-    on_click:
-      - light.toggle: hallway_entry
-      # Propogate to the HA group it belongs to
-      # this should be safer than an automation within HA because it only fires on the button press
-      # so it can't get in a loop/race between updates
-      - if:
-          condition:
-            light.is_on: hallway_entry
-          then:
-            - homeassistant.service:
-                service: homeassistant.turn_on
-                data:
-                  entity_id: group.hallway_lights
-          else:
-            - homeassistant.service:
-                service: homeassistant.turn_off
-                data:
-                  entity_id: group.hallway_lights
-    on_multi_click:
-      - timing:
-          - on for at least 1s
-        then:
-          - event.trigger:
-              id: button_1
-              event_type: "Long Press"
-      # Fallback for manual reboot to reconnect to HA after wifi problems
-      - timing:
-          - on for at least 10s
-        then:
-          - script.execute: long_press_reboot
-
-  # 2nd button
-  - platform: gpio
-    pin:
-      number: GPIO4
-      mode: INPUT_PULLUP
-      inverted: True
-    name: "Front Deck Lights Button"
-    #toggle relay on push
-    on_press:
-      - light.toggle: front_deck
-
-  # 3rd button
-  - platform: gpio
-    pin:
-      number: GPIO3
-      mode: INPUT_PULLUP
-      inverted: True
-    name: "Front Yard Sensor Light Button"
-    on_press:
-      - light.toggle: front_yard_sensor
-    # toggle relay on long press - to avoid accidentally turning it off
-    #on_click:
-    #  min_length: 2000ms
-    #  max_length: 60000ms
-    #  then:
-    #    - light.toggle: front_yard_sensor
-
-  # 4th button
-  - platform: gpio
-    pin:
-      number: GPIO13
-      mode: INPUT_PULLUP
-      inverted: True
-    name: "Mailbox Light Button"
-    #toggle relay on push
-    on_press:
-      - light.toggle: mailbox
-
-##########################
-# Event exposed to HA (doesn't trigger anything within this ESPHome device)
-event:
-  - platform: template
-    id: button_1
-    name: Button 1
-    device_class: "button"
-    event_types:
-      - "Long Press"
+  lights: !include packages/lights-6904ha-series2.yaml

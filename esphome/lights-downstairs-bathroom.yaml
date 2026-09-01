@@ -1,0 +1,16 @@
+substitutions:
+  device_name: lights-downstairs-bathroom
+  friendly_name: "Downstairs Bathroom Lights"
+  hotspot_ssid: "Downstairs Bathroom Lights"
+  wifi_ssid: !secret wifi_ssid_front
+  light_1_name: "Lights"
+  light_2_name: "Fan"
+  light_3_name: "Heater 1"
+  light_4_name: "Heater 2"
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu_overlay: !include packages/bk7231n-cb3s-overlay.yaml
+  wifi_common: !include packages/wifi-outside-and-front.yaml
+  reboot_common: !include packages/reboot-common.yaml
+  lights: !include packages/lights-6904ha-series3.yaml

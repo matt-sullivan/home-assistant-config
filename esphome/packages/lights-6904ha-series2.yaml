@@ -1,0 +1,19 @@
+# Grid Connect 4-gang light switch, 6904HA series 2 (ESP8266)
+substitutions:
+  light_1_group: ""
+  light_2_group: ""
+  light_3_group: ""
+  light_4_group: ""
+  # Series 2 (ESP8266) pin mappings
+  status_led_pin: GPIO0
+  relay1_pin: GPIO5
+  relay2_pin: GPIO14
+  relay3_pin: GPIO12
+  relay4_pin: GPIO15
+  button1_pin: GPIO16
+  button2_pin: GPIO4
+  button3_pin: GPIO3
+  button4_pin: GPIO13
+
+packages:
+  lights_6904ha_common: !include lights-6904ha-common.yaml
