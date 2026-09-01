@@ -22,13 +22,12 @@ views:
           - light.tobys_bedroom_toby_reading_light
           - light.tobys_bedroom_toby_light_bar
           - light.tobyfroglight
+          - fan.toby
           - cover.tobys_front_blind
           - cover.tobys_side_blind
           - switch.tobys_bedroom_toby_electric_blanket
           - climate.toby_air_con
           - binary_sensor.tobys_bedroom_tobys_door
-          - media_player.tobys_bedroom_speaker
-          - media_player.spotify_toby_sullivan
           - media_player.tobys_bedroom_speaker_ma
       - title: Toby Brushing Duration
         type: statistics-graph

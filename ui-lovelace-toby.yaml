@@ -39,32 +39,12 @@ views:
               - type: "cover-open-close"
       - type: grid
         cards:
-          - type: tile
-            entity: media_player.tobys_bedroom_speaker
-            features:
-              - type: "media-player-playback"
-                controls:
-                  - media_play_pause
-                  - media_previous_track
-                  - media_next_track
-              - type: "media-player-volume-buttons"
+          - type: entities
+            entities:
+              - media_player.tobys_bedroom_speaker_ma
           - type: tile
             entity: media_player.tobys_bedroom_speaker_ma
             features:
-              - type: "media-player-playback"
-                controls:
-                  - media_play_pause
-                  - media_previous_track
-                  - media_next_track
-              - type: "media-player-volume-buttons"
-          - type: tile
-            entity: media_player.spotify_toby_sullivan
-            features:
-              - type: "media-player-playback"
-                controls:
-                  - media_play_pause
-                  - media_previous_track
-                  - media_next_track
               - type: "media-player-volume-buttons"
       - type: grid
         cards:
@@ -72,6 +52,10 @@ views:
             entity: switch.tobys_bedroom_toby_electric_blanket
             features:
               - type: toggle
+          - type: tile
+            entity: fan.toby
+            features:
+              - type: fan-speed
       - type: grid
         cards:
           - type: thermostat
