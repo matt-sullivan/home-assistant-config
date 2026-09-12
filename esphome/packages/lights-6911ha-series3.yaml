@@ -1,0 +1,25 @@
+# Grid Connect 1-button switch, 6911HA series 3 (CB3S module with BK7231N)
+substitutions:
+  # Series 2 (WB3S) pin mappings
+  # status_led_pin: P9
+  # relay1_pin: P6
+  # relay2_pin: P26
+  # button1_pin: P14
+  # button2_pin: P24
+
+  # Series 3 (CB3S) pin mappings translated from WB3S by module position
+  # status_led_pin: P9 (WB3S pos 13) -> P8 (CB3S pos 13)
+  status_led_pin: P8
+  relay1_pin: P6
+  relay2_pin: P26
+  button1_pin: P14
+  button2_pin: P24
+
+  # Configure the first switch as a light and disable the second switch completely
+  switch_1_light_internal: false
+  switch_1_fan_internal: true
+  switch_2_light_internal: true
+  switch_2_fan_internal: true
+
+packages:
+  lights_6911ha_common: !include lights-6911-6912ha-common.yaml

@@ -1,0 +1,144 @@
+# Grid Connect 1- and 2-button switch, 6911HA/6912HA
+substitutions:
+  switch_1_name: "Switch 1"
+  switch_2_name: "Switch 2"
+
+  switch_1_group: ""
+  switch_2_group: ""
+
+  # Visibility flags are explicit because ESPHome's 'internal' is not templatable.
+  switch_1_light_internal: false
+  switch_1_fan_internal: true
+  switch_2_light_internal: false
+  switch_2_fan_internal: true
+
+  # Pin substitutions - provided by series-specific package:
+  # status_led_pin, relay1_pin, relay2_pin, button1_pin, button2_pin
+
+status_led:
+  pin:
+    number: ${status_led_pin}
+    inverted: true
+
+output:
+  - platform: gpio
+    pin: ${relay1_pin}
+    id: relay1
+
+  - platform: gpio
+    pin: ${relay2_pin}
+    id: relay2
+
+light:
+  - platform: binary
+    name: "${switch_1_name}"
+    output: relay1
+    id: light_1
+    internal: ${switch_1_light_internal}
+
+  - platform: binary
+    name: "${switch_2_name}"
+    output: relay2
+    id: light_2
+    internal: ${switch_2_light_internal}
+
+fan:
+  - platform: binary
+    name: "${switch_1_name}"
+    output: relay1
+    id: fan_1
+    internal: ${switch_1_fan_internal}
+
+  - platform: binary
+    name: "${switch_2_name}"
+    output: relay2
+    id: fan_2
+    internal: ${switch_2_fan_internal}
+
+binary_sensor:
+  # Local buttons (internal only)
+  - platform: gpio
+    id: button_input_1
+    internal: true
+    pin:
+      number: ${button1_pin}
+      mode: INPUT
+      inverted: true
+    on_click:
+      - if:
+          condition:
+            lambda: return strcmp("${switch_1_fan_internal}", "false") == 0;
+          then:
+            - fan.toggle: fan_1
+          else:
+            - light.toggle: light_1
+      - if:
+          condition:
+            lambda: return strcmp("${switch_1_light_internal}", "false") == 0 && strlen("${switch_1_group}") > 0;
+          then:
+            - if:
+                condition:
+                  light.is_on: light_1
+                then:
+                  - homeassistant.service:
+                      service: homeassistant.turn_on
+                      data:
+                        entity_id: ${switch_1_group}
+                else:
+                  - homeassistant.service:
+                      service: homeassistant.turn_off
+                      data:
+                        entity_id: ${switch_1_group}
+    on_multi_click:
+      - timing:
+          - on for at least 1s
+        then:
+          - event.trigger:
+              id: button_1
+              event_type: "Long Press"
+      # Fallback for manual reboot to reconnect to HA after wifi problems
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+
+  - platform: gpio
+    id: button_input_2
+    internal: true
+    pin:
+      number: ${button2_pin}
+      mode: INPUT_PULLUP
+      inverted: true
+    on_press:
+      - if:
+          condition:
+            lambda: return strcmp("${switch_2_fan_internal}", "false") == 0;
+          then:
+            - fan.toggle: fan_2
+          else:
+            - light.toggle: light_2
+      - if:
+          condition:
+            lambda: return strcmp("${switch_2_light_internal}", "false") == 0 && strlen("${switch_2_group}") > 0;
+          then:
+            - if:
+                condition:
+                  light.is_on: light_2
+                then:
+                  - homeassistant.service:
+                      service: homeassistant.turn_on
+                      data:
+                        entity_id: ${switch_2_group}
+                else:
+                  - homeassistant.service:
+                      service: homeassistant.turn_off
+                      data:
+                        entity_id: ${switch_2_group}
+
+event:
+  - platform: template
+    id: button_1
+    name: Button 1
+    device_class: "button"
+    event_types:
+      - "Long Press"

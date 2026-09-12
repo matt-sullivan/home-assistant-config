@@ -1,0 +1,17 @@
+# Grid Connect 3-button switch, 6903HA series 2 (WB3S module)
+substitutions:
+  switch_1_group: ""
+  switch_2_group: ""
+  switch_3_group: ""
+
+  # Series 2 (WB3S) pin mappings
+  status_led_pin: P1
+  relay1_pin: P8
+  relay2_pin: P26
+  relay3_pin: P24
+  button1_pin: P14
+  button2_pin: P9
+  button3_pin: P10
+
+packages:
+  lights_6903ha_common: !include lights-6903ha-common.yaml

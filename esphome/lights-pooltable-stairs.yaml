@@ -1,9 +1,9 @@
 substitutions:
-  device_name: hallway-stairs
-  friendly_name: Hallway Stairs
-  light_1_name: "Stair Bottom Landing Light" 
-  light_2_name: "Internal Stair Light"
-  hotspot_ssid: "Hallway Stairs Hotspot"
+  device_name: lights-pooltable-stairs
+  friendly_name: Pooltable Stairs
+  light_1_name: "Stairs Light"
+  light_2_name: "Hallway Light"
+  hotspot_ssid: "Pooltable Stairs Hotspot"
 
 packages:
   common_base: !include packages/common-base.yaml

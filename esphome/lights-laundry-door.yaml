@@ -1,0 +1,17 @@
+substitutions:
+  device_name: lights-laundry-door
+  friendly_name: "Laundry Door Lights"
+  hotspot_ssid: "Laundry Door Lights"
+  switch_1_name: "Landing"
+  switch_2_name: "Tree"
+  switch_3_name: "Stairs"
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu_overlay: !include packages/bk7231n-cb3s-overlay.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
+  reboot_common: !include packages/reboot-common.yaml
+  lights: !include packages/lights-6903ha-series3.yaml
+
+wifi:
+  use_address: lights-laundary-door.local

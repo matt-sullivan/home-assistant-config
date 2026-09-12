@@ -1,0 +1,14 @@
+substitutions:
+  device_name: lights-pooltable-room
+  friendly_name: "Pooltable Room Lights"
+  hotspot_ssid: "Pooltable Room Lights"
+  switch_1_name: "Landing"
+  switch_2_name: "Center"
+  switch_3_name: "TV"
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu_overlay: !include packages/bk7231n-cb3s-overlay.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
+  reboot_common: !include packages/reboot-common.yaml
+  lights: !include packages/lights-6903ha-series3.yaml

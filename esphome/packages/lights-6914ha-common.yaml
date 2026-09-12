@@ -7,7 +7,7 @@ light:
   - platform: binary
     output: relay_light
     id: light1
-    name: "${entity_prefix} Main"
+    name: "${light_name}"
 
 status_led:
   pin:
@@ -117,7 +117,7 @@ fan:
   - platform: speed
     id: fan_1
     output: fan_speed
-    name: "${entity_prefix} Fan"
+    name: "${fan_name}"
     speed_count: 3
 
 switch:

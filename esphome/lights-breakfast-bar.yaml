@@ -9,7 +9,7 @@ substitutions:
 
 packages:
   common_base: !include packages/common-base.yaml
-  bk72xx_overlay: !include packages/bk72xx-overlay.yaml
+  mcu: !include packages/bk7231t-wb3s.yaml
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
 

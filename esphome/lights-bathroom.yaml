@@ -1,115 +1,23 @@
 substitutions:
   device_name: "lights-bathroom"
   friendly_name: "Bathroom Lights"
-  deviceicon: "mdi:light"
-  lightname_1: "Light 1"
-  lightname_2: "Light 2"
+  switch_1_name: "Light 1"
+  switch_2_name: "Light 2"
+  switch_3_name: "Fan"
   hotspot_ssid: "Bathroom Lights Hotspot"
   wifi_ssid: !secret wifi_ssid
 
+  # Bathroom mix: two lights + one fan
+  switch_1_light_internal: false
+  switch_1_fan_internal: true
+  switch_2_light_internal: false
+  switch_2_fan_internal: true
+  switch_3_light_internal: true
+  switch_3_fan_internal: false
+
 packages:
   common_base: !include packages/common-base.yaml
-  bk72xx_overlay: !include packages/bk72xx-overlay.yaml
+  mcu: !include packages/bk7231t-wb3s.yaml
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
-
-## ------------------ ##
-##    Generic Sensors ##
-## ------------------ ##
-## ---------------- ##
-##    Status LED    ##
-## ---------------- ##
-status_led:
-  pin:
-    number: P1
-    inverted: true
-
-## ---------------- ##
-##      Relays      ##
-## ---------------- ##
-output:
-  # Relay 1
-  - platform: gpio
-    id: relay_1
-    pin: P8
-  # Relay 2
-  - platform: gpio
-    id: relay_2
-    pin: P26  
-  # Relay 3
-  - platform: gpio
-    id: relay_3
-    pin: P24
-
-## ------------ ##
-##    Lights    ##
-## ------------ ##
-light:
-  # Light 1
-  - platform: binary
-    name: ${lightname_1}
-    icon: ${deviceicon}
-    output: relay_1
-    id: light_1
-
-  # Light 2
-  - platform: binary
-    name: ${lightname_2}
-    icon: ${deviceicon}
-    output: relay_2
-    id: light_2
-
-## ------------ ##
-##  Exhaust Fan ##
-## ------------ ##
-fan:
-  - platform: binary
-    name: Fan
-    output: relay_3
-    id: fan_1
-
-## ----------------- ##
-##      Buttons      ##
-## ----------------- ##
-binary_sensor:
-  # Button 1
-  - platform: gpio
-    id: button_1
-    pin:
-      number: P14
-      inverted: true
-      mode: INPUT_PULLUP
-    on_press:
-      then:
-        - light.toggle: light_1
-    # Fallback for manual reboot to reconnect to HA after wifi problems
-    on_multi_click:
-      - timing:
-          - on for at least 10s
-        then:
-          - script.execute: long_press_reboot
-    internal: True
-
-  # Button 2
-  - platform: gpio
-    id: button_2
-    pin:
-      number: P9
-      inverted: true
-      mode: INPUT_PULLUP
-    on_press:
-      then:
-        - light.toggle: light_2
-    internal: True
-
-    # Button 3
-  - platform: gpio
-    id: button_3
-    pin:
-      number: P10
-      inverted: true
-      mode: INPUT_PULLUP
-    on_press:
-      then:
-        - fan.toggle: fan_1
-    internal: True
+  lights: !include packages/lights-6903ha-series2.yaml

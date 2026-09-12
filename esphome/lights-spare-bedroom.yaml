@@ -1,13 +1,13 @@
 substitutions:
-  device_name: lights-emily
-  friendly_name: "Emily Lights"
-  hotspot_ssid: "Lights-Emily"
-  light_name: "Emily Main"
-  fan_name: "Emily Fan"
+  device_name: lights-spare-bedroom
+  friendly_name: "Spare Bedroom"
+  hotspot_ssid: "Spare Bedroom"
+  light_name: "Spare Bedroom Light"
+  fan_name: "Spare Bedroom Fan"
 
 packages:
   common_base: !include packages/common-base.yaml
   mcu_overlay: !include packages/bk7231n-cb3s-overlay.yaml
-  wifi: !include packages/wifi-outside-and-front.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights_and_fan: !include packages/lights-6914ha-series3.yaml

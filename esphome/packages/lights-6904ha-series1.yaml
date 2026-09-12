@@ -1,10 +1,10 @@
-# Grid Connect 4-gang light switch, 6904HA series 2 (ESP8266)
+# Grid Connect 4-gang light switch, 6904HA series 1 (ESP8266)
 substitutions:
   light_1_group: ""
   light_2_group: ""
   light_3_group: ""
   light_4_group: ""
-  # Series 2 (ESP8266) pin mappings
+  # Series 1 (ESP8266) pin mappings
   status_led_pin: GPIO0
   relay1_pin: GPIO5
   relay2_pin: GPIO14

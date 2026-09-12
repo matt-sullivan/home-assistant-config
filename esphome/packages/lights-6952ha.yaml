@@ -1,0 +1,112 @@
+# Grid Connect 2-gang light switch, 6952HA - shared logic
+# Pins defined as variables to make it easier if a new variant of the 6952HA is used.
+substitutions:
+  status_led_pin: P24
+  relay_1_pin: P14
+  relay_2_pin: P6
+  button_1_pin: P26
+  button_2_pin: P23
+  activation_status_1_pin: P8
+
+status_led:
+  pin:
+    number: ${status_led_pin}
+    inverted: true
+
+switch:
+  # Raw relay outputs (internal)
+  - platform: gpio
+    id: relay_1
+    pin: ${relay_1_pin}
+    internal: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  - platform: gpio
+    id: relay_2
+    pin: ${relay_2_pin}
+    internal: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+light:
+  # HA-facing entities that stay in sync
+  - platform: binary
+    output: filter_1
+    id: light_1
+    name: "${light_1_name}"
+
+  - platform: binary
+    output: filter_2
+    id: light_2
+    name: "${light_2_name}"
+
+binary_sensor:
+  # Local buttons
+  - platform: gpio
+    id: button_1
+    pin:
+      number: ${button_1_pin}
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      - light.toggle: light_1
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+    internal: true
+
+  - platform: gpio
+    id: button_2
+    pin:
+      number: ${button_2_pin}
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      - light.toggle: light_2
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+    internal: true
+
+  # Activation status for channel 1
+  - platform: gpio
+    id: activation_status_1
+    name: "Power Status 1"
+    pin:
+      number: ${activation_status_1_pin}
+      mode: INPUT_PULLUP
+      inverted: true
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_state:
+      then:
+        - light.control:
+            id: light_1
+            state: !lambda "return x;"
+
+output:
+  # Toggle relay only when desired state differs from measured activation state.
+  - platform: template
+    type: binary
+    id: filter_1
+    write_action:
+      then:
+        - if:
+            condition:
+              - lambda: "return state != id(activation_status_1).state;"
+            then:
+              - switch.toggle: relay_1
+
+  - platform: template
+    type: binary
+    id: filter_2
+    write_action:
+      then:
+        # Disabled status sync for channel 2 because the original P9 status line was unreliable.
+        - switch.toggle: relay_2

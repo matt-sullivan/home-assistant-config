@@ -2,7 +2,8 @@ substitutions:
   device_name: lights-toby
   friendly_name: "Toby Lights"
   hotspot_ssid: "Lights-Toby"
-  entity_prefix: "Toby"
+  light_name: "Toby Main"
+  fan_name: "Toby Fan"
 
 packages:
   common_base: !include packages/common-base.yaml
