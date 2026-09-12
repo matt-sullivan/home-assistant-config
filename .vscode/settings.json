@@ -10,6 +10,10 @@
         "/^cd /root/homeassistant && ha core check$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^ssh -p 22222 homeassistant 'docker exec app_5c53de3b_esphome esphome .*/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }

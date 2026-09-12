@@ -17,3 +17,4 @@ home-assistant.log.*
 .claude/settings.local.json
 .cache/
 .ha_run.lock
+scripts/ha-mcp.env

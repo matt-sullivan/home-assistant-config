@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-ENV_FILE="${HA_MCP_ENV_FILE:-$HOME/.config/ha-mcp.env}"
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ENV_FILE="${HA_MCP_ENV_FILE:-$SCRIPT_DIR/ha-mcp.env}"
 
 if [ -f "$ENV_FILE" ]; then
   # shellcheck source=/dev/null
