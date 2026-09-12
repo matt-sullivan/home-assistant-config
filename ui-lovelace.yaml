@@ -524,20 +524,29 @@ views:
     #   - scrubbing
   - title: Batteries
     cards:
-      - title: Batteries
+      - title: Blinds to Recharge
         type: entities
         entities:
           - sensor.tobys_front_blind_battery
           - sensor.tobys_side_blind_battery
-          - sensor.emilys_door_blind_battery
-          - sensor.emilys_side_blind_battery
           - sensor.parents_front_door_blind_battery
           - sensor.parents_side_blind_battery
-          - sensor.downstairs_laundry_door_battery
-          - sensor.downstairs_deck_door_battery
+          - sensor.sara_office_sara_door_blind_battery
+          - sensor.sara_office_sara_side_blind_battery
+      - title: Replaceable
+        type: entities
+        entities:
+          - sensor.tobys_bedroom_tobys_door_battery
+          - sensor.parents_bedroom_parents_door_battery
+          - sensor.sara_office_sara_office_door_battery
+          - sensor.kitchen_deck_door_battery
+          - sensor.living_room_back_stairs_door_battery
           - sensor.front_yard_motion_stairs_battery
           - sensor.front_yard_mailbox_motion_battery
           - sensor.storage_motion_battery
+          - sensor.emily_door_battery
+          - sensor.downstairs_laundry_door_battery
+          - sensor.downstairs_deck_door_battery
   - title: Network Monitor
     cards:
       - title: Overview
