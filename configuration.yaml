@@ -119,7 +119,7 @@ zone:
 
 
 route53:
-  aws_access_key_id: AKIAZN5CHK57H3XLT2FU
+  aws_access_key_id: !secret aws_access_key_id
   aws_secret_access_key: !secret aws_access_key
   zone: ZMSGFDQENTCZY
   domain: matt-sullivan.id.au
