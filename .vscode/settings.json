@@ -14,7 +14,8 @@
         "/^ssh -p 22222 homeassistant 'docker exec app_5c53de3b_esphome esphome .*/": {
             "approve": true,
             "matchCommandLine": true
-        }
+        },
+        "git commit": true
     }
 }
 

@@ -5,6 +5,8 @@ This is a Home Assistant configuration repository. It uses a mix of YAML config 
 - Keep changes focused and preserve existing conventions.
 - Validate Home Assistant configuration with `ha core check` when configuration changes are made.
 - Do not expose secrets from `secrets.yaml` or `ha-mcp.env` files.
+- Be very concise in everything you write
+- Be very thorough in any analysis, do not jump to conclusions
 
 ## Key Conventions
 
@@ -42,13 +44,18 @@ File and directory structure follows standard home assistant layout. Config is t
 - you have openspec skills, follow the instructions provided by those skills
 - Before implementing a change, check active OpenSpec changes
 - maintain specs to make sure they're very concise and consistent
-    - do not include extra work that's part of the broader roadmap but not part of the active change
-    - no duplicated content across files, logically separate statements into their best location in proposal, design, tasks or specs. Avoid statements in one format that are just reworded from other sections. e.g. capabilities as reworded tasks, duplicate 'impact' and 'whats changed' sections.
+    - logically separate statements into their best location in proposal, design, tasks or specs.
+    - no duplicated content across files
+    - Avoid statements in one format that are just reworded from other sections. e.g. capabilities as reworded tasks, duplicate 'impact' and 'whats changed' sections.
     - proposal.md why section should focus on the goal and what we want to achieve, if context is necessary put it after goal statements or in a separate section of that file. 
     - specs folder contents are statements about things that should work particular ways, not just a rewording of tasks
     - avoid tasks that are not actions to be done
+    - ensure each task is a logically separate action, group related updates as bullet point details of a single task
     - avoid commentary that doesn't specify anything
+    - include a design migration plan only when the change has meaningful deployment sequencing, data migration, compatibility, or rollback complexity; omit it for straightforward configuration changes
     - during implementation record problems and new knowledge in session notes files separate from the spec unless it's actually a change to the design, tasks or spec
+    - explicitly list each item that is important to be tested, in tasks.md or a reference to another file. Be concise but list each item separately with a checkbox or bullet point.
+- do not include extra work that's not part of the active change
 - Do not implement broad unrelated refactors inside a feature change.
 - After a change is complete
     - update project documentation with new configuration and any valuable knowledge or lesssons learned to remember
