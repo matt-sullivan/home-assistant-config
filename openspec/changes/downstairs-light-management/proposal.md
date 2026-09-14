@@ -10,7 +10,8 @@ Use `bedtime` to provide short-lived lighting when Emily opens her door, `normal
 - Automatically manage a defined set of downstairs lights.
 - Turn managed lights off after one hour in normal mode and after ten minutes in bedtime mode.
 - Turn on the downstairs bathroom and pool table room lights when Emily's door opens in `bedtime` mode, without turning them on in `normal` or `pause` mode.
-- Allow bedtime mode to be activated at 21:00, by Emily's sleep automation, or by a future explicit control.
+- Schedule `bedtime` to be activated at 21:00, by Emily's sleep automation, or by a future explicit control.
+- Schedule return to `normal` mode at 06:00.
 
 ## Capabilities
 

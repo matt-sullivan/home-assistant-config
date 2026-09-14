@@ -207,6 +207,11 @@ emily_sleep_time:
     # Emilys speaker
     chromecast_id: media_player.emilys_bedroom_speaker
   sequence:
+    - action: input_select.select_option
+      target:
+        entity_id: input_select.downstairs_mode
+      data:
+        option: bedtime
     - service: scene.apply
       continue_on_error: true
       data:

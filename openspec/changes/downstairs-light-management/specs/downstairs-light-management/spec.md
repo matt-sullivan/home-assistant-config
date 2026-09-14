@@ -8,7 +8,9 @@ Provide predictable automatic management for downstairs lights when occupancy se
 
 The system SHALL provide a single downstairs mode with the values `normal`, `bedtime`, and `pause`.
 
-The managed lights SHALL include the pool table room, downstairs bathroom, downstairs hallway, laundry, Emily's bedroom lights, and downstairs deck.
+The managed lights SHALL include the pool table room, downstairs bathroom, downstairs hallway, laundry, Emily's bedroom lights except `light.emily_makeup`, and downstairs deck.
+
+`light.emily_makeup` SHALL remain outside automatic timeout management because its required always-powered behavior turns it back on shortly after it is switched off.
 
 When the downstairs mode is `normal`, each managed light that remains on for at least one hour SHALL be turned off.
 
@@ -55,26 +57,26 @@ Timeout evaluation SHALL apply independently to each managed light and SHALL con
 
 ### Requirement: Downstairs bedtime activation sources remain separate
 
-The system SHALL set downstairs mode to `bedtime` at 21:00.
+The system SHALL set downstairs mode to `bedtime` at 21:00 each day and to `normal` at 06:00 each day.
 
 The system SHALL set downstairs mode to `bedtime` when Emily's sleep automation runs.
 
 The system SHALL allow a future explicit button or control to set downstairs mode to `bedtime`.
 
-#### Scenario: Scheduled bedtime begins
+#### Scenario: Scheduler bedtime begins
 
 - **WHEN** the local time reaches 21:00
 - **THEN** downstairs mode is set to `bedtime`
+
+#### Scenario: Scheduler normal mode begins
+
+- **WHEN** the local time reaches 06:00
+- **THEN** downstairs mode is set to `normal`
 
 #### Scenario: Emily sleep action begins bedtime
 
 - **WHEN** Emily's sleep automation runs
 - **THEN** downstairs mode is set to `bedtime` and the sleep automation's existing bedroom behavior continues
-
-#### Scenario: Explicit bedtime control is used
-
-- **WHEN** a future supported button or control requests bedtime
-- **THEN** downstairs mode is set to `bedtime`
 
 ### Requirement: Emily door lighting follows downstairs mode
 

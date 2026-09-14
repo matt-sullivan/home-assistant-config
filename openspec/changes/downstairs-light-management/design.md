@@ -23,9 +23,9 @@ The repository uses YAML Home Assistant configuration with groups, input helpers
 
 Use an `input_select` with `normal`, `bedtime`, and `pause` options. A single state represents the policy directly and avoids coordination bugs between separate enabled and bedtime booleans. `pause` is an explicit override that disables automatic timeout actions while leaving manual light control available.
 
-### Use two template-triggered timeout automations
+### Use eligibility-triggered timeout automations
 
-Create one automation for normal mode with a 3600-second threshold and one for bedtime mode with a 600-second threshold. Each template evaluates the current mode and the elapsed time for every managed light. The action turns off only members whose own threshold has elapsed. Neither automation acts while the mode is `pause`.
+Create one template-triggered automation for normal mode with a 3600-second threshold and one for bedtime mode with a 600-second threshold. Each trigger becomes true only when at least one managed light has reached its active-mode threshold. The action still evaluates each member independently and turns off only eligible lights. Neither automation acts while the mode is `pause`.
 
 This avoids a long-running wait action and allows a mode change to affect lights that were already on. Evaluation is approximate to the threshold because Home Assistant reevaluates time-based templates periodically.
 
@@ -33,11 +33,11 @@ The automations SHALL run in parallel so simultaneous lights do not share or can
 
 ### Use a group as inventory, not as the timer
 
-Define a named group for the managed lights. The group is useful for maintenance and dashboard presentation, while the automations expand its members and evaluate each entity independently.
+Define a named group for the managed lights. The group is useful for maintenance and dashboard presentation, while the automations expand its members and evaluate each entity independently. Exclude `light.emily_makeup`. That light has an existing always-powered behavior that turns it back on shortly after it is switched off, so it cannot participate meaningfully in timeout management yet
 
-### Keep bedtime activation in separate automations
+### Keep bedtime activation sources separate
 
-Use separate automation paths for the 21:00 schedule and the Emily sleep action. Both set the same input select; neither owns timeout implementation. A future button can call the same mode-setting action without modifying the timeout automations. Use schedule from the custom scheduler component to trigger the time-based mode changes.
+Use the custom Scheduler component for daily mode transitions: select `bedtime` at 21:00 and `normal` at 06:00. Each schedule directly calls the input-select service. Emily's sleep action sets the same input select directly. Neither activation source owns timeout implementation. A future button can call the same input-select service without modifying the timeout automations.
 
 ### Use bedtime mode for Emily door lighting
 

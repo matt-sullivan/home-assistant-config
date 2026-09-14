@@ -44,10 +44,13 @@ File and directory structure follows standard home assistant layout. Config is t
 - you have openspec skills, follow the instructions provided by those skills
 - Before implementing a change, check active OpenSpec changes
 - maintain specs to make sure they're very concise and consistent
-    - logically separate statements into their best location in proposal, design, tasks or specs.
-    - no duplicated content across files
+    - Logically separate statements into their best location in proposal, design, specs or tasks.
+    - Proposals describe goals and outcomes; design describes implementation details considerations and decisions; specs describe externally observable behavior; tasks describe actions.
+    - Keep proposals and behavioral specs implementation-agnostic.
+    - The proposal.md why section should focus on the goal and what we want to achieve, if context is necessary put it after goal statements or in a separate section of that file. 
+    - Put implementation details, design considerations, design decisions, mechanisms, integrations, and configuration structures in design.md.
+    - No duplicated content across files
     - Avoid statements in one format that are just reworded from other sections. e.g. capabilities as reworded tasks, duplicate 'impact' and 'whats changed' sections.
-    - proposal.md why section should focus on the goal and what we want to achieve, if context is necessary put it after goal statements or in a separate section of that file. 
     - specs folder contents are statements about things that should work particular ways, not just a rewording of tasks
     - avoid tasks that are not actions to be done
     - ensure each task is a logically separate action, group related updates as bullet point details of a single task
