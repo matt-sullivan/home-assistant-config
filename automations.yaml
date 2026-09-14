@@ -344,7 +344,7 @@
   triggers:
   - trigger: event.received
     target:
-      entity_id: event.lights_emily_button_1
+      entity_id: event.emily_lights_button_1
     options:
       event_type:
       - Long Press

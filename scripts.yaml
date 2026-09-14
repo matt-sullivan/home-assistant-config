@@ -38,9 +38,17 @@ toby_wake_up:
         entity_id:
           - cover.tobys_front_blind
           - cover.tobys_side_blind
-    - action: light.turn_on
-      target:
-        entity_id: light.toby_main
+    - service: scene.apply
+      data:
+        entities:
+          light.toby_main:
+            state: "on"
+          light.tobys_bedroom_toby_reading_light:
+            state: "off"
+          light.tobyfroglight:
+            state: "off"
+          light.tobys_bedroom_toby_light_bar:
+            state: "off"
     - action: media_player.volume_set
       target:
         entity_id: "{{ ma_speaker }}"
@@ -89,13 +97,21 @@ toby_reading_time:
     - service: scene.apply
       data:
         entities:
-          light.toby_reading_2:
+          light.toby_main:
+            state: "off"
+          light.tobys_bedroom_toby_reading_light:
             brightness: 255
             state: "on"
           light.tobyfroglight:
             state: 'on'
-          light.toby_main:
-            state: "off"
+          light.tobys_bedroom_toby_light_bar:
+            color_mode: rgb
+            brightness: 127
+            rgb_color:
+              - 0
+              - 255
+              - 0              
+            state: "on"
 
 toby_sleep_time:
   alias: Toby Sleep Time
@@ -108,12 +124,18 @@ toby_sleep_time:
         entities:
           light.toby_main:
             state: "off"
-          light.kids_short_w:
-            state: "off"
-          light.toby_reading_2:
+          light.tobys_bedroom_toby_reading_light:
             state: "off"
           light.tobyfroglight:
             state: 'on'
+          light.tobys_bedroom_toby_light_bar:
+            color_mode: rgb
+            brightness: 127
+            rgb_color:
+              - 0
+              - 255
+              - 0              
+            state: "on"
     - if:
         - alias: "Use Music Assistant not spotify"
           condition: state
@@ -177,27 +199,18 @@ emily_reading_time:
     - service: scene.apply
       data:
         entities:
-          light.emily_reading2:
-            brightness: 255
-            state: "on"
-          light.emily_rgb_strip:
-            color_mode: rgb
-            brightness: 130
-            rgb_color:
-              - 255
-              - 255
-              - 255
-            state: "on"
-          light.emily_white_strip:
-            state: "off"
-          light.emily_main:
-            state: "off"
-          light.emily_heart:
-            state: "off"
-          light.emily_sign:
+          light.emily_lights_emily_main:
             state: "off"
           light.emily_makeup:
             state: "off"
+          light.emilys_bedroom_emily_light_bar:
+            color_mode: rgb
+            brightness: 127
+            rgb_color:
+              - 0
+              - 4
+              - 255              
+            state: "on"
 
 emily_sleep_time:
   alias: Emily Sleep Time
@@ -216,25 +229,17 @@ emily_sleep_time:
       continue_on_error: true
       data:
         entities:
-          light.emily_reading2:
-            state: "off"
-          light.emily_white_strip:
-            state: "off"
-          light.emily_main:
-            state: "off"
-          light.emily_heart:
-            state: "off"
-          light.emily_sign:
+          light.emily_lights_emily_main:
             state: "off"
           light.emily_makeup:
             state: "off"
-          light.emily_rgb_strip:
+          light.emilys_bedroom_emily_light_bar:
             color_mode: rgb
-            brightness: 130
+            brightness: 127
             rgb_color:
-              - 255
-              - 255
-              - 255
+              - 0
+              - 4
+              - 255              
             state: "on"
     - if:
         - alias: "Use Music Assistant not spotify"
@@ -293,9 +298,14 @@ emily_wake_up:
     ma_speaker: media_player.emilys_bedroom_speaker_ma
     count: 10
   sequence:
-    - action: light.turn_on
-      target:
-        entity_id: light.emily_main
+    - service: scene.apply
+      continue_on_error: true
+      data:
+        entities:
+          light.emily_lights_emily_main:
+            state: "on"
+          light.emilys_bedroom_emily_light_bar:
+            state: "off"
     - action: media_player.volume_set
       target:
         entity_id: "{{ ma_speaker }}"
