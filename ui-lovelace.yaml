@@ -40,6 +40,42 @@ views:
           - max
         days_to_show: 7
         hide_legend: true
+  - title: Quick Access
+    cards:
+      - title: Misc
+        type: entities
+        entities:
+          - entity: cover.garage_door
+            name: Garage Door
+          # - lock.front_door
+          - input_select.downstairs_mode
+          - switch.pool_pool_pump
+          - switch.pool_pool_heater
+          - light.storage_light
+          - input_boolean.visitors_at_home
+      - title: Debugging
+        type: entities
+        entities:
+          - group.family
+          - person.matt
+          - person.sara
+          - binary_sensor.downstairs_laundry_door
+          - binary_sensor.downstairs_deck_door
+          - binary_sensor.living_room_back_stairs_door
+          - binary_sensor.kitchen_deck_door
+          - light.bin_light
+      - title: Config
+        type: entities
+        entities:
+          - input_boolean.music_assistant_no_spotify
+          - input_number.toby_start_volume
+          - input_number.toby_alarm_start_volume
+          - input_number.toby_alarm_end_volume
+          - input_number.emily_start_volume
+          - input_number.emily_alarm_start_volume
+          - input_number.emily_alarm_end_volume
+          - input_number.aircon_max_heat_temp
+          - input_number.aircon_min_cool_temp
   - title: Parents
     cards:
       - title: Parents Bedroom
@@ -51,6 +87,18 @@ views:
           - binary_sensor.parents_bedroom_parents_door
           - switch.parents_bedroom_sara_electric_blanket
           - switch.parents_bedroom_matt_electric_blanket
+      - title: Living Room
+        type: entities
+        entities:
+          - entity: light.kitchen
+            name: Kitchen
+          - entity: light.lounge
+            name: Lounge
+          - light.dining
+          - entity: light.hallway_entry
+            name: Hallway
+          - climate.living_room_air_con
+          - media_player.lounge_tv
       - title: Sara Office
         type: entities
         entities:
@@ -59,38 +107,6 @@ views:
           - cover.sara_office_sara_side_blind
           - cover.sara_office_sara_door_blind
           - binary_sensor.sara_office_sara_office_door
-      - title: Misc
-        type: entities
-        entities:
-          # - lock.front_door
-          - entity: cover.garage_door
-            name: Garage Door
-          - binary_sensor.downstairs_laundry_door
-          - binary_sensor.downstairs_deck_door
-          - binary_sensor.living_room_back_stairs_door
-          - binary_sensor.kitchen_deck_door
-          - climate.living_room_air_con
-          - switch.pool_pool_pump
-          - light.study_downlight
-          - light.bin_light
-          - light.storage_light
-          - sensor.garage_door_state_machine_state
-      - title: Config
-        type: entities
-        entities:
-          - input_boolean.visitors_at_home
-          - input_boolean.music_assistant_no_spotify
-          - input_number.toby_start_volume
-          - input_number.toby_alarm_start_volume
-          - input_number.toby_alarm_end_volume
-          - input_number.emily_start_volume
-          - input_number.emily_alarm_start_volume
-          - input_number.emily_alarm_end_volume
-          - input_number.aircon_max_heat_temp
-          - input_number.aircon_min_cool_temp
-          - group.family
-          - person.matt
-          - person.sara
   - title: Hot Water
     cards:
       - title: Showers and Baths Today
