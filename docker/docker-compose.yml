@@ -1,0 +1,12 @@
+services:
+  esphome:
+    build: .
+    image: esphome:local
+    network_mode: host
+    userns_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./data/config:/config:U,Z
+      - ./data/ssh:/ssh:U,Z

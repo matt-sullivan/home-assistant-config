@@ -6,5 +6,6 @@ secrets.yaml
 **/lib/
 **/src/
 **/platformio.ini
+docker/data/
 .claude/settings.local.json
 /.mr.sullivan@gmail.com.august.conf

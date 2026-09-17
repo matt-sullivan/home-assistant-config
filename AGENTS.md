@@ -1,42 +1,60 @@
-# Home Assistant Config Guidelines
+# ESPHome Config Guidelines
 
-This is a Home Assistant configuration repository. It uses a mix of YAML config files, ESPHome device configs, a few custom components downloaded from HACS, and Lovelace dashboards.
+This repository branch `esphome-main` is scoped to ESPHome device configuration only. The full Home Assistant config is in this repo on the main branch; this branch holds ESPHome device YAML at its root and the docker project that hosts the ESPHome dashboard, sshd, and Claude Code for ESPHome work.
 
 - Keep changes focused and preserve existing conventions.
-- Validate Home Assistant configuration with `ha core check` when configuration changes are made.
-- Do not expose secrets from `secrets.yaml` or `ha-mcp.env` files.
+- Do not expose secrets from `secrets.yaml`.
 - Be very concise in everything you write
 - Be very thorough in any analysis, do not jump to conclusions
 
 ## Key Conventions
 
-### Config Structure
+### Repo Structure
 
-File and directory structure follows standard home assistant layout. Config is tracked in git.
-- `configuration.yaml` — root config; uses `!include` and `!include_dir_named packages` for modularity
-- `automations.yaml`, `scripts.yaml`, `scenes.yaml`, `groups.yaml` — all standard home assistant config files, edited directly and through the ui
-- `packages/` — split configuration by feature (common, raspipool, holiday_lights); each subfolder loaded as a named package
-- Put new feature configuration in the appropriate package instead of expanding `configuration.yaml` unless the integration requires root-level configuration.
-- `esphome/` — ESPHome device YAML files; `secrets.yaml` inside holds ESPHome-specific secrets
-- `custom_components/` — third-party or custom integrations installed here by HACS; avoid modifying HACS-managed or generated files unless explicitly requested
-- `zha_quirks/` — custom ZHA device quirks (Python)
-- `blueprints/` — reusable automation/script/template blueprints
-- `secrets.yaml` - passwords and other sensitive content not committed to git.
-- `scripts/ha-mcp.env` - HA API connection url and secrets, not committed to git.
-
-### Home Assistant Best Practices
-
-- Always consult the `home-assistant-best-practices` skill before creating or editing automations, scripts, helpers, or dashboards
-- Prefer native HA helpers (input_boolean, counter, timer, etc.) over template sensors for state storage
-- Before renaming entities, check all consumers (automations, scripts, dashboards, templates) — use `mcp_ha-mcp_ha_search`
-- Config validation: run `ha core check` from `/root/homeassistant`
-- Utility meter `source` must match actual `entity_id`; verify after any rename
+- Device YAML files, `packages/`, `archive/` — ESPHome device configs, live at the repo root so the whole checkout can be mounted directly into the docker container as its `/config`.
+- `secrets.yaml` (gitignored) holds ESPHome secrets.
+- `docker/` — standalone Docker container hosting the ESPHome dashboard, sshd, and Claude Code, decoupled from Home Assistant. See "Docker Container" below.
+- `openspec/` — covers this whole ESPHome project (device configs and the `docker/` container alike), not just one part of it.
 
 ### ESPHome
 
-- See the `esphome-remote-cli-access` skill for esphome CLI access
-- Run ESPHome validation and builds through the remote ESPHome add-on container over SSH; ESPHome is not available in the Home Assistant shell.
-- ESPHome secrets `esphome/secrets.yaml`, logically separate from home assistant secrets.
+- Device configs are currently also managed via the HA-integrated ESPHome Device Builder add-on until docker is deployed and cut over (see `openspec/changes/esphome-container/design.md`'s Migration Plan). See the `esphome-remote-cli-access` skill for CLI access to that add-on. **Note:** if that add-on's deployment pulls from this repo's old `esphome/` subdirectory path, flattening device configs to the repo root may need a matching update there - that's a live-server change, out of scope for this repo and not something to do without Matt's explicit direction (see "Servers" below).
+- Once docker is deployed and cut over, use it directly instead — compile/flash/OTA via its own `esphome` CLI over SSH (see "Docker Container" below).
+
+### Docker Container
+
+- Do not add Home Assistant config, secrets, or automations to `docker/` - it's scoped to ESPHome only.
+- `docker/Dockerfile` builds `FROM ghcr.io/imagegenius/esphome:ubuntu-<version>-igN`, pinned to an exact ESPHome release - bump deliberately (see `openspec/changes/esphome-container/design.md`), never track `latest`.
+- The whole git checkout (this repo's ESPHome-only branch root, `.git` included) is mounted directly at `/config` inside the container - matches the base image's own `VOLUME /config` declaration exactly, so git works natively there with no symlink or base-image script overrides needed. SSH host keys and `authorized_keys` live on a separate `/ssh` volume - never bake either into the image or commit real key/secret material to this repo. Local dev data lives under `docker/data/` (gitignored).
+- `.gitignore` at the repo root excludes `.esphome/` (ESPHome's build cache) and `secrets.yaml`.
+- sshd listens on port 2222, not 22 - host networking puts the container in the same network namespace as the host's own sshd on port 22.
+- Claude Code and Node.js/npm are installed via `apt-get`/`npm install -g @anthropic-ai/claude-code` in the Dockerfile - not version-pinned like ESPHome; Claude Code auto-updates itself.
+
+Build and run (local dev, e.g. `agent-srv`), from `docker/`:
+
+```bash
+docker compose up -d --build   # build + start
+docker compose logs -f         # watch startup
+docker compose down            # stop
+```
+
+Dashboard: `http://<host>:6052`. SSH: `ssh -p 2222 abc@<host>` (pubkey only; add keys to `/ssh/authorized_keys` inside the container).
+
+On a rootless-Podman host with SELinux enforcing, bind mounts need the `:U,Z` flag (already set in `docker-compose.yml`) - see `openspec/changes/esphome-container/NOTES.md` for why. Prefer `podman build` directly over `docker build --load` on memory-constrained hosts (also in NOTES.md).
+
+Once inside the container (via SSH or `docker exec`), use the `esphome` CLI directly against files under `/config`:
+
+```bash
+esphome compile <file>.yaml   # validate + compile only
+esphome run <file>.yaml       # compile + OTA + tail logs
+esphome upload <file>.yaml    # compile + flash, no log tail
+```
+
+Do not run these against a device the HA-integrated ESPHome Device Builder add-on is also managing at the same time - see the concurrency risk in `openspec/changes/esphome-container/design.md`.
+
+### Servers
+
+- Do not modify any live server's configuration as part of development work (e.g. `agent-srv`, `frigate-srv3`) - they're managed as IaC and are rebuilt, not hand-edited, when something needs to change. Building/running/testing the `docker/` container itself is fine (that's inherently ephemeral/rebuildable); host-level changes (packages, firewall rules, system config) are not, even via passwordless `sudo` - ask first.
 
 ### OpenSpec
 
@@ -65,16 +83,6 @@ File and directory structure follows standard home assistant layout. Config is t
     - archive with `openspec archive <change-name>`.
     - Cleanup the git history including the archive operation. Consider rebasing anything that's not pushed to origin to keep medium to large sized commits grouped by logical changes with concise messages. Don't worry about other branches, they can rebase as needed, ensure history retains logical order of operations.
 
-### Lovelace Dashboards
-
-- `ui-lovelace.yaml` — main dashboard
-- `ui-lovelace-emily.yaml`, `ui-lovelace-toby.yaml`, `ui-lovelace-pool.yaml` — per-user/feature dashboards. The pool is no longer used.
-- Dashboard resources managed via `packages/common/dashboard.yaml`
-
 ## Build and Validation
 
-```bash
-# Validate HA config
-ha core check
-
-```
+There is no Home Assistant config in this repo to validate. For ESPHome config validation, use `esphome config <file>.yaml` — via the remote add-on today, or inside docker once it's deployed.

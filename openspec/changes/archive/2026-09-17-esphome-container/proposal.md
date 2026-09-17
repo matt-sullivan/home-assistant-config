@@ -9,7 +9,7 @@
 - The existing sshd used for ESPHome CLI access runs in an Alpine container that's hard to configure, making Claude Code harder to use for ESPHome work than it should be.
 - Reduce/separate disk usage on the Home Assistant host - ESPHome data alone is >10GB, which is a lot to carry as an HA add-on.
 - Run clearly separate OpenSpec projects for ESPHome and HA core config.
-- Keep deployment simple: edit files directly on the ESPHome/HA server, with no separate dev environment requiring files to be synced. The repo itself can stay nested (`esphome-container/` as a subfolder - see `design.md`), but once deployed, neither system's *active* configuration directory contains the other's files.
+- Keep deployment simple: edit files directly on the ESPHome & HA servers, with no separate dev environments requiring files to be synced.
 
 ## What Changes
 
@@ -26,6 +26,7 @@
 (none — this is a new standalone system; no existing specs in this repo)
 
 ## Impact
-
-- New `esphome-container/` subfolder in this repo, with its own `AGENTS.md`/`CLAUDE.md` distinct from the HA-focused conventions at the repo root.
-- This change documents design/specs only - no tasks tracked here per the user's request; sequencing (build, verify, migrate, cut over) is documented as a Migration Plan in `design.md` instead.
+- ESPHome can no longer be hosted by HA addon
+- git checkouts of this repo will have either HA or ESPHome config but not both
+- ESPHome device YAML moved from a nested `esphome/` subdirectory to the repo root
+- New `docker/` subfolder in this repo; conventions for it are covered in the repo-root `AGENTS.md`, alongside the ESPHome device-config conventions.
