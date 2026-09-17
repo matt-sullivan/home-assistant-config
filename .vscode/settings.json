@@ -1,22 +1,5 @@
 {
-    "files.exclude": {
-        "packages/**": false
-    },
     "chat.tools.terminal.autoApprove": {
-        "/^ssh -p 22222 root@homeassistant \"docker exec addon_5c53de3b_esphome esphome .*/": {
-            "approve": true,
-            "matchCommandLine": true
-        },
-        "/^cd /root/homeassistant && ha core check$/": {
-            "approve": true,
-            "matchCommandLine": true
-        },
-        "/^ssh -p 22222 homeassistant 'docker exec app_5c53de3b_esphome esphome .*/": {
-            "approve": true,
-            "matchCommandLine": true
-        },
-        "git commit": true,
-        "ha": true
+        "git commit": true
     }
 }
-
