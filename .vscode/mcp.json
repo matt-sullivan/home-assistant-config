@@ -1,7 +1,0 @@
-{
-  "servers": {
-    "Home Assistant": {
-      "command": "./scripts/ha-mcp-launch.sh"
-    }
-  }
-}
