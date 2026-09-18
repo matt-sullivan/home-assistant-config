@@ -27,3 +27,21 @@ automation:
             {%- else -%}
               not_home
             {%- endif %}
+
+  - id: visitors_reset_when_person_arrives
+    alias: Reset visitors when person arrives home
+    trigger:
+      - platform: state
+        entity_id:
+          - person.matt
+          - person.sara
+        from: "not_home"
+        to: "home"
+    condition:
+      - condition: state
+        entity_id: input_boolean.visitors_at_home
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.visitors_at_home

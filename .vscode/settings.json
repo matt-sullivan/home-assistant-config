@@ -16,7 +16,8 @@
             "matchCommandLine": true
         },
         "git commit": true,
-        "ha": true
+        "ha": true,
+        "mv": true
     }
 }
 
