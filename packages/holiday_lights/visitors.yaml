@@ -1,3 +1,9 @@
+template:
+  - device_tracker:
+      - name: Visitors Presence
+        unique_id: visitors_presence
+        in_zones: "{{ ['zone.home'] if is_state('input_boolean.visitors_at_home', 'on') else [] }}"
+
 input_boolean:
   visitors_at_home:
     name: Visitors At Home
@@ -6,28 +12,9 @@ person:
   - name: Visitors
     id: vistors
     device_trackers:
-      - device_tracker.visitors
+      - device_tracker.visitors_presence
 
 automation:
-  - id: visitors_passthrough
-    alias: Apply visitor person state based on button
-    trigger:
-      - platform: state
-        entity_id:
-          - input_boolean.visitors_at_home
-      - platform: homeassistant
-        event: start
-    action:
-      - service: device_tracker.see
-        data:
-          dev_id: visitors
-          location_name: |-
-            {% if is_state('input_boolean.visitors_at_home', 'on') -%}
-              home
-            {%- else -%}
-              not_home
-            {%- endif %}
-
   - id: visitors_reset_when_person_arrives
     alias: Reset visitors when person arrives home
     trigger:

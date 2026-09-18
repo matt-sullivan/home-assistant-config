@@ -6,7 +6,7 @@
     entity_id:
     - group.family
     from:
-    - Away
+    - not_home
     to:
     - home
   conditions:
