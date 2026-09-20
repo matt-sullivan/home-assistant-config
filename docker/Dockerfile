@@ -2,9 +2,14 @@
 FROM ghcr.io/imagegenius/esphome:ubuntu-2026.4.5-ig147
 
 # sshd + Claude Code's runtime (Node.js/npm), on top of the imagegenius ESPHome image.
-# See openspec/changes/esphome-container/design.md for the rationale behind each decision below.
+# See openspec/changes/archive/2026-09-17-esphome-container/design.md for the rationale behind each decision below.
+# Node via NodeSource, not Ubuntu 24.04's default `nodejs` package: Ubuntu's
+# apt repo freezes Node at 18.x for the life of the release, which is below
+# Claude Code's declared minimum (>=22).
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openssh-server nodejs npm git python3-venv && \
+    apt-get install -y --no-install-recommends openssh-server git python3-venv ca-certificates curl gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/* && \
     rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub && \
     usermod -s /bin/bash abc && \
