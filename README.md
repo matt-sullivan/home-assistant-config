@@ -4,7 +4,7 @@ This repository holds ESPHome device configuration at its root, plus the standal
 
 ## Structure
 
-- Device YAML files, `packages/`, `archive/` — ESPHome device configs at the repo root, currently also deployed via the HA-integrated ESPHome Device Builder add-on. Being cut over to `docker/`'s persisted volume — see `openspec/changes/esphome-container/design.md` for status.
+- Device YAML files, `packages/`, `archive/` — ESPHome device configs at the repo root, currently also deployed via the HA-integrated ESPHome Device Builder add-on. Being cut over to `docker/`'s persisted volume — see `openspec/changes/archive/2026-09-17-esphome-container/design.md` for status.
 - `docker/` — standalone Docker container (Dockerfile, compose config) hosting the ESPHome dashboard, sshd, and Claude Code. Mounts this whole repo checkout directly as its `/config`.
 - `openspec/` — design/spec/task tracking for this project.
 

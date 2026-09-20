@@ -7,8 +7,5 @@ secrets.yaml
 **/src/
 **/platformio.ini
 docker/data/
-*pat*.txt
-*token*.txt
-*.pat
 .claude/settings.local.json
 /.mr.sullivan@gmail.com.august.conf

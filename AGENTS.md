@@ -18,31 +18,29 @@ This repository branch `esphome-main` is scoped to ESPHome device configuration 
 
 ### ESPHome
 
-- Device configs are currently also managed via the HA-integrated ESPHome Device Builder add-on until docker is deployed and cut over (see `openspec/changes/esphome-container/design.md`'s Migration Plan). See the `esphome-remote-cli-access` skill for CLI access to that add-on. **Note:** if that add-on's deployment pulls from this repo's old `esphome/` subdirectory path, flattening device configs to the repo root may need a matching update there - that's a live-server change, out of scope for this repo and not something to do without Matt's explicit direction (see "Servers" below).
+- Device configs are currently also managed via the HA-integrated ESPHome Device Builder add-on until docker is deployed and cut over (see `openspec/changes/archive/2026-09-17-esphome-container/design.md`'s Migration Plan). See the `esphome-remote-cli-access` skill for CLI access to that add-on. **Note:** if that add-on's deployment pulls from this repo's old `esphome/` subdirectory path, flattening device configs to the repo root may need a matching update there - that's a live-server change, out of scope for this repo and not something to do without Matt's explicit direction (see "Servers" below).
 - Once docker is deployed and cut over, use it directly instead — compile/flash/OTA via its own `esphome` CLI over SSH (see "Docker Container" below).
 
 ### Docker Container
 
 - Do not add Home Assistant config, secrets, or automations to `docker/` - it's scoped to ESPHome only.
-- `docker/Dockerfile` builds `FROM ghcr.io/imagegenius/esphome:ubuntu-<version>-igN`, pinned to an exact ESPHome release - bump deliberately (see `openspec/changes/esphome-container/design.md`), never track `latest`.
-- The whole git checkout (this repo's ESPHome-only branch root, `.git` included) is mounted directly at `/config` inside the container - matches the base image's own `VOLUME /config` declaration exactly, so git works natively there with no symlink or base-image script overrides needed. SSH host keys and `authorized_keys` live on a separate `/ssh` volume - never bake either into the image or commit real key/secret material to this repo. Local dev data lives under `docker/data/` (gitignored).
+- `docker/Dockerfile` builds `FROM ghcr.io/imagegenius/esphome:ubuntu-<version>-igN`, pinned to an exact ESPHome release - bump deliberately (see `openspec/changes/archive/2026-09-17-esphome-container/design.md`), never track `latest` for the *base* image.
+- The whole git checkout (this repo's ESPHome-only branch root, `.git` included) is mounted directly at `/config` inside the container - matches the base image's own `VOLUME /config` declaration exactly, so git works natively there with no symlink or base-image script overrides needed. SSH host keys and `authorized_keys` live on a separate `/ssh` volume - never bake either into the image or commit real key/secret material to this repo.
 - `.gitignore` at the repo root excludes `.esphome/` (ESPHome's build cache) and `secrets.yaml`.
 - sshd listens on port 2222, not 22 - host networking puts the container in the same network namespace as the host's own sshd on port 22.
-- Claude Code and Node.js/npm are installed via `apt-get`/`npm install -g @anthropic-ai/claude-code` in the Dockerfile - not version-pinned like ESPHome; Claude Code auto-updates itself.
+- Claude Code and Node.js/npm (via NodeSource, not Ubuntu's default package - see design.md) are installed in the Dockerfile - not version-pinned like ESPHome; Claude Code auto-updates itself.
 
-Build and run (local dev, e.g. `agent-srv`), from `docker/`:
+**`agent-srv` builds the image, never runs it** - no local dev/test container there. Build and push to GHCR:
 
 ```bash
-docker compose up -d --build   # build + start
-docker compose logs -f         # watch startup
-docker compose down            # stop
+docker/build-and-push.sh
 ```
 
-Dashboard: `http://<host>:6052`. SSH: `ssh -p 2222 abc@<host>` (pubkey only; add keys to `/ssh/authorized_keys` inside the container).
+Tags `ghcr.io/matt-sullivan/esphome` as both `latest` (what gets deployed) and `<date>-<git-sha>` (a historical breadcrumb, not meant to be deployed from directly). Refuses to run on a dirty working tree, so the history tag always traces to a real commit. Prefer `podman build` directly over `docker build --load` on memory-constrained hosts - see `openspec/changes/archive/2026-09-17-esphome-container/NOTES.md`.
 
-On a rootless-Podman host with SELinux enforcing, bind mounts need the `:U,Z` flag (already set in `docker-compose.yml`) - see `openspec/changes/esphome-container/NOTES.md` for why. Prefer `podman build` directly over `docker build --load` on memory-constrained hosts (also in NOTES.md).
+**Only `frigate-srv3` runs the container**, via a Quadlet unit pulling `ghcr.io/matt-sullivan/esphome:latest` - see the Migration Plan in `design.md`. Dashboard: `http://frigate-srv3:6052`. SSH: `ssh -p 2222 abc@frigate-srv3` (pubkey only; add keys to `/ssh/authorized_keys`).
 
-Once inside the container (via SSH or `docker exec`), use the `esphome` CLI directly against files under `/config`:
+Once inside the container (via SSH), use the `esphome` CLI directly against files under `/config`:
 
 ```bash
 esphome compile <file>.yaml   # validate + compile only
@@ -50,7 +48,7 @@ esphome run <file>.yaml       # compile + OTA + tail logs
 esphome upload <file>.yaml    # compile + flash, no log tail
 ```
 
-Do not run these against a device the HA-integrated ESPHome Device Builder add-on is also managing at the same time - see the concurrency risk in `openspec/changes/esphome-container/design.md`.
+Do not run these against a device the HA-integrated ESPHome Device Builder add-on is also managing at the same time - see the concurrency risk in `design.md`.
 
 ### Servers
 
