@@ -24,7 +24,7 @@ This repository branch `esphome-main` is scoped to ESPHome device configuration 
 ### Docker Container
 
 - Do not add Home Assistant config, secrets, or automations to `docker/` - it's scoped to ESPHome only.
-- `docker/Dockerfile` builds `FROM ghcr.io/imagegenius/esphome:ubuntu-<version>-igN`, pinned to an exact ESPHome release - bump deliberately (see `openspec/changes/archive/2026-09-17-esphome-container/design.md`), never track `latest` for the *base* image.
+- `docker/Dockerfile` builds `FROM lscr.io/linuxserver/baseimage-ubuntu:noble` (LinuxServer.io's Ubuntu+s6-overlay base, actively maintained), with `esphome`/`esphome-device-builder` (the dashboard - ESPHome split it out as a separate package) installed via pip, pinned as Dockerfile `ARG`s - bump deliberately (see `openspec/changes/archive/2026-09-17-esphome-container/design.md`).
 - The whole git checkout (this repo's ESPHome-only branch root, `.git` included) is mounted directly at `/config` inside the container - matches the base image's own `VOLUME /config` declaration exactly, so git works natively there with no symlink or base-image script overrides needed. SSH host keys and `authorized_keys` live on a separate `/ssh` volume - never bake either into the image or commit real key/secret material to this repo.
 - `.gitignore` at the repo root excludes `.esphome/` (ESPHome's build cache) and `secrets.yaml`.
 - sshd listens on port 2222, not 22 - host networking puts the container in the same network namespace as the host's own sshd on port 22.

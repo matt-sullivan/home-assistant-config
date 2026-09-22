@@ -1,13 +1,21 @@
 # syntax=docker/dockerfile:1
-FROM ghcr.io/imagegenius/esphome:ubuntu-2026.4.5-ig147
+FROM lscr.io/linuxserver/baseimage-ubuntu:noble
 
-# sshd + Claude Code's runtime (Node.js/npm), on top of the imagegenius ESPHome image.
-# See openspec/changes/archive/2026-09-17-esphome-container/design.md for the rationale behind each decision below.
-# Node via NodeSource, not Ubuntu 24.04's default `nodejs` package: Ubuntu's
-# apt repo freezes Node at 18.x for the life of the release, which is below
-# Claude Code's declared minimum (>=22).
+# ESPHome, sshd + Claude Code's runtime (Node.js/npm). ESPHome is pinned
+# deliberately (bump manually) and installed as a plain pip package on top
+# of LinuxServer.io's own actively-maintained Ubuntu+s6-overlay baseimage -
+# not imagegenius's esphome image, which is itself built FROM this same
+# base but stopped publishing Ubuntu builds after ESPHome 2026.4.5.
+# See openspec/changes/archive/2026-09-17-esphome-container/design.md.
+ARG ESPHOME_VERSION=2026.9.0
+ARG DEVICE_BUILDER_VERSION=1.14.9
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openssh-server git python3-venv ca-certificates curl gnupg && \
+    apt-get install -y --no-install-recommends \
+      python3 python3-pip python3-venv \
+      openssh-server git ca-certificates curl gnupg && \
+    pip install --break-system-packages --no-cache-dir \
+      "esphome==${ESPHOME_VERSION}" \
+      "esphome-device-builder==${DEVICE_BUILDER_VERSION}" && \
     curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/* && \
@@ -16,11 +24,21 @@ RUN apt-get update && \
     npm install -g @anthropic-ai/claude-code && \
     git config --system --add safe.directory /config
 
-# The repo's ESPHome-only branch keeps device YAML at the branch root (not in
-# an `esphome/` subdirectory), so the git checkout - `.git` included - is
-# mounted directly at /config: one mount, matching the base image's own
-# `VOLUME /config` declaration exactly and Git operates on
-# /config natively since it's the real repo root.
+# Register the ESPHome dashboard as an s6-rc v3 longrun service. The base
+# image has no VOLUME /config declaration (that was imagegenius's addition,
+# specific to their esphome image), so there's no anonymous-volume-shadowing
+# risk here - the checkout mounted at /config is exactly what this reads.
+RUN mkdir -p /etc/s6-overlay/s6-rc.d/svc-esphome/dependencies.d && \
+    touch /etc/s6-overlay/s6-rc.d/svc-esphome/dependencies.d/init-services
+COPY <<'EOF' /etc/s6-overlay/s6-rc.d/svc-esphome/type
+longrun
+EOF
+COPY --chmod=755 <<'EOF' /etc/s6-overlay/s6-rc.d/svc-esphome/run
+#!/usr/bin/with-contenv bash
+export HOME=/config
+exec s6-setuidgid abc esphome-device-builder /config
+EOF
+RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/svc-esphome
 
 # Pubkey-only auth. Host keys and authorized_keys live on their own dedicated
 # /ssh volume (mounted at runtime), deliberately separate from /config -
@@ -37,8 +55,8 @@ RUN { \
       echo 'AuthorizedKeysFile /ssh/authorized_keys'; \
     } >> /etc/ssh/sshd_config
 
-# Register sshd as an s6-rc v3 longrun service, alongside the image's existing
-# services - no changes needed to its /init entrypoint.
+# Register sshd as an s6-rc v3 longrun service, alongside the ESPHome
+# dashboard service above - no changes needed to the base image's /init.
 RUN mkdir -p /etc/s6-overlay/s6-rc.d/sshd/dependencies.d && \
     touch /etc/s6-overlay/s6-rc.d/sshd/dependencies.d/init-services
 COPY <<'EOF' /etc/s6-overlay/s6-rc.d/sshd/type

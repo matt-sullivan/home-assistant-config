@@ -1,6 +1,7 @@
 secrets.yaml
 .mcp.json
 .esphome/
+.device-builder*
 **/.pioenvs/
 **/.piolibdeps/
 **/lib/
