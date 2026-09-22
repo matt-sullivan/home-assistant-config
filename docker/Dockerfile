@@ -11,14 +11,22 @@ FROM ghcr.io/imagegenius/esphome:2026.9.0@sha256:fcdacda5421503d7a73dfc039110f01
 # See openspec/changes/archive/2026-09-17-esphome-container/design.md.
 RUN apk add --no-cache openssh-server nodejs npm && \
     rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub && \
-    usermod -s /bin/bash abc && \
-    usermod -p '*' abc && \
+    usermod -s /bin/bash -d /home/abc -p '*' abc && \
     npm install -g @anthropic-ai/claude-code && \
     git config --system --add safe.directory /config
 # usermod -p '*' abc: Alpine's abc account starts password-locked ("!" in
 # /etc/shadow), which OpenSSH refuses to authenticate at all - even via
 # pubkey. "*" means no valid password (not locked), consistent with
 # PasswordAuthentication no below.
+# usermod -d /home/abc abc: abc's default home is /config (the ESPHome
+# checkout) - shell/tool dotfiles (bash history, npm/pip caches, Claude
+# Code's own state) would otherwise land directly in that git-tracked tree.
+# /home/abc is its own dedicated, persisted volume (mounted at runtime) -
+# same "container-operational data, not ESPHome device-config data"
+# principle as /ssh below. The ESPHome dashboard service's own
+# `export HOME=/config` (in svc-esphome/run, untouched) is unrelated to
+# this - that's ESPHome's own convention for persisting its PlatformIO
+# toolchain cache, not the shell user's home.
 
 # Pubkey-only auth. Host keys and authorized_keys live on their own dedicated
 # /ssh volume (mounted at runtime), deliberately separate from /config -
@@ -59,6 +67,8 @@ touch /ssh/authorized_keys
 chown -R abc:abc /ssh
 chmod 700 /ssh
 chmod 600 /ssh/authorized_keys /ssh/ssh_host_*_key
+mkdir -p /home/abc
+chown -R abc:abc /home/abc
 mkdir -p /var/run/sshd
 exec /usr/sbin/sshd -D -e
 EOF
