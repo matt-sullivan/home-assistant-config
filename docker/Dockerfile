@@ -1,50 +1,36 @@
 # syntax=docker/dockerfile:1
-FROM lscr.io/linuxserver/baseimage-ubuntu:noble
+FROM ghcr.io/imagegenius/esphome:2026.9.0@sha256:fcdacda5421503d7a73dfc039110f015841c733bb07e4d5db946e6483db4a36f
 
-# ESPHome, sshd + Claude Code's runtime (Node.js/npm). ESPHome is pinned
-# deliberately (bump manually) and installed as a plain pip package on top
-# of LinuxServer.io's own actively-maintained Ubuntu+s6-overlay baseimage -
-# not imagegenius's esphome image, which is itself built FROM this same
-# base but stopped publishing Ubuntu builds after ESPHome 2026.4.5.
+# sshd + Claude Code's runtime (Node.js/npm), on top of imagegenius's Alpine
+# ESPHome image. Alpine is actively maintained by imagegenius (unlike their
+# now-abandoned Ubuntu variant - see design.md), already ships ESPHome and
+# esphome-device-builder pre-wired as an s6-rc service, and ships gcompat
+# (glibc compatibility shim, needed for e.g. VS Code Remote-SSH) out of the
+# box. Node/npm come straight from Alpine's own package index (current
+# versions - no NodeSource repo needed, unlike Ubuntu's frozen default).
 # See openspec/changes/archive/2026-09-17-esphome-container/design.md.
-ARG ESPHOME_VERSION=2026.9.0
-ARG DEVICE_BUILDER_VERSION=1.14.9
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      python3 python3-pip python3-venv \
-      openssh-server git ca-certificates curl gnupg && \
-    pip install --break-system-packages --no-cache-dir \
-      "esphome==${ESPHOME_VERSION}" \
-      "esphome-device-builder==${DEVICE_BUILDER_VERSION}" && \
-    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install -y --no-install-recommends nodejs && \
-    rm -rf /var/lib/apt/lists/* && \
+RUN apk add --no-cache openssh-server nodejs npm && \
     rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub && \
     usermod -s /bin/bash abc && \
+    usermod -p '*' abc && \
     npm install -g @anthropic-ai/claude-code && \
     git config --system --add safe.directory /config
-
-# Register the ESPHome dashboard as an s6-rc v3 longrun service. The base
-# image has no VOLUME /config declaration (that was imagegenius's addition,
-# specific to their esphome image), so there's no anonymous-volume-shadowing
-# risk here - the checkout mounted at /config is exactly what this reads.
-RUN mkdir -p /etc/s6-overlay/s6-rc.d/svc-esphome/dependencies.d && \
-    touch /etc/s6-overlay/s6-rc.d/svc-esphome/dependencies.d/init-services
-COPY <<'EOF' /etc/s6-overlay/s6-rc.d/svc-esphome/type
-longrun
-EOF
-COPY --chmod=755 <<'EOF' /etc/s6-overlay/s6-rc.d/svc-esphome/run
-#!/usr/bin/with-contenv bash
-export HOME=/config
-exec s6-setuidgid abc esphome-device-builder /config
-EOF
-RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/svc-esphome
+# usermod -p '*' abc: Alpine's abc account starts password-locked ("!" in
+# /etc/shadow), which OpenSSH refuses to authenticate at all - even via
+# pubkey. "*" means no valid password (not locked), consistent with
+# PasswordAuthentication no below.
 
 # Pubkey-only auth. Host keys and authorized_keys live on their own dedicated
 # /ssh volume (mounted at runtime), deliberately separate from /config -
 # they're container-operational data, not part of the ESPHome device-config
 # git history, and must not risk being committed into it.
-RUN { \
+# The base image's sshd_config already has an uncommented default
+# AuthorizedKeysFile - OpenSSH uses first-occurrence-wins for this directive,
+# so appending our own below would otherwise be silently ignored (confirmed
+# via `sshd -T`). Comment out the existing one so ours is the only, and thus
+# effective, occurrence.
+RUN sed -i 's/^AuthorizedKeysFile[[:space:]].*/#&/' /etc/ssh/sshd_config && \
+    { \
       echo ''; \
       echo 'Port 2222'; \
       echo 'PasswordAuthentication no'; \
@@ -55,8 +41,8 @@ RUN { \
       echo 'AuthorizedKeysFile /ssh/authorized_keys'; \
     } >> /etc/ssh/sshd_config
 
-# Register sshd as an s6-rc v3 longrun service, alongside the ESPHome
-# dashboard service above - no changes needed to the base image's /init.
+# Register sshd as an s6-rc v3 longrun service, alongside the image's own
+# esphome-device-builder service - no changes needed to its /init entrypoint.
 RUN mkdir -p /etc/s6-overlay/s6-rc.d/sshd/dependencies.d && \
     touch /etc/s6-overlay/s6-rc.d/sshd/dependencies.d/init-services
 COPY <<'EOF' /etc/s6-overlay/s6-rc.d/sshd/type

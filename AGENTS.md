@@ -24,11 +24,11 @@ This repository branch `esphome-main` is scoped to ESPHome device configuration 
 ### Docker Container
 
 - Do not add Home Assistant config, secrets, or automations to `docker/` - it's scoped to ESPHome only.
-- `docker/Dockerfile` builds `FROM lscr.io/linuxserver/baseimage-ubuntu:noble` (LinuxServer.io's Ubuntu+s6-overlay base, actively maintained), with `esphome`/`esphome-device-builder` (the dashboard - ESPHome split it out as a separate package) installed via pip, pinned as Dockerfile `ARG`s - bump deliberately (see `openspec/changes/archive/2026-09-17-esphome-container/design.md`).
+- `docker/Dockerfile` builds `FROM ghcr.io/imagegenius/esphome`, pinned by digest to their `2026.9.0` (Alpine) build - bump deliberately, pin by digest not just tag (see `openspec/changes/archive/2026-09-17-esphome-container/design.md` for why Alpine, and why not the Ubuntu variant - imagegenius abandoned it after ESPHome 2026.4.5). ESPHome + `esphome-device-builder` (the dashboard - a separate package since ESPHome 2026.9.0) come pre-wired from the base image; Node.js/npm are added via `apk` (current versions, unlike Ubuntu's frozen default apt package).
 - The whole git checkout (this repo's ESPHome-only branch root, `.git` included) is mounted directly at `/config` inside the container - matches the base image's own `VOLUME /config` declaration exactly, so git works natively there with no symlink or base-image script overrides needed. SSH host keys and `authorized_keys` live on a separate `/ssh` volume - never bake either into the image or commit real key/secret material to this repo.
-- `.gitignore` at the repo root excludes `.esphome/` (ESPHome's build cache) and `secrets.yaml`.
-- sshd listens on port 2222, not 22 - host networking puts the container in the same network namespace as the host's own sshd on port 22.
-- Claude Code and Node.js/npm (via NodeSource, not Ubuntu's default package - see design.md) are installed in the Dockerfile - not version-pinned like ESPHome; Claude Code auto-updates itself.
+- `.gitignore` at the repo root excludes `.esphome/`, `.device-builder*` (the dashboard's own state files - it doesn't gitignore these itself), and `secrets.yaml`.
+- sshd listens on port 2222, not 22 - host networking puts the container in the same network namespace as the host's own sshd on port 22. Two Alpine-specific sshd fixes are baked into the Dockerfile (see design.md): the `abc` account starts password-locked (blocks *all* auth, not just password) and the base image's `sshd_config` has a conflicting default `AuthorizedKeysFile` that silently wins over ours unless commented out first.
+- Claude Code is installed via npm in the Dockerfile - not version-pinned; it auto-updates itself.
 
 **`agent-srv` builds the image, never runs it** - no local dev/test container there. Build and push to GHCR:
 
