@@ -99,8 +99,9 @@ This is the standard location for container-managed data on that host, e.g. `/mn
 **SSH authorized keys: supplied directly by the user, not mirrored from `agent-srv`.**
 The original plan was to mirror the public keys already authorized on `agent-srv` itself, but the host has an unusual sshd config and they were too hard to find. The container's `authorized_keys` is populated with keys Matt provides directly instead.
 
-**Claude Code installed via Ubuntu 24.04's default `nodejs`/`npm` apt packages, then `npm install -g @anthropic-ai/claude-code`.**
-The base image ships neither Node.js nor Claude Code. Ubuntu 24.04's default `nodejs` apt package was tried first (avoids trusting an extra external apt repository) but freezes at Node 18.x for the life of the release - below Claude Code's declared minimum (>=22.0.0), confirmed via an `EBADENGINE` warning on install. Switched to NodeSource's setup script for Node 22.x, the standard way to get a current Node on Debian/Ubuntu when the distro's own package is too old. Claude Code itself is still not version-pinned - unlike ESPHome, letting it self-update is acceptable.
+**Claude Code installed via `apk add nodejs npm`, then `npm install -g @anthropic-ai/claude-code` - superseded by the Alpine base-image switch, keeping the historical record below.**
+~~Claude Code installed via Ubuntu 24.04's default `nodejs`/`npm` apt packages, then `npm install -g @anthropic-ai/claude-code`.~~ The base image ships neither Node.js nor Claude Code. Ubuntu 24.04's default `nodejs` apt package was tried first (avoids trusting an extra external apt repository) but freezes at Node 18.x for the life of the release - below Claude Code's declared minimum (>=22.0.0), confirmed via an `EBADENGINE` warning on install. Switched to NodeSource's setup script for Node 22.x, the standard way to get a current Node on Debian/Ubuntu when the distro's own package is too old.
+Moot once the base image switched to imagegenius's Alpine variant (see the base-image Decision above): Alpine's own `apk` package index ships current Node/npm versions directly (no frozen-release problem, no NodeSource-equivalent needed) - `RUN apk add --no-cache openssh-server nodejs npm` in `docker/Dockerfile`. Claude Code itself is still not version-pinned - unlike ESPHome, letting it self-update is acceptable.
 
 ## Risks / Trade-offs
 
@@ -118,3 +119,46 @@ This sequencing exists because two dashboards must never manage the same live de
 4. **Cut over** - once verified, check out this repo (ESPHome-only branch) at the container's persisted config volume on `frigate-srv3` and copy `secrets.yaml` in (gitignored, not part of history), then disable/remove the HA-integrated ESPHome Device Builder add-on so only one dashboard manages the fleet.
 
 Rollback: until step 4, the existing HA add-on setup is untouched and remains the fallback - abandoning the new container at any point before cutover has no impact on the current working setup.
+
+### Deployment reference (Quadlet unit)
+
+```ini
+[Unit]
+Description=ESPHome dashboard + sshd + Claude Code
+
+[Container]
+Image=ghcr.io/matt-sullivan/esphome:latest
+ContainerName=esphome
+Network=host
+UserNS=keep-id
+User=0
+Environment=PUID=1000
+Environment=PGID=1000
+Volume=/mnt/container_data/esphome/config:/config:Z
+Volume=/mnt/container_data/esphome/ssh_keys:/ssh:Z
+Volume=/mnt/container_data/esphome/home-abc:/home/abc:Z
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+```
+
+Place at `~/.config/containers/systemd/esphome.container` (rootless, user `core`) on `frigate-srv3`, then `systemctl --user daemon-reload && systemctl --user start esphome.service`. `loginctl show-user core` must show `Linger=yes` for the unit to also start at boot (already the case on both `agent-srv` and `frigate-srv3` - see the `keep-id` Decision above).
+
+`PUID`/`PGID` must equal the UID/GID of whatever user actually runs this Quadlet unit (`core`=1000 on both hosts currently) - not a fixed value, see the `keep-id` Decision above for why.
+
+Before first start: create the three host directories (`mkdir -p`, no chown/relabel needed - see below) and, at `/mnt/container_data/esphome/config`, either an empty directory (`esphome-device-builder` will initialize it) or a real `git clone` of this repo with `secrets.yaml` copied in (gitignored, not part of history). Optionally seed `/mnt/container_data/esphome/ssh_keys/authorized_keys` with a pubkey before the very first start (see below for why only before, not after).
+
+Connecting once running: dashboard at `http://frigate-srv3:6052`; SSH at `ssh -p 2222 abc@frigate-srv3` (pubkey only).
+
+### Bind-mount ownership findings (read before touching the three volumes above)
+
+All three volumes (`/config`, `/ssh`, `/home/abc`) are plain host directories, not named Podman volumes, specifically so a human can read/edit them directly from the host shell - not just from inside the container. Getting that right took several iterations; only the final state matters operationally, but the reasoning is worth knowing before changing any mount flag:
+
+- **Mount flags: `:Z` only, never `:U`.** `:U` re-chowns the mount to the container's UID on *every* start (not just the first), fighting the ownership this project's own scripts already establish. `:Z` (SELinux relabel) is still required and is applied automatically by Podman on each start - no manual relabeling needed.
+- **`UserNS=keep-id` + `User=0` is required together, not either alone.** `UserNS=host` (Podman's rootless default) works internally but sends the container's `abc` user to an opaque subuid-range host UID (e.g. `525287`), not `core` - the host user then can't read or write these directories at all. Plain `keep-id` fixes that UID mapping but also runs the container's PID1 as the mapped non-root UID, which breaks the base image's s6-overlay init (it disables all custom services - sshd, the dashboard - when it isn't run as real root). `User=0` forces PID1 back to real root under `keep-id`, so both properties hold at once.
+- **No manual chown/chmod/relabel is needed when provisioning the three directories for the first time.** `mkdir -p` (or a plain `git clone` for `/config`) as the host user that runs the Quadlet unit is sufficient. Ownership is established recursively on every start - by the base image's own init for `/config`, and by this project's own `chown -R abc:abc` in `docker/Dockerfile`'s `sshd/run` for `/ssh` and `/home/abc` - confirmed to correctly re-own an entire pre-existing tree (tested against a real populated `git clone`, not just an empty directory), and confirmed to survive repeated restarts, including cold starts via the actual Quadlet/systemd path (not just `podman run`/`podman restart`).
+- **After the container's first start, the three directories are still directly host-editable** (that's the entire point of `keep-id`+`User=0` over the earlier, rejected `UserNS=host` approach) - a host-side `cat`/edit/`git` command against `/mnt/container_data/esphome/config` works the same before and after the container has run, unlike the earlier `UserNS=host` state where it stopped working after first start. This includes `authorized_keys` (`chmod 600`'d by the container's own `sshd/run` script, but owned by `core`, so `core` can read/write it directly at any time, not just before the container's first start) - confirmed by directly appending a key from the host shell to a running container's `authorized_keys` and seeing the change take effect. No need to route key rotation through `podman exec`.
+- Full reasoning, source citations (Podman docs/source, GitHub issues, LinuxServer.io's own stance on rootless Podman), and the empirical tests that proved each step are in the Decisions section above (`/home/abc` entry) and `NOTES.md`'s dated session-notes entries for 2026-09-22.
