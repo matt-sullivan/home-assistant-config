@@ -16,11 +16,6 @@ This repository branch `esphome-main` is scoped to ESPHome device configuration 
 - `docker/` — standalone Docker container hosting the ESPHome dashboard, sshd, and Claude Code, decoupled from Home Assistant. See "Docker Container" below.
 - `openspec/` — covers this whole ESPHome project (device configs and the `docker/` container alike), not just one part of it.
 
-### ESPHome
-
-- Device configs are currently also managed via the HA-integrated ESPHome Device Builder add-on until docker is deployed and cut over (see `openspec/changes/archive/2026-09-17-esphome-container/design.md`'s Migration Plan). See the `esphome-remote-cli-access` skill for CLI access to that add-on. **Note:** if that add-on's deployment pulls from this repo's old `esphome/` subdirectory path, flattening device configs to the repo root may need a matching update there - that's a live-server change, out of scope for this repo and not something to do without Matt's explicit direction (see "Servers" below).
-- Once docker is deployed and cut over, use it directly instead — compile/flash/OTA via its own `esphome` CLI over SSH (see "Docker Container" below).
-
 ### Docker Container
 
 - Do not add Home Assistant config, secrets, or automations to `docker/` - it's scoped to ESPHome only.
@@ -49,7 +44,7 @@ esphome run <file>.yaml       # compile + OTA + tail logs
 esphome upload <file>.yaml    # compile + flash, no log tail
 ```
 
-Do not run these against a device the HA-integrated ESPHome Device Builder add-on is also managing at the same time - see the concurrency risk in `design.md`.
+Avoid running these against a device the container's own dashboard has a build/install job in flight for - there's no software-level lock between them, see the concurrency risk in `design.md`.
 
 ### Servers
 
@@ -84,4 +79,4 @@ Do not run these against a device the HA-integrated ESPHome Device Builder add-o
 
 ## Build and Validation
 
-There is no Home Assistant config in this repo to validate. For ESPHome config validation, use `esphome config <file>.yaml` — via the remote add-on today, or inside docker once it's deployed.
+There is no Home Assistant config in this repo to validate. For ESPHome config validation, use `esphome config <file>.yaml` inside the docker container.
