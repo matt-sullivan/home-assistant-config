@@ -37,13 +37,14 @@ ENV IDF_CCACHE_ENABLE=1
 # (font/display-rendering components), libmagic1t64 (the dashboard's
 # upload MIME-type detection), patch (some external PlatformIO libraries
 # apply patches during their build), openssh-client + iputils-ping
-# (git+ssh remotes, basic network debugging).
+# (git+ssh remotes, basic network debugging), nano (editing files directly
+# in an SSH session).
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       python3 python3-pip python3-venv \
       openssh-server openssh-client git ca-certificates curl gnupg \
       ccache build-essential libusb-1.0-0 libcairo2 libmagic1t64 \
-      patch iputils-ping && \
+      patch iputils-ping nano && \
     pip install --break-system-packages --no-cache-dir \
       esphome esphome-device-builder && \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
@@ -130,5 +131,14 @@ exec /usr/sbin/sshd -D -e
 EOF
 RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/sshd
 
+# HEALTHCHECK needs `podman push --format v2s2`, not just `--format docker`
+# at build time, to actually survive to GHCR - see docker/build-and-push.sh.
+# `podman push`'s own format auto-negotiation otherwise falls back to an
+# OCI manifest (confirmed via `skopeo inspect --raw` against the published
+# image - likely because at least one layer is zstd-compressed, which the
+# Docker v2s2 schema can't represent), and OCI's image-spec config has no
+# Healthcheck field at all - not lost, structurally impossible to carry in
+# that manifest type. Forcing v2s2 on push makes Podman re-encode any such
+# layer instead (confirmed working via a local `dir:` transport push).
 HEALTHCHECK --interval=30s --timeout=10s \
     CMD curl --fail http://localhost:6052/version -A "HealthCheck" || exit 1

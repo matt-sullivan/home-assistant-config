@@ -66,7 +66,7 @@ Avoid running these against a device the container's own dashboard has a build/i
 - `.gitignore` at the repo root excludes `.esphome/`, `.device-builder*` (the dashboard's own state files - it doesn't gitignore these itself), and `secrets.yaml`.
 - sshd listens on port 2222, not 22 - host networking puts the container in the same network namespace as the host's own sshd on port 22.
 - Claude Code is installed via npm in the Dockerfile - not version-pinned; it auto-updates itself.
-- PlatformIO telemetry is disabled (`PLATFORMIO_SETTING_*` env vars, plus sshd's own `SetEnv` so it also reaches SSH sessions - a plain Dockerfile `ENV` doesn't, confirmed by testing) and `ccache`/`IDF_CCACHE_ENABLE` speed up repeat ESP-IDF compiles. A `HEALTHCHECK` hits the dashboard's `/version` endpoint - needs `docker/build-and-push.sh`'s `podman build --format docker`, since Podman's default OCI format silently drops `HEALTHCHECK`.
+- PlatformIO telemetry is disabled (`PLATFORMIO_SETTING_*` env vars, plus sshd's own `SetEnv` so it also reaches SSH sessions - a plain Dockerfile `ENV` doesn't, confirmed by testing) and `ccache`/`IDF_CCACHE_ENABLE` speed up repeat ESP-IDF compiles. A `HEALTHCHECK` hits the dashboard's `/version` endpoint - needs both `podman build --format docker` *and* `podman push --format v2s2` in `docker/build-and-push.sh`, since Podman's push format auto-negotiation otherwise silently falls back to an OCI manifest (whose config spec has no `Healthcheck` field at all) even off a Docker-format build - see design.md's Migration Plan.
 
 **`agent-srv` builds the image, never runs it** - no local dev/test container there. Build and push to GHCR:
 

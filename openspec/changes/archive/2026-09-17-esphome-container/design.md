@@ -157,6 +157,8 @@ Before first start: create the three host directories (`mkdir -p`, no chown/rela
 
 Connecting once running: dashboard at `http://frigate-srv3:6052`; SSH at `ssh -p 2222 abc@frigate-srv3` (pubkey only).
 
+The healthcheck is a Dockerfile `HEALTHCHECK` (`docker/Dockerfile`), not a Quadlet `Health*` key - it worked in every local build+run test, but silently vanished once actually deployed: `skopeo inspect --raw` against the published image showed GHCR holding it as an OCI manifest, and OCI's image-spec config has no `Healthcheck` field at all (Docker-only extension). Root cause: `podman push`'s own format auto-negotiation falls back to OCI even for a `--format docker` build, likely because at least one layer is zstd-compressed, which the Docker v2s2 schema can't represent. Fix: `docker/build-and-push.sh` forces `--format v2s2` on push (not just build) - confirmed via a local `dir:` transport push (no registry needed) that Podman then re-encodes the offending layer instead of falling back, producing a genuinely Docker-format manifest with `Healthcheck` intact.
+
 ### Bind-mount ownership findings (read before touching the three volumes above)
 
 All three volumes (`/config`, `/ssh`, `/home/abc`) are plain host directories, not named Podman volumes, specifically so a human can read/edit them directly from the host shell - not just from inside the container. Getting that right took several iterations; only the final state matters operationally, but the reasoning is worth knowing before changing any mount flag:
