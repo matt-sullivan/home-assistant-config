@@ -8,3 +8,5 @@ secrets.yaml
 **/platformio.ini
 .claude/settings.local.json
 /.mr.sullivan@gmail.com.august.conf
+.cache/
+.platformio/
