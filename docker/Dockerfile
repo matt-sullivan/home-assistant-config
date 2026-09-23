@@ -1,19 +1,46 @@
 # syntax=docker/dockerfile:1
 FROM ghcr.io/imagegenius/esphome:latest
 
-# sshd + Claude Code's runtime (Node.js/npm), on top of imagegenius's Alpine
-# ESPHome image. Alpine is actively maintained by imagegenius (unlike their
-# now-abandoned Ubuntu variant - see design.md), already ships ESPHome and
-# esphome-device-builder pre-wired as an s6-rc service, and ships gcompat
-# (glibc compatibility shim, needed for e.g. VS Code Remote-SSH) out of the
-# box. Node/npm come straight from Alpine's own package index (current
-# versions - no NodeSource repo needed, unlike Ubuntu's frozen default).
+LABEL org.opencontainers.image.title="ESPHome" \
+      org.opencontainers.image.description="ESPHome Device Builder dashboard + sshd + Claude Code, for standalone ESPHome device management" \
+      org.opencontainers.image.source="https://github.com/matt-sullivan/home-assistant-config"
+
+# Disable PlatformIO's telemetry and self-update-nag check (adopted from
+# upstream esphome/docker-base, which does this via `platformio settings
+# set` at build time - doesn't work for us since that writes to the
+# *build-time* root user's ~/.platformio, but our actual runtime compiles
+# happen as a different user/HOME - abc via SSH, or HOME=/config for the
+# dashboard service. get_setting()'s real check (platformio/app.py) reads
+# a PLATFORMIO_SETTING_<NAME> env var first, before the per-user file -
+# confirmed by reading that source - so this env var covers both without
+# needing to touch either runtime HOME.
+ENV PLATFORMIO_SETTING_ENABLE_TELEMETRY=No
+ENV PLATFORMIO_SETTING_CHECK_PLATFORMIO_INTERVAL=1000000
+# ESP-IDF's own build system has documented ccache support gated on this
+# var. Only confirmed to help ESP-IDF-framework compiles (our ESP32
+# devices) - Arduino/LibreTiny use PlatformIO's own SCons build instead,
+# where ccache benefit isn't confirmed.
+ENV IDF_CCACHE_ENABLE=1
+
+# sshd + ccache + Claude Code's runtime (Node.js/npm), on top of
+# imagegenius's Alpine ESPHome image. Alpine is actively maintained by
+# imagegenius (unlike their now-abandoned Ubuntu variant - see design.md),
+# already ships ESPHome and esphome-device-builder pre-wired as an s6-rc
+# service, and ships gcompat (glibc compatibility shim, needed for e.g.
+# VS Code Remote-SSH) out of the box. Node/npm come straight from Alpine's
+# own package index (current versions - no NodeSource repo needed, unlike
+# Ubuntu's frozen default).
 # See openspec/changes/archive/2026-09-17-esphome-container/design.md.
-RUN apk add --no-cache openssh-server nodejs npm && \
+RUN apk add --no-cache openssh-server nodejs npm ccache && \
     rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub && \
     usermod -s /bin/bash -d /home/abc -p '*' abc && \
     npm install -g @anthropic-ai/claude-code && \
-    git config --system --add safe.directory /config
+    git config --system --add safe.directory /config && \
+    git config --system advice.detachedHead false
+# advice.detachedHead false (adopted from upstream esphome/esphome's own
+# Dockerfile): the dashboard's version-history feature checks out old
+# revisions internally, which would otherwise print a detached-HEAD
+# warning into its logs on every such checkout.
 # usermod -p '*' abc: Alpine's abc account starts password-locked ("!" in
 # /etc/shadow), which OpenSSH refuses to authenticate at all - even via
 # pubkey. "*" means no valid password (not locked), consistent with
@@ -47,7 +74,15 @@ RUN sed -i 's/^AuthorizedKeysFile[[:space:]].*/#&/' /etc/ssh/sshd_config && \
       echo 'HostKey /ssh/ssh_host_rsa_key'; \
       echo 'HostKey /ssh/ssh_host_ed25519_key'; \
       echo 'AuthorizedKeysFile /ssh/authorized_keys'; \
+      echo 'SetEnv PLATFORMIO_SETTING_ENABLE_TELEMETRY=No PLATFORMIO_SETTING_CHECK_PLATFORMIO_INTERVAL=1000000'; \
     } >> /etc/ssh/sshd_config
+# SetEnv (not a Dockerfile ENV): sshd never forwards the container's own
+# process environment to login/exec sessions it spawns (PAM-style session
+# isolation, confirmed by testing - a Docker/Podman -e var is invisible in
+# an actual SSH session even though the same var reaches the dashboard
+# process fine, since that one's a direct child of the container's own
+# init). SetEnv (OpenSSH 8.7+) is sshd's own mechanism for this and applies
+# to every session, interactive or a single `ssh host cmd`.
 
 # Register sshd as an s6-rc v3 longrun service, alongside the image's own
 # esphome-device-builder service - no changes needed to its /init entrypoint.
@@ -73,3 +108,6 @@ mkdir -p /var/run/sshd
 exec /usr/sbin/sshd -D -e
 EOF
 RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/sshd
+
+HEALTHCHECK --interval=30s --timeout=10s \
+    CMD curl --fail http://localhost:6052/version -A "HealthCheck" || exit 1

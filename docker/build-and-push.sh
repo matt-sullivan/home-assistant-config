@@ -20,7 +20,9 @@ HISTORY_TAG="${REGISTRY}/${OWNER}/${IMAGE_NAME}:$(date +%Y-%m-%d)-$(git rev-pars
 LATEST_TAG="${REGISTRY}/${OWNER}/${IMAGE_NAME}:latest"
 
 echo "Building ${IMAGE_NAME}:local (also tagging ${LATEST_TAG} and ${HISTORY_TAG})..."
-podman build -t "${IMAGE_NAME}:local" .
+# --format docker: Podman's default OCI image format silently drops
+# HEALTHCHECK (confirmed via a build warning) - Docker format keeps it.
+podman build --format docker -t "${IMAGE_NAME}:local" .
 podman tag "${IMAGE_NAME}:local" "$LATEST_TAG"
 podman tag "${IMAGE_NAME}:local" "$HISTORY_TAG"
 
