@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ghcr.io/imagegenius/esphome:2026.9.0@sha256:fcdacda5421503d7a73dfc039110f015841c733bb07e4d5db946e6483db4a36f
+FROM ghcr.io/imagegenius/esphome:latest
 
 # sshd + Claude Code's runtime (Node.js/npm), on top of imagegenius's Alpine
 # ESPHome image. Alpine is actively maintained by imagegenius (unlike their
