@@ -27,10 +27,23 @@ ENV IDF_CCACHE_ENABLE=1
 # Version control happens by choosing when to rebuild and push
 # (docker/build-and-push.sh is already a manual, deliberate action), not
 # by pinning a version in source.
+# Package list beyond the obvious (python3/openssh-server/git/curl/ccache)
+# borrowed from upstream esphome/docker-base's own Debian image - a
+# proven-working list rather than rediscovering missing build deps one
+# `esphome compile` failure at a time (already happened twice in this
+# project's history - see NOTES.md): build-essential (C-extension pip
+# installs, native build tools), libusb-1.0-0 (USB/serial flashing, e.g.
+# a device's first flash before it has OTA credentials), libcairo2
+# (font/display-rendering components), libmagic1t64 (the dashboard's
+# upload MIME-type detection), patch (some external PlatformIO libraries
+# apply patches during their build), openssh-client + iputils-ping
+# (git+ssh remotes, basic network debugging).
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       python3 python3-pip python3-venv \
-      openssh-server git ca-certificates curl gnupg ccache && \
+      openssh-server openssh-client git ca-certificates curl gnupg \
+      ccache build-essential libusb-1.0-0 libcairo2 libmagic1t64 \
+      patch iputils-ping && \
     pip install --break-system-packages --no-cache-dir \
       esphome esphome-device-builder && \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
