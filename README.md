@@ -1,17 +1,13 @@
-# Development
-**Open this in vscode SSH to homeassistant**
+# ESPHome Config
 
-Relies on home assistant advanced ssh server to install dependencies to allow vscode and AI agents to run.
+This repository holds ESPHome device configuration at its root, plus the standalone container project (`docker/`) that hosts the ESPHome dashboard, sshd, and Claude Code for ESPHome work — decoupled from Home Assistant's own config, which lives in a separate repo.
 
-Has HA MCP server configured in .vscode, running scripts/ha-mcp-launch.sh but reliant on ~/.config to set HA connection credentials.
+## Structure
 
-# Design / Wiki
-## Downstairs Light Management
+- Device YAML files, `packages/`, `archive/` — ESPHome device configs at the repo root, deployed via `docker/`'s persisted volume (see below).
+- `docker/` — standalone Docker container (Dockerfile, compose config) hosting the ESPHome dashboard, sshd, and Claude Code. Mounts this whole repo checkout directly as its `/config`.
+- `openspec/` — design/spec/task tracking for this project.
 
-The `input_select.downstairs_mode` helper controls automatic downstairs light timeouts:
+## Development
 
-- `normal` turns managed lights off after one hour.
-- `bedtime` turns managed lights off after ten minutes and enables Emily's door lighting.
-- `pause` disables automatic timeouts.
-
-Scheduler entries set `bedtime` at 21:00 and `normal` at 06:00. The Emily makeup light is excluded because its device automation restores power shortly after it is turned off.
+See `AGENTS.md` for conventions.

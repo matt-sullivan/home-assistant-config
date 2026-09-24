@@ -1,11 +1,13 @@
 secrets.yaml
 .mcp.json
 .esphome/
+.device-builder*
 **/.pioenvs/
 **/.piolibdeps/
 **/lib/
 **/src/
 **/platformio.ini
+docker/data/
 .claude/settings.local.json
 /.mr.sullivan@gmail.com.august.conf
 .cache/
