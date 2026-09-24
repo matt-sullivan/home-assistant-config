@@ -25,9 +25,9 @@ The system SHALL support discovering and performing over-the-air (OTA) firmware 
 - **WHEN** a valid ESPHome YAML is compiled and an OTA upload is triggered against a discovered device
 - **THEN** the device SHALL receive and apply the new firmware without manual network reconfiguration
 
-### Requirement: Pinned ESPHome version
-The system SHALL run an explicitly pinned ESPHome version rather than tracking latest automatically.
+### Requirement: Latest stable dependency versions
+The system SHALL build using the latest stable version of its dependencies (base image, ESPHome, packages) at build time, rather than a version pinned in source - version control happens by choosing when to rebuild and deploy, not by pinning.
 
-#### Scenario: Version stays fixed across rebuilds
-- **WHEN** the container is rebuilt without a deliberate version change
-- **THEN** the resulting ESPHome version SHALL remain identical to the previous build
+#### Scenario: Rebuild picks up new versions
+- **WHEN** the container image is rebuilt with no source changes
+- **THEN** the resulting image SHALL reflect whatever the latest stable version of each dependency is at that time, which may differ from the previous build
