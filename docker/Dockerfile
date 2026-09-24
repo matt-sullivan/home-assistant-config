@@ -53,6 +53,7 @@ RUN apt-get update && \
     rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub && \
     usermod -s /bin/bash -d /home/abc abc && \
     npm install -g @anthropic-ai/claude-code && \
+    npm install -g @fission-ai/openspec@latest && \
     git config --system --add safe.directory /config && \
     git config --system advice.detachedHead false
 # usermod -d /home/abc abc: abc's default home is /config (the ESPHome
