@@ -1,6 +1,6 @@
 # Home Assistant Config Guidelines
 
-This is a Home Assistant configuration repository. It uses a mix of YAML config files, ESPHome device configs, a few custom components downloaded from HACS, and Lovelace dashboards.
+This is a Home Assistant configuration repository. It uses a mix of YAML config files, a few custom components downloaded from HACS, and Lovelace dashboards.
 
 - Keep changes focused and preserve existing conventions.
 - Validate Home Assistant configuration with `ha core check` when configuration changes are made.
@@ -17,7 +17,6 @@ File and directory structure follows standard home assistant layout. Config is t
 - `automations.yaml`, `scripts.yaml`, `scenes.yaml`, `groups.yaml` — all standard home assistant config files, edited directly and through the ui
 - `packages/` — split configuration by feature (common, raspipool, holiday_lights); each subfolder loaded as a named package
 - Put new feature configuration in the appropriate package instead of expanding `configuration.yaml` unless the integration requires root-level configuration.
-- `esphome/` — ESPHome device YAML files; `secrets.yaml` inside holds ESPHome-specific secrets
 - `custom_components/` — third-party or custom integrations installed here by HACS; avoid modifying HACS-managed or generated files unless explicitly requested
 - `zha_quirks/` — custom ZHA device quirks (Python)
 - `blueprints/` — reusable automation/script/template blueprints
@@ -34,9 +33,7 @@ File and directory structure follows standard home assistant layout. Config is t
 
 ### ESPHome
 
-- See the `esphome-remote-cli-access` skill for esphome CLI access
-- Run ESPHome validation and builds through the remote ESPHome add-on container over SSH; ESPHome is not available in the Home Assistant shell.
-- ESPHome secrets `esphome/secrets.yaml`, logically separate from home assistant secrets.
+- ESPHome device configs are not managed here; they live on the `esphome-main` branch of this repo, checked out separately outside the Home Assistant VM.
 
 ### OpenSpec
 

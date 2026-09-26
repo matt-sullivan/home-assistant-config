@@ -58,9 +58,6 @@ logger:
     # bellows.zigbee.application: debug
     # bellows.ezsp: debug
 
-# esphome:
-#     build_path: "../config/esphome/${name}_build"
-
 # I don't know if this needs to explicitly be included, but frigate integration depends on it
 media_source:
 
