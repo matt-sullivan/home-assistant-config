@@ -6,7 +6,7 @@ substitutions:
 
 packages:
   common_base: !include packages/common-base.yaml
-  esp8266_overlay: !include packages/esp8266-overlay.yaml
+  mcu: !include packages/esp8266.yaml
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
 

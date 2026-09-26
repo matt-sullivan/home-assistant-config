@@ -6,6 +6,6 @@ substitutions:
 
 packages:
   common_base: !include packages/common-base.yaml
-  mcu_overlay: !include packages/bk7231n-cb3s-overlay.yaml
+  mcu: !include packages/bk7231n-cb3s.yaml
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml

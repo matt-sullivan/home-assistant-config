@@ -7,7 +7,7 @@ substitutions:
 
 packages:
   common_base: !include packages/common-base.yaml
-  esp8266_esp8285: !include packages/esp8266-esp8285.yaml
+  mcu: !include packages/esp8285.yaml
   wifi_common: !include packages/wifi-common.yaml
 
 remote_receiver:
