@@ -18,7 +18,9 @@ ENV PLATFORMIO_SETTING_CHECK_PLATFORMIO_INTERVAL=1000000
 # where ccache benefit isn't confirmed.
 ENV IDF_CCACHE_ENABLE=1
 
-# ESPHome, sshd, ccache + Claude Code's runtime (Node.js/npm), on top of
+# ESPHome, sshd, ccache + Node.js/npm (runtime for Claude Code/openspec -
+# themselves npm-installed as abc into /home/abc/.local by the deploy script,
+# not here, so they can self-update/be updated as abc), on top of
 # LinuxServer.io's own actively-maintained Ubuntu+s6-overlay baseimage -
 # not imagegenius's esphome image (itself built FROM this same base, but
 # stopped publishing Ubuntu builds after ESPHome 2026.4.5 - see design.md).
@@ -38,13 +40,13 @@ ENV IDF_CCACHE_ENABLE=1
 # upload MIME-type detection), patch (some external PlatformIO libraries
 # apply patches during their build), openssh-client + iputils-ping
 # (git+ssh remotes, basic network debugging), nano (editing files directly
-# in an SSH session).
+# in an SSH session), tmux (SSH sessions that survive disconnects).
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       python3 python3-pip python3-venv \
       openssh-server openssh-client git ca-certificates curl gnupg \
       ccache build-essential libusb-1.0-0 libcairo2 libmagic1t64 \
-      patch iputils-ping nano && \
+      patch iputils-ping nano tmux && \
     pip install --break-system-packages --no-cache-dir \
       esphome esphome-device-builder && \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
@@ -52,8 +54,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub && \
     usermod -s /bin/bash -d /home/abc abc && \
-    npm install -g @anthropic-ai/claude-code && \
-    npm install -g @fission-ai/openspec@latest && \
     git config --system --add safe.directory /config && \
     git config --system advice.detachedHead false
 # usermod -d /home/abc abc: abc's default home is /config (the ESPHome
