@@ -1,9 +1,12 @@
 # Development
-**Open this in vscode SSH to homeassistant**
+**Open this in vscode SSH to homeassistant `/config` folder**
 
 Relies on home assistant advanced ssh server to install dependencies to allow vscode and AI agents to run.
+Use `/config` for consistency (despite other symlinks as /homeassistant, /root/config & /root/homeassistant)
 
 Has HA MCP server configured in .vscode, running scripts/ha-mcp-launch.sh but reliant on ~/.config to set HA connection credentials.
+
+Claude should be launched with `scripts/claude-ha-session.sh`. (It does ssh, tmux and cd /config, the master agent supervisor uses it.)
 
 # Design / Wiki
 ## Downstairs Light Management

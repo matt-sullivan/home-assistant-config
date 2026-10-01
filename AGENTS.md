@@ -7,6 +7,7 @@ This is a Home Assistant configuration repository. It uses a mix of YAML config 
 - Do not expose secrets from `secrets.yaml` or `ha-mcp.env` files.
 - Be very concise in everything you write
 - Be very thorough in any analysis, do not jump to conclusions
+- Do not make any changes to ESPHome configuration while working on home assistant, suggest delegating to an agent focused on esphome
 
 ## Key Conventions
 
@@ -28,7 +29,7 @@ File and directory structure follows standard home assistant layout. Config is t
 - Always consult the `home-assistant-best-practices` skill before creating or editing automations, scripts, helpers, or dashboards
 - Prefer native HA helpers (input_boolean, counter, timer, etc.) over template sensors for state storage
 - Before renaming entities, check all consumers (automations, scripts, dashboards, templates) — use `mcp_ha-mcp_ha_search`
-- Config validation: run `ha core check` from `/root/homeassistant`
+- Config validation: run `ha core check` from `/config`
 - Utility meter `source` must match actual `entity_id`; verify after any rename
 
 ### ESPHome
@@ -55,6 +56,7 @@ File and directory structure follows standard home assistant layout. Config is t
     - include a design migration plan only when the change has meaningful deployment sequencing, data migration, compatibility, or rollback complexity; omit it for straightforward configuration changes
     - during implementation record problems and new knowledge in session notes files separate from the spec unless it's actually a change to the design, tasks or spec
     - explicitly list each item that is important to be tested, in tasks.md or a reference to another file. Be concise but list each item separately with a checkbox or bullet point.
+- Use the specs as the source of truth, do not rely on agent memory, ensure that reading the specs provides a very similar mental model to the agents model
 - do not include extra work that's not part of the active change
 - Do not implement broad unrelated refactors inside a feature change.
 - After a change is complete
