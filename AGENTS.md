@@ -6,6 +6,7 @@ This repository branch `esphome-main` is scoped to ESPHome device configuration 
 - Do not expose secrets from `secrets.yaml`.
 - Be very concise in everything you write
 - Be very thorough in any analysis, do not jump to conclusions
+- Do not make any home assistant changes while working on ESPHome, suggest delegating to an agent focused on home assistant
 
 ## Repo Structure
 
@@ -28,6 +29,9 @@ esphome upload <file>.yaml    # compile + flash, no log tail
 
 Avoid running these against a device the container's own dashboard has a build/install job in flight for - there's no software-level lock between them, see the concurrency risk in `design.md`.
 
+## Testing
+Maintain a list of devices and features in TESTING.md that need to be tested physically after devices are flashed
+
 ## OpenSpec
 
 - Use the OpenSpec workflow for planned feature changes: read the relevant proposal, design, specs, and tasks before implementing, and keep task status up to date.
@@ -48,6 +52,7 @@ Avoid running these against a device the container's own dashboard has a build/i
     - include a design migration plan only when the change has meaningful deployment sequencing, data migration, compatibility, or rollback complexity; omit it for straightforward configuration changes
     - during implementation record problems and new knowledge in session notes files separate from the spec unless it's actually a change to the design, tasks or spec
     - explicitly list each item that is important to be tested, in tasks.md or a reference to another file. Be concise but list each item separately with a checkbox or bullet point.
+- Use the specs as the source of truth, do not rely on agent memory, ensure that reading the specs provides a very similar mental model to the agents model
 - do not include extra work that's not part of the active change
 - Do not implement broad unrelated refactors inside a feature change.
 - After a change is complete

@@ -10,4 +10,19 @@ This repository holds ESPHome device configuration at its root, plus the standal
 
 ## Development
 
+VSCode: ssh esphome, folder /config
+<br>Claude: ssh esphome, tmux, cd /config, claude --name "blah" --rc
+
+relies on ~/.ssh/config: 
+```
+ssh esphome 
+Host esphome
+  Hostname frigate-srv3
+  Port 2222
+  User abc
+```
+
 See `AGENTS.md` for conventions.
+
+## Testing
+Maintain a list of devices and features in TESTING.md that need to be tested physically after devices are flashed
