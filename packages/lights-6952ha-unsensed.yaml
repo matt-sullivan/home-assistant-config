@@ -1,0 +1,149 @@
+# Grid Connect 2-gang 2-way light switch, 6952HA (WB3S), without power sensing:
+# each light's state is its relay state.
+#   P24 status LED, P14/P6 relay ch1/ch2, P26/P23 button ch1/ch2,
+#   P8/P9 power status ch1/ch2 (active low) - observed for diagnostics only.
+# Button LEDs on 2-way hardware follow the sense circuit, not the relay.
+substitutions:
+  light_1_name: "Light 1"
+  light_2_name: "Light 2"
+  # Visibility flags are explicit because ESPHome's 'internal' is not templatable.
+  light_1_internal: false
+  light_2_internal: false
+  # Press-only: button doesn't toggle its own relay (channel powers no lamp; see udp-link-remote.yaml)
+  light_1_press_only: false
+  light_2_press_only: false
+
+status_led:
+  pin:
+    number: P24
+    inverted: true
+
+globals:
+  - id: sense_edges_1
+    type: uint32_t
+    initial_value: "0"
+  - id: sense_edges_2
+    type: uint32_t
+    initial_value: "0"
+
+output:
+  - platform: gpio
+    id: relay_1
+    pin: P14
+  - platform: gpio
+    id: relay_2
+    pin: P6
+
+light:
+  - platform: binary
+    output: relay_1
+    id: light_1
+    name: "${light_1_name}"
+    internal: ${light_1_internal}
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: binary
+    output: relay_2
+    id: light_2
+    name: "${light_2_name}"
+    internal: ${light_2_internal}
+    restore_mode: RESTORE_DEFAULT_OFF
+
+binary_sensor:
+  - platform: gpio
+    id: button_1
+    pin:
+      number: P26
+      inverted: true
+      mode: INPUT_PULLUP
+    internal: true
+    on_press:
+      - if:
+          condition:
+            lambda: "return ${ 'false' if light_1_press_only else 'true' };"
+          then:
+            - light.toggle: light_1
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+  - platform: gpio
+    id: button_2
+    pin:
+      number: P23
+      inverted: true
+      mode: INPUT_PULLUP
+    internal: true
+    on_press:
+      - if:
+          condition:
+            lambda: "return ${ 'false' if light_2_press_only else 'true' };"
+          then:
+            - light.toggle: light_2
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+
+  # Power sense input, observed only (diagnostics); doesn't affect the light
+  - platform: gpio
+    id: sense_raw_1
+    pin:
+      number: P8
+      mode: INPUT_PULLUP
+      inverted: true
+    internal: true
+    on_state:
+      - lambda: "id(sense_edges_1)++;"
+  - platform: template
+    name: "Power Status 1"
+    entity_category: diagnostic
+    # A faulty input can flap many times per second; history uses the Edges count instead
+    disabled_by_default: true
+    lambda: "return id(sense_raw_1).state;"
+    filters:
+      - delayed_on_off: 30ms
+  # Power sense input, observed only (diagnostics); doesn't affect the light
+  - platform: gpio
+    id: sense_raw_2
+    pin:
+      number: P9
+      mode: INPUT_PULLUP
+      inverted: true
+    internal: true
+    on_state:
+      - lambda: "id(sense_edges_2)++;"
+  - platform: template
+    name: "Power Status 2"
+    entity_category: diagnostic
+    # A faulty input can flap many times per second; history uses the Edges count instead
+    disabled_by_default: true
+    lambda: "return id(sense_raw_2).state;"
+    filters:
+      - delayed_on_off: 30ms
+
+sensor:
+  # Raw sense edges per 10s; steady = 0, one switch event = 1
+  - platform: template
+    name: "Power Status 1 Edges"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: |-
+      uint32_t n = id(sense_edges_1);
+      id(sense_edges_1) = 0;
+      if (n) ESP_LOGI("diag", "Power Status 1 edges in 10s: %u", n);
+      return n;
+  # Raw sense edges per 10s; steady = 0, one switch event = 1
+  - platform: template
+    name: "Power Status 2 Edges"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: |-
+      uint32_t n = id(sense_edges_2);
+      id(sense_edges_2) = 0;
+      if (n) ESP_LOGI("diag", "Power Status 2 edges in 10s: %u", n);
+      return n;

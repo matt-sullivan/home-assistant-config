@@ -3,10 +3,11 @@
 # Pin mappings provided by including package (series2 or series3)
 
 substitutions:
-  light_1_group: ""
-  light_2_group: ""
-  light_3_group: ""
-  light_4_group: ""
+  # Press-only: button doesn't toggle its own relay (channel powers no lamp; see udp-link-remote.yaml)
+  light_1_press_only: false
+  light_2_press_only: false
+  light_3_press_only: false
+  light_4_press_only: false
   # Pin substitutions - must be provided by series2/series3 packages:
   # status_led_pin, relay1_pin, relay2_pin, relay3_pin, relay4_pin
   # button1_pin, button2_pin, button3_pin, button4_pin
@@ -73,24 +74,12 @@ binary_sensor:
       mode: INPUT
       inverted: True
     on_click:
-      - light.toggle: light_1
+      # Press-only channels power no lamp: don't toggle (udp-link-remote extends on_press)
       - if:
           condition:
-            lambda: return strlen("${light_1_group}") > 0;
+            lambda: "return ${ 'false' if light_1_press_only else 'true' };"
           then:
-            - if:
-                condition:
-                  light.is_on: light_1
-                then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${light_1_group}
-                else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${light_1_group}
+            - light.toggle: light_1
     on_multi_click:
       - timing:
           - on for at least 1s
@@ -113,24 +102,12 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: True
     on_press:
-      - light.toggle: light_2
+      # Press-only channels power no lamp: don't toggle (udp-link-remote extends on_press)
       - if:
           condition:
-            lambda: return strlen("${light_2_group}") > 0;
+            lambda: "return ${ 'false' if light_2_press_only else 'true' };"
           then:
-            - if:
-                condition:
-                  light.is_on: light_2
-                then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${light_2_group}
-                else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${light_2_group}
+            - light.toggle: light_2
 
   # 3rd button
   - platform: gpio
@@ -141,24 +118,12 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: True
     on_press:
-      - light.toggle: light_3
+      # Press-only channels power no lamp: don't toggle (udp-link-remote extends on_press)
       - if:
           condition:
-            lambda: return strlen("${light_3_group}") > 0;
+            lambda: "return ${ 'false' if light_3_press_only else 'true' };"
           then:
-            - if:
-                condition:
-                  light.is_on: light_3
-                then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${light_3_group}
-                else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${light_3_group}
+            - light.toggle: light_3
 
   # 4th button
   - platform: gpio
@@ -169,24 +134,12 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: True
     on_press:
-      - light.toggle: light_4
+      # Press-only channels power no lamp: don't toggle (udp-link-remote extends on_press)
       - if:
           condition:
-            lambda: return strlen("${light_4_group}") > 0;
+            lambda: "return ${ 'false' if light_4_press_only else 'true' };"
           then:
-            - if:
-                condition:
-                  light.is_on: light_4
-                then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${light_4_group}
-                else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${light_4_group}
+            - light.toggle: light_4
 
 ##########################
 # Event exposed to HA (doesn't trigger anything within this ESPHome device)

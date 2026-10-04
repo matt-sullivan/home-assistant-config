@@ -24,13 +24,24 @@ In most cases you're running in an environment with the `esphome` CLI available,
 ```bash
 esphome compile <file>.yaml   # validate + compile only
 esphome run <file>.yaml       # compile + OTA + tail logs
-esphome upload <file>.yaml    # compile + flash, no log tail
+esphome upload <file>.yaml --device OTA  # flash the existing build (no compile), no log tail
 ```
 
 Avoid running these against a device the container's own dashboard has a build/install job in flight for - there's no software-level lock between them, see the concurrency risk in `design.md`.
 
 ## Testing
 Maintain a list of devices and features in TESTING.md that need to be tested physically after devices are flashed
+
+## Device Notes
+Device-specific details (pin maps, wiring quirks) live in the package headers. General points:
+- CB3S ↔ WB3S pins can be translated by module position, but it doesn't always hold. Verify unknown pins with a temporary build that exposes candidate pins as HA switches.
+- Buttons wired to no lamp use the remote button pattern (`packages/udp-link-remote.yaml` / `udp-link-target.yaml`): direct device-to-device UDP, no HA needed.
+- Diagnostics: `entity_category: diagnostic`, enabled (recorded in HA history), 10s update interval for counters.
+- ESPHome/HA gotchas:
+  - Renaming an ESPHome entity changes its unique ID: HA creates a new entity and orphans the old one.
+  - HA only picks up a changed `entity_category` after the device's ESPHome config entry is reloaded.
+  - `http_request` isn't supported on BK72xx; raw `udp` is.
+  - Jinja expressions in substitutions/vars (e.g. `${ not x }`) need unquoted YAML booleans.
 
 ## OpenSpec
 

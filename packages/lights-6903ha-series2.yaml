@@ -1,8 +1,5 @@
 # Grid Connect 3-button switch, 6903HA series 2 (WB3S module)
 substitutions:
-  switch_1_group: ""
-  switch_2_group: ""
-  switch_3_group: ""
 
   # Series 2 (WB3S) pin mappings
   status_led_pin: P1

@@ -3,8 +3,7 @@ substitutions:
   friendly_name: "Entry Lights"
   hotspot_ssid: "Entry Lights Recovery"
   wifi_ssid: !secret wifi_ssid_front
-  light_1_group: group.hallway_lights
-  light_1_name: "Hallway Entry"
+  light_1_name: "Hallway Light"
   light_2_name: "Front Deck"
   light_3_name: "Front Yard Sensor Light"
   light_4_name: "Mailbox"
@@ -15,3 +14,9 @@ packages:
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights: !include packages/lights-6904ha-series1.yaml
+  # Target for the "hallway-light" remote button(s)
+  link_target: !include
+    file: packages/udp-link-target.yaml
+    vars:
+      link: hallway-light
+      light_id: light_1

@@ -1,86 +1,24 @@
 substitutions:
   device_name: lights-back-stairs
   friendly_name: "Back Stairs Light"
-  deviceicon: "mdi:lightbulb"
-  friendlyname_light: Back Stairs Light
   hotspot_ssid: "Back Stairs Hotspot"
   wifi_ssid: !secret wifi_ssid
+  # 2-way with a dumb remote switch; laundry-door ch3 is a remote button for this lamp
+  light_name: "Back Stairs Light"
 
 packages:
   common_base: !include packages/common-base.yaml
   mcu: !include packages/bk7231t-wb3s.yaml
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
-
-## ---------------- ##
-##    Status LED    ##
-## ---------------- ##
-status_led:
-  pin:
-    number: P24
-    inverted: true
-
-switch:
-  # Relay
-  - platform: gpio
-    id: relay_1
-    pin: P14
-    internal: true
+  switches: !include packages/lights-6951ha.yaml
+  # Target for the "back-stairs" remote button(s)
+  link_target: !include
+    file: packages/udp-link-target.yaml
+    vars:
+      link: back-stairs
+      light_id: light_1
 
 light:
-  - platform: binary
-    output: filter_1
-    id: light_1
-    name: "${friendlyname_light}"
-    icon: "${deviceicon}"
-
-binary_sensor:
-  # Buttons
-  - platform: gpio
-    id: button_1
-    pin:
-      number: P26
-      inverted: true
-      mode: INPUT_PULLUP
-    on_click:
-      - light.toggle: light_1
-    # Fallback for manual reboot to reconnect to HA after wifi problems
-    on_multi_click:
-      - timing:
-          - on for at least 10s
-        then:
-          - script.execute: long_press_reboot
-    internal: true
-
-  # Activation statuses
-  - platform: gpio
-    id: activation_status_1
-    name: "Power Status"
-    pin:
-      number: P8
-      mode: INPUT_PULLUP
-      inverted: true
-    filters:
-      - delayed_on: 30ms
-      - delayed_off: 30ms
-    on_state:
-      then:
-        - light.control:
-            id: light_1
-            state: !lambda "return x;"
-
-output:
-  # Filters
-  # Triggered when the "light" entity is turned on or off. Will only toggle
-  # the associated relay if the "light" entity is out of sync with the
-  # "activation status"; otherwise do nothing as the state is already correct.
-  - platform: template
-    type: binary
-    id: filter_1
-    write_action:
-      then:
-        - if:
-            condition:
-              - lambda: "return state != id(activation_status_1).state;"
-            then:
-              - switch.toggle: relay_1
+  - id: !extend light_1
+    icon: "mdi:lightbulb"

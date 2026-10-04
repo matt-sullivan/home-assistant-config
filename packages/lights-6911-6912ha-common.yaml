@@ -3,8 +3,6 @@ substitutions:
   switch_1_name: "Switch 1"
   switch_2_name: "Switch 2"
 
-  switch_1_group: ""
-  switch_2_group: ""
 
   # Visibility flags are explicit because ESPHome's 'internal' is not templatable.
   switch_1_light_internal: false
@@ -72,23 +70,6 @@ binary_sensor:
             - fan.toggle: fan_1
           else:
             - light.toggle: light_1
-      - if:
-          condition:
-            lambda: return strcmp("${switch_1_light_internal}", "false") == 0 && strlen("${switch_1_group}") > 0;
-          then:
-            - if:
-                condition:
-                  light.is_on: light_1
-                then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${switch_1_group}
-                else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${switch_1_group}
     on_multi_click:
       - timing:
           - on for at least 1s
@@ -117,23 +98,6 @@ binary_sensor:
             - fan.toggle: fan_2
           else:
             - light.toggle: light_2
-      - if:
-          condition:
-            lambda: return strcmp("${switch_2_light_internal}", "false") == 0 && strlen("${switch_2_group}") > 0;
-          then:
-            - if:
-                condition:
-                  light.is_on: light_2
-                then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${switch_2_group}
-                else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${switch_2_group}
 
 event:
   - platform: template

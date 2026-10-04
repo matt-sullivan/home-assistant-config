@@ -1,13 +1,15 @@
 substitutions:
   device_name: lights-pooltable-stairs
   friendly_name: Pooltable Stairs
-  light_1_name: "Stairs Light"
-  light_2_name: "Hallway Light"
   hotspot_ssid: "Pooltable Stairs Hotspot"
+  # 2-way with hallway-stairs ch2
+  light_1_name: "Internal Stairs Light"
+  # 2-way with a dumb remote switch
+  light_2_name: "Downstairs Hallway Light"
 
 packages:
   common_base: !include packages/common-base.yaml
   mcu: !include packages/bk7231t-wb3s.yaml
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
-  switches: !include packages/lights-6952ha.yaml
+  switches: !include packages/lights-6952ha-sensed.yaml

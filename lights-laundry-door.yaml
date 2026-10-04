@@ -4,7 +4,9 @@ substitutions:
   hotspot_ssid: "Laundry Door Lights"
   switch_1_name: "Landing"
   switch_2_name: "Tree"
-  switch_3_name: "Stairs"
+  # Powers no lamp: remote button for lights-back-stairs; its LED mirrors that lamp
+  switch_3_name: "Back Stairs Remote"
+  switch_3_press_only: true
 
 packages:
   common_base: !include packages/common-base.yaml
@@ -12,6 +14,10 @@ packages:
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights: !include packages/lights-6903ha-series3.yaml
-
-wifi:
-  use_address: lights-laundary-door.local
+  # Remote button for lights-back-stairs
+  link_remote: !include
+    file: packages/udp-link-remote.yaml
+    vars:
+      link: back-stairs
+      light_id: light_3
+      button_id: button_input_3

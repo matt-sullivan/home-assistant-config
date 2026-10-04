@@ -1,0 +1,80 @@
+# Lamp that remote buttons can toggle directly over UDP broadcast (works without HA).
+# Include with vars: link (name remotes address, no spaces), light_id (this lamp's light).
+# The target knows nothing about its remotes.
+#   receives  "TOGGLE <link> <nonce>"  - toggles once per new nonce (retries repeat the nonce)
+#   sends     "STATE <link> <0|1>"      - 5x at 150ms on every change, and every 30s
+
+udp:
+  port: 18511
+  on_receive:
+    - lambda: |-
+        std::string msg(data.begin(), data.end());
+        char name[32];
+        unsigned long nonce;
+        if (sscanf(msg.c_str(), "TOGGLE %31s %lu", name, &nonce) != 2 || strcmp(name, "${link}") != 0)
+          return;
+        if (nonce == id(link_nonce_${light_id})) {
+          id(link_duplicates_${light_id})++;
+          return;
+        }
+        id(link_nonce_${light_id}) = nonce;
+        id(link_toggles_${light_id})++;
+        id(${light_id}).toggle().perform();
+
+globals:
+  - id: link_nonce_${light_id}
+    type: uint32_t
+    initial_value: "0"
+  - id: link_toggles_${light_id}
+    type: uint32_t
+    initial_value: "0"
+  - id: link_duplicates_${light_id}
+    type: uint32_t
+    initial_value: "0"
+
+sensor:
+  # Diagnostics since boot. Each press sends 5 copies: duplicates/toggles near 4 = no loss;
+  # lower = packets lost (still fine while every press toggles).
+  - platform: template
+    name: "Link ${link} Toggles"
+    entity_category: diagnostic
+    state_class: total_increasing
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: "return id(link_toggles_${light_id});"
+  - platform: template
+    name: "Link ${link} Duplicate Toggles"
+    entity_category: diagnostic
+    state_class: total_increasing
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: "return id(link_duplicates_${light_id});"
+
+script:
+  - id: link_state_${light_id}
+    mode: restart
+    then:
+      - repeat:
+          count: 5
+          then:
+            - udp.write: !lambda |-
+                std::string s = std::string("STATE ${link} ") +
+                                (id(${light_id}).current_values.is_on() ? "1" : "0");
+                return std::vector<uint8_t>(s.begin(), s.end());
+            - delay: 150ms
+
+interval:
+  # Heals remotes that missed an update or rebooted
+  - interval: 30s
+    then:
+      - udp.write: !lambda |-
+          std::string s = std::string("STATE ${link} ") +
+                          (id(${light_id}).current_values.is_on() ? "1" : "0");
+          return std::vector<uint8_t>(s.begin(), s.end());
+
+light:
+  - id: !extend ${light_id}
+    on_turn_on:
+      - script.execute: link_state_${light_id}
+    on_turn_off:
+      - script.execute: link_state_${light_id}

@@ -1,0 +1,213 @@
+# Grid Connect 2-gang 2-way light switch, 6952HA (WB3S), both channels with power sensing.
+# WB3S pins; CB3S series 2 equivalents in brackets (same module position):
+#   P24 status LED, P14/P6 relay ch1/ch2, P26/P23 button ch1/ch2,
+#   P8 (CB3S P7) / P9 (CB3S P8) power status ch1/ch2, active low.
+# The sense input reads the lamp's actual power state (local relay XOR remote switch).
+# Button LEDs on 2-way hardware follow the sense circuit, not the relay.
+# Shared logic duplicated in lights-6951ha.yaml (1-gang variant) - keep in step.
+substitutions:
+  light_1_name: "Light 1"
+  light_2_name: "Light 2"
+
+status_led:
+  pin:
+    number: P24
+    inverted: true
+
+globals:
+  - id: sense_edges_1
+    type: uint32_t
+    initial_value: "0"
+  - id: unconfirmed_1
+    type: uint32_t
+    initial_value: "0"
+  - id: sense_edges_2
+    type: uint32_t
+    initial_value: "0"
+  - id: unconfirmed_2
+    type: uint32_t
+    initial_value: "0"
+
+script:
+  # Count relay switches the sense input didn't confirm within 1s (breaker off,
+  # lamp circuit fault, or failing sensor)
+  - id: confirm_1
+    mode: restart
+    then:
+      - delay: 1s
+      - lambda: |-
+          if (id(activation_status_1).state != id(light_1).remote_values.is_on()) {
+            id(unconfirmed_1)++;
+            ESP_LOGW("diag", "Power Status 1: relay switched but sense did not follow");
+          }
+  # Count relay switches the sense input didn't confirm within 1s (breaker off,
+  # lamp circuit fault, or failing sensor)
+  - id: confirm_2
+    mode: restart
+    then:
+      - delay: 1s
+      - lambda: |-
+          if (id(activation_status_2).state != id(light_2).remote_values.is_on()) {
+            id(unconfirmed_2)++;
+            ESP_LOGW("diag", "Power Status 2: relay switched but sense did not follow");
+          }
+
+switch:
+  - platform: gpio
+    id: relay_1
+    pin: P14
+    internal: true
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    id: relay_2
+    pin: P6
+    internal: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+light:
+  - platform: binary
+    output: filter_1
+    id: light_1
+    name: "${light_1_name}"
+  - platform: binary
+    output: filter_2
+    id: light_2
+    name: "${light_2_name}"
+
+output:
+  # Toggle the relay only when the requested state differs from the sensed state,
+  # so on/off commands never act as toggles.
+  - platform: template
+    type: binary
+    id: filter_1
+    write_action:
+      - if:
+          condition:
+            lambda: "return state != id(activation_status_1).state;"
+          then:
+            - switch.toggle: relay_1
+            - script.execute: confirm_1
+  - platform: template
+    type: binary
+    id: filter_2
+    write_action:
+      - if:
+          condition:
+            lambda: "return state != id(activation_status_2).state;"
+          then:
+            - switch.toggle: relay_2
+            - script.execute: confirm_2
+
+binary_sensor:
+  - platform: gpio
+    id: button_1
+    pin:
+      number: P26
+      inverted: true
+      mode: INPUT_PULLUP
+    internal: true
+    on_press:
+      - light.toggle: light_1
+    # Fallback for manual reboot to reconnect to HA after wifi problems
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+  - platform: gpio
+    id: button_2
+    pin:
+      number: P23
+      inverted: true
+      mode: INPUT_PULLUP
+    internal: true
+    on_press:
+      - light.toggle: light_2
+    on_multi_click:
+      - timing:
+          - on for at least 10s
+        then:
+          - script.execute: long_press_reboot
+
+  # Raw sense inputs; count every edge for diagnostics
+  - platform: gpio
+    id: sense_raw_1
+    pin:
+      number: P8
+      mode: INPUT_PULLUP
+      inverted: true
+    internal: true
+    on_state:
+      - lambda: "id(sense_edges_1)++;"
+  - platform: gpio
+    id: sense_raw_2
+    pin:
+      number: P9
+      mode: INPUT_PULLUP
+      inverted: true
+    internal: true
+    on_state:
+      - lambda: "id(sense_edges_2)++;"
+
+  # Debounced lamp state; drives the light entity, including at boot
+  - platform: template
+    id: activation_status_1
+    name: "Power Status 1"
+    entity_category: diagnostic
+    lambda: "return id(sense_raw_1).state;"
+    filters:
+      - delayed_on_off: 30ms
+    trigger_on_initial_state: true
+    on_state:
+      - light.control:
+          id: light_1
+          state: !lambda "return x;"
+  - platform: template
+    id: activation_status_2
+    name: "Power Status 2"
+    entity_category: diagnostic
+    lambda: "return id(sense_raw_2).state;"
+    filters:
+      - delayed_on_off: 30ms
+    trigger_on_initial_state: true
+    on_state:
+      - light.control:
+          id: light_2
+          state: !lambda "return x;"
+
+sensor:
+  # Raw sense edges per 10s; steady lamp = 0, one switch event = 1
+  - platform: template
+    name: "Power Status 1 Edges"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: |-
+      uint32_t n = id(sense_edges_1);
+      id(sense_edges_1) = 0;
+      if (n) ESP_LOGI("diag", "Power Status 1 edges in 10s: %u", n);
+      return n;
+  - platform: template
+    name: "Power Status 2 Edges"
+    entity_category: diagnostic
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: |-
+      uint32_t n = id(sense_edges_2);
+      id(sense_edges_2) = 0;
+      if (n) ESP_LOGI("diag", "Power Status 2 edges in 10s: %u", n);
+      return n;
+  - platform: template
+    name: "Power Status 1 Unconfirmed Switches"
+    entity_category: diagnostic
+    state_class: total_increasing
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: "return id(unconfirmed_1);"
+  - platform: template
+    name: "Power Status 2 Unconfirmed Switches"
+    entity_category: diagnostic
+    state_class: total_increasing
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: "return id(unconfirmed_2);"

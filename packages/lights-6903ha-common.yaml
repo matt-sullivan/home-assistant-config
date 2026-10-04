@@ -6,9 +6,10 @@ substitutions:
   switch_2_name: "Switch 2"
   switch_3_name: "Switch 3"
 
-  switch_1_group: ""
-  switch_2_group: ""
-  switch_3_group: ""
+  # Press-only: button doesn't toggle its own relay (channel powers no lamp; see udp-link-remote.yaml)
+  switch_1_press_only: false
+  switch_2_press_only: false
+  switch_3_press_only: false
 
   # Visibility flags are explicit because ESPHome's 'internal' is not templatable.
   switch_1_light_internal: false
@@ -88,30 +89,18 @@ binary_sensor:
       mode: INPUT
       inverted: true
     on_click:
+      # Press-only channels power no lamp: don't toggle (udp-link-remote extends on_press)
       - if:
           condition:
-            lambda: return strcmp("${switch_1_fan_internal}", "false") == 0;
-          then:
-            - fan.toggle: fan_1
-          else:
-            - light.toggle: light_1
-      - if:
-          condition:
-            lambda: return strcmp("${switch_1_light_internal}", "false") == 0 && strlen("${switch_1_group}") > 0;
+            lambda: "return ${ 'false' if switch_1_press_only else 'true' };"
           then:
             - if:
                 condition:
-                  light.is_on: light_1
+                  lambda: return strcmp("${switch_1_fan_internal}", "false") == 0;
                 then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${switch_1_group}
+                  - fan.toggle: fan_1
                 else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${switch_1_group}
+                  - light.toggle: light_1
     on_multi_click:
       - timing:
           - on for at least 1s
@@ -133,30 +122,18 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: true
     on_press:
+      # Press-only channels power no lamp: don't toggle (udp-link-remote extends on_press)
       - if:
           condition:
-            lambda: return strcmp("${switch_2_fan_internal}", "false") == 0;
-          then:
-            - fan.toggle: fan_2
-          else:
-            - light.toggle: light_2
-      - if:
-          condition:
-            lambda: return strcmp("${switch_2_light_internal}", "false") == 0 && strlen("${switch_2_group}") > 0;
+            lambda: "return ${ 'false' if switch_2_press_only else 'true' };"
           then:
             - if:
                 condition:
-                  light.is_on: light_2
+                  lambda: return strcmp("${switch_2_fan_internal}", "false") == 0;
                 then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${switch_2_group}
+                  - fan.toggle: fan_2
                 else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${switch_2_group}
+                  - light.toggle: light_2
 
   - platform: gpio
     id: button_input_3
@@ -166,30 +143,18 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: true
     on_press:
+      # Press-only channels power no lamp: don't toggle (udp-link-remote extends on_press)
       - if:
           condition:
-            lambda: return strcmp("${switch_3_fan_internal}", "false") == 0;
-          then:
-            - fan.toggle: fan_3
-          else:
-            - light.toggle: light_3
-      - if:
-          condition:
-            lambda: return strcmp("${switch_3_light_internal}", "false") == 0 && strlen("${switch_3_group}") > 0;
+            lambda: "return ${ 'false' if switch_3_press_only else 'true' };"
           then:
             - if:
                 condition:
-                  light.is_on: light_3
+                  lambda: return strcmp("${switch_3_fan_internal}", "false") == 0;
                 then:
-                  - homeassistant.service:
-                      service: homeassistant.turn_on
-                      data:
-                        entity_id: ${switch_3_group}
+                  - fan.toggle: fan_3
                 else:
-                  - homeassistant.service:
-                      service: homeassistant.turn_off
-                      data:
-                        entity_id: ${switch_3_group}
+                  - light.toggle: light_3
 
 event:
   - platform: template

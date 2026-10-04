@@ -3,9 +3,10 @@ substitutions:
   friendly_name: "Kitchen Lights"
   hotspot_ssid: "EspHomeKitchenLights"
   wifi_ssid: !secret wifi_ssid
-  light_2_group: group.hallway_lights
   light_1_name: "Kitchen"
-  light_2_name: "Hallway Kitchen"
+  # Powers no lamp: remote button for the hallway lamp on lights-entry; its LED mirrors that lamp
+  light_2_name: "Hallway Remote"
+  light_2_press_only: true
   light_3_name: "Lounge Dining"
   light_4_name: "Lounge"
 
@@ -15,4 +16,11 @@ packages:
   wifi_common: !include packages/wifi-common.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights: !include packages/lights-6904ha-series1.yaml
+  # Remote button for lights-entry Hallway Light
+  link_remote: !include
+    file: packages/udp-link-remote.yaml
+    vars:
+      link: hallway-light
+      light_id: light_2
+      button_id: button_input_2
 

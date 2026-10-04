@@ -1,7 +1,8 @@
 # Grid Connect 3 button light switch with fan, 6914HA series 3 (CB3S module with BK7231N)
 substitutions:
   # Series 3 (CB3S) pin mappings - converted from WB3S positions
-  status_led_pin: P10
+  # Found by test on Spare Bedroom: P22, active low (not P10 as translated from WB3S)
+  status_led_pin: P22
   relay_light_pin: P26
   fan_light_button_pin: P14
   fan_power_button_pin: P20

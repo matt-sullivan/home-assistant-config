@@ -1,0 +1,67 @@
+# Remote button for a udp-link-target lamp (works without HA). The remote's own relay
+# powers no lamp; it mirrors the target's state so the button LED shows it.
+# Include with vars: link (target's link name), light_id (this remote's light),
+# button_id (this channel's press-only button).
+# The remote light is a diagnostic entity: recorded in HA for debugging, not for control.
+#   sends     "TOGGLE <link> <nonce>"  - new random nonce per press, 5x at 150ms
+#   receives  "STATE <link> <0|1>"     - sets this remote's light
+
+udp:
+  port: 18511
+  on_receive:
+    - lambda: |-
+        std::string msg(data.begin(), data.end());
+        char name[32];
+        int on;
+        if (sscanf(msg.c_str(), "STATE %31s %d", name, &on) != 2 || strcmp(name, "${link}") != 0)
+          return;
+        id(link_last_state_${light_id}) = millis();
+        if (id(${light_id}).current_values.is_on() != (on != 0))
+          id(${light_id}).make_call().set_state(on != 0).perform();
+
+globals:
+  - id: link_nonce_${light_id}
+    type: uint32_t
+    initial_value: "0"
+  # millis() of the last STATE from the target; 0 = none since boot
+  - id: link_last_state_${light_id}
+    type: uint32_t
+    initial_value: "0"
+
+sensor:
+  # Diagnostics: should stay under ~30s (target's periodic STATE); higher = broadcasts not arriving
+  - platform: template
+    name: "Link ${link} State Age"
+    entity_category: diagnostic
+    unit_of_measurement: s
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: |-
+      uint32_t t = id(link_last_state_${light_id});
+      if (t == 0) return NAN;
+      return (millis() - t) / 1000.0f;
+
+script:
+  - id: link_toggle_${light_id}
+    mode: restart
+    then:
+      - repeat:
+          count: 5
+          then:
+            - udp.write: !lambda |-
+                std::string s = "TOGGLE ${link} " + std::to_string(id(link_nonce_${light_id}));
+                return std::vector<uint8_t>(s.begin(), s.end());
+            - delay: 150ms
+
+light:
+  - id: !extend ${light_id}
+    entity_category: diagnostic
+
+binary_sensor:
+  - id: !extend ${button_id}
+    on_press:
+      - lambda: |-
+          uint32_t n;
+          do { n = random_uint32(); } while (n == 0);
+          id(link_nonce_${light_id}) = n;
+      - script.execute: link_toggle_${light_id}

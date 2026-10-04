@@ -12,3 +12,9 @@ packages:
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights: !include packages/lights-6903ha-series3.yaml
+  # Target for the "landing" remote button(s)
+  link_target: !include
+    file: packages/udp-link-target.yaml
+    vars:
+      link: landing
+      light_id: light_1

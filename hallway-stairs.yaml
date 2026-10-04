@@ -1,13 +1,26 @@
 substitutions:
   device_name: hallway-stairs
   friendly_name: Hallway Stairs
-  light_1_name: "Stair Bottom Landing Light" 
-  light_2_name: "Internal Stair Light"
   hotspot_ssid: "Hallway Stairs Hotspot"
+  # No lamp connected: remote button for pool room Landing (button LED follows the sense
+  # circuit, so it may not show Landing's state)
+  light_1_name: "Landing Remote"
+  light_1_press_only: true
+  # Internal stairs lamp (2-way with pooltable-stairs ch1, which reports its state).
+  # P9 sense on this unit toggles continuously, so it's unsensed and hidden from HA.
+  light_2_name: "Internal Stair Light"
+  light_2_internal: true
 
 packages:
   common_base: !include packages/common-base.yaml
   mcu: !include packages/bk7231t-wb3s.yaml
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
-  switches: !include packages/lights-6952ha.yaml
+  switches: !include packages/lights-6952ha-unsensed.yaml
+  # Remote button for lights-pooltable-room Landing
+  link_remote: !include
+    file: packages/udp-link-remote.yaml
+    vars:
+      link: landing
+      light_id: light_1
+      button_id: button_1
