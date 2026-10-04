@@ -95,8 +95,9 @@ views:
           - entity: light.lounge
             name: Lounge
           - light.dining
-          - entity: light.hallway_entry
+          - entity: light.hallway_main
             name: Hallway
+          - entity: light.internal_stairs
           - climate.living_room_air_con
           - media_player.lounge_tv
       - title: Sara Office

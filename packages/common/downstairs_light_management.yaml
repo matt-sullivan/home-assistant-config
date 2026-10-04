@@ -77,5 +77,5 @@ automation:
         target:
           entity_id:
             - light.downstairs_bathroom_lights_lights
-            - light.pool_room_pooltable_room_lights_tv
+            - light.pool_room_tv
     mode: single

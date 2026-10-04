@@ -336,7 +336,7 @@
     metadata: {}
     data: {}
     target:
-      entity_id: group.hallway_lights
+      entity_id: light.hallway_main
   mode: single
 - id: EmilyLongPress-AllOff
   alias: EmilyLongPress-AllOff

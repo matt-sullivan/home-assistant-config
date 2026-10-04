@@ -431,7 +431,7 @@ leaving_home:
                   metadata: {}
                   data: {}
                   target:
-                    entity_id: light.hallway_entry
+                    entity_id: light.hallway_main
                 - delay:
                     hours: 0
                     minutes: 0
@@ -441,7 +441,7 @@ leaving_home:
                   metadata: {}
                   data: {}
                   target:
-                    entity_id: light.hallway_entry
+                    entity_id: light.hallway_main
                 - delay:
                     hours: 0
                     minutes: 0

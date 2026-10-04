@@ -11,19 +11,12 @@ holiday_lights:
   icon: mdi:lightbulb-group
   entities:
     - light.front_deck
-    - group.hallway_lights
+    - light.hallway_main
     - light.parents
-    - light.toby_reading_2
+    - light.tobys_bedroom_toby_light_bar
     - light.lounge
     # - light.lounge_dining
     # - light.kitchen
-
-hallway_lights:
-  name: "Hallway Lights"
-  icon: mdi:lightbulb
-  entities:
-    - light.hallway_entry
-    - light.hallway_kitchen
 
 welcome_lights:
   name: "Welcome Lights"
@@ -31,7 +24,7 @@ welcome_lights:
   entities:
     - light.front_deck
     - light.front_yard_sensor_light
-    - group.hallway_lights
+    - light.hallway_main
     - light.lounge
 
 downstairs_managed_lights:
@@ -40,10 +33,10 @@ downstairs_managed_lights:
   entities:
     - light.downstairs_bathroom_lights_lights
     - light.laundry_lights
-    - light.pool_room_pooltable_room_lights_center
-    - light.pool_room_pooltable_room_lights_landing
-    - light.pool_room_pooltable_room_lights_tv
-    - light.pool_room_pooltable_stairs_hallway_light
+    - light.pool_room_center
+    - light.pool_room_landing
+    - light.pool_room_tv
+    - light.downstairs_hallway
     - light.emily_lights_emily_main
     - light.outside_downstairs_deck_lights_deck
     - light.outside_downstairs_deck_lights_garden
