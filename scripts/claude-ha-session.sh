@@ -183,27 +183,43 @@ new)
     wait_for_ready
     ;;
 resume)
-    # Resuming is for the common case where the previous tmux session/window
-    # has already ended entirely (e.g. a host reboot killed tmux) - it
-    # doesn't try to reach into a window that's still around. If one with
-    # this name already exists (in the one session there can be), fail
-    # rather than guess what state it's in; attach directly instead if it's
-    # still running.
+    # Two cases: the window still exists (the common one - you told Claude
+    # to exit, which ends the process but leaves the tmux window/pane
+    # sitting there with an idle shell) or it doesn't (the tmux
+    # session/window itself ended, e.g. a host reboot killed tmux). Tell
+    # them apart by asking tmux what's actually running in the pane right
+    # now (#{pane_current_command}) rather than guessing from rendered text
+    # - reliable because it's tmux's own bookkeeping, not a screen-scrape.
     session="$(remote_current_session)"
+    existing_window=""
     if [ -n "$session" ]; then
         mapfile -t windows < <(remote_list_windows_in "$session")
         for w in "${windows[@]}"; do
             if [ "$w" = "$window_name" ]; then
-                echo "error: window '$window_name' already exists in tmux session '$session' on $HOST - if it's still running, attach directly instead:" >&2
-                echo "  ssh $HOST tmux attach -t $session" >&2
-                exit 1
+                existing_window="$w"
+                break
             fi
         done
     fi
 
-    echo "No existing window named '$window_name' found on $HOST - recreating it."
-    select_target_session
-    create_window
+    if [ -n "$existing_window" ]; then
+        pane_command="$(ssh -o BatchMode=yes "$HOST" bash -s <<EOF
+tmux list-panes -t "$session:$window_name" -F '#{pane_current_command}' 2>/dev/null
+EOF
+)"
+        if [ "$pane_command" = "claude" ]; then
+            echo "error: window '$window_name' still has Claude running in it - attach directly instead:" >&2
+            echo "  ssh $HOST tmux attach -t $session" >&2
+            exit 1
+        fi
+        echo "Window '$window_name' exists but Claude isn't running in it (pane command: '$pane_command') - resuming there."
+        target_session="$session"
+    else
+        echo "No existing window named '$window_name' found on $HOST - recreating it."
+        select_target_session
+        create_window
+    fi
+
     send_claude_command "--resume '$name' --remote-control '$name'"
 
     echo "Waiting for Claude to reach a ready state..."
