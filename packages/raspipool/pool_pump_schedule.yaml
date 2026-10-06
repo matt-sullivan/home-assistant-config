@@ -1,0 +1,54 @@
+script:
+  pool_pump_command:
+    alias: "Pool Pump Command"
+    description: "Send one on/off command to the pool pump, separate to pool_pump_set_state so Tuya errors don't abort the caller's loop."
+    mode: parallel
+    fields:
+      target:
+        description: "on or off"
+        required: true
+        selector:
+          select:
+            options: ["on", "off"]
+    sequence:
+      - service: "switch.turn_{{ target }}"
+        target:
+          entity_id: switch.pool_pool_pump
+
+  pool_pump_set_state:
+    alias: "Pool Pump Set State"
+    description: "Set the pool pump on/off, retrying once a minute for up to 10 minutes; notify admins on failure. Called by the pool pump schedules."
+    mode: restart
+    icon: mdi:pump
+    fields:
+      target:
+        description: "on or off"
+        required: true
+        selector:
+          select:
+            options: ["on", "off"]
+    sequence:
+      - condition: template
+        value_template: "{{ target in ['on', 'off'] }}"
+      - repeat:
+          while:
+            - condition: template
+              value_template: "{{ not is_state('switch.pool_pool_pump', target) and repeat.index <= 10 }}"
+          sequence:
+            - service: script.turn_on
+              target:
+                entity_id: script.pool_pump_command
+              data:
+                variables:
+                  target: "{{ target }}"
+            - wait_template: "{{ is_state('switch.pool_pool_pump', target) }}"
+              timeout: 60
+      - if:
+          - condition: template
+            value_template: "{{ not is_state('switch.pool_pool_pump', target) }}"
+        then:
+          - service: notify.admins
+            data:
+              title: "Pool pump failed to turn {{ target }}"
+              message: >
+                Pool pump is {{ states('switch.pool_pool_pump') }} after 10 minutes of retrying to turn it {{ target }}.
