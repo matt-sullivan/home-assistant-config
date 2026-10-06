@@ -1,7 +1,16 @@
 # Grid connect light switch with fan speed control, 6914HA - shared logic
-# Pin substitutions must be provided by series2/series3 packages:
+# Pin substitutions must be provided by series1/series2/series3 packages:
 # status_led_pin, relay_light_pin, fan_light_button_pin, fan_power_button_pin,
 # fan_speed_button_pin, relay_fan_1_pin, relay_fan_2_pin, relay_fan_3_pin
+
+# The relays control the fan speed by switching the capacitance in series with the fan.
+# Each relay is an independent (parallel) path from live to the fan
+#   relay 1: 2x 1uF in parallel (2uF)
+#   relay 2: 1x 1uF
+#   relay 3: direct, bypasses the caps
+# I measured these on a series 3 with a multimeter and capacitor for dummy load.
+# Speeds: 1 = relay 1 (2uF), 2 = relays 1+2 (3uF), 3 = relays 1+2+3 (full).
+# The fan would run full speed with just relay 3, but the same gpio also controls the leds in the speed button.
 
 light:
   - platform: binary
@@ -130,50 +139,6 @@ switch:
   - platform: gpio
     id: relay_fan_3
     pin: ${relay_fan_3_pin}
-  - platform: template
-    id: update_fan_speed
-    optimistic: True
-    turn_on_action:
-      then:
-        - delay: 200ms
-        - if:
-            condition:
-              and:
-                - switch.is_off: relay_fan_1
-                - switch.is_off: relay_fan_2
-                - switch.is_off: relay_fan_3
-            then:
-              - fan.turn_off: fan_1
-        - if:
-            condition:
-              and:
-                - switch.is_on: relay_fan_1
-                - switch.is_off: relay_fan_2
-                - switch.is_off: relay_fan_3
-            then:
-              - fan.turn_on:
-                  id: fan_1
-                  speed: 1
-        - if:
-            condition:
-              and:
-                - switch.is_on: relay_fan_1
-                - switch.is_on: relay_fan_2
-                - switch.is_off: relay_fan_3
-            then:
-              - fan.turn_on:
-                  id: fan_1
-                  speed: 2
-        - if:
-            condition:
-              and:
-                - switch.is_on: relay_fan_1
-                - switch.is_off: relay_fan_2
-                - switch.is_on: relay_fan_3
-            then:
-              - fan.turn_on:
-                  id: fan_1
-                  speed: 3
 
 ##########################
 # Event exposed to HA (doesn't trigger anything within this ESPHome device)

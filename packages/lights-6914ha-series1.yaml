@@ -1,0 +1,16 @@
+# Grid Connect 3-button light switch with fan, 6914HA series 1 (ESP8266 on a TYWE3S module)
+substitutions:
+  # Series 1 (TYWE3S) pin mappings; same module positions as series 2 (WB3S)
+  status_led_pin: GPIO3
+  relay_light_pin: GPIO14
+  fan_light_button_pin: GPIO16
+  fan_power_button_pin: GPIO0
+  fan_speed_button_pin: GPIO5
+  # Fan wiring (tested on Parents): same as series 2/3 by module position
+  #   relay 1 (GPIO13): 2uF, relay 2 (GPIO15): 1uF, relay 3 (GPIO4): direct
+  relay_fan_1_pin: GPIO13
+  relay_fan_2_pin: GPIO15
+  relay_fan_3_pin: GPIO4
+
+packages:
+  lights_6914ha_common: !include lights-6914ha-common.yaml

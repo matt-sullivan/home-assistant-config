@@ -1,0 +1,13 @@
+substitutions:
+  device_name: lights-upstairs-deck
+  friendly_name: "Upstairs Deck Lights"
+  hotspot_ssid: "Upstairs Deck Lights"
+  light_name: ""
+  fan_name: "Upstairs Deck Fan"
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu: !include packages/bk7231n-cb3s.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
+  reboot_common: !include packages/reboot-common.yaml
+  lights_and_fan: !include packages/lights-6914ha-series3.yaml
