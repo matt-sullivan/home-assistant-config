@@ -13,6 +13,7 @@ views:
           - media_player.emilys_bedroom_speaker
           - media_player.spotify_emily
           - media_player.emilys_bedroom_speaker_ma
+          - fan.emily_lights_emily_fan
       - title: Tobys Bedroom
         type: entities
         entities:
@@ -83,6 +84,7 @@ views:
         entities:
           - cover.parents_front_door_blind
           - cover.parents_side_blind
+          - fan.parents_fan
           - climate.parents_air_con
           - binary_sensor.parents_bedroom_parents_door
           - switch.parents_bedroom_sara_electric_blanket
