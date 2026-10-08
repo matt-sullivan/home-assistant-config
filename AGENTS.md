@@ -26,11 +26,15 @@ File and directory structure follows standard home assistant layout. Config is t
 
 ### Home Assistant Best Practices
 
-- Always consult the `home-assistant-best-practices` skill before creating or editing automations, scripts, helpers, or dashboards
+- Always consult the `home-assistant-best-practices` skill before creating or editing automations, scripts, helpers, or dashboards. It is served by the `home-assistant` MCP server as resource `skill://home-assistant-best-practices/SKILL.md` (not a local skill).
 - Prefer native HA helpers (input_boolean, counter, timer, etc.) over template sensors for state storage
-- Before renaming entities, check all consumers (automations, scripts, dashboards, templates) — use `mcp_ha-mcp_ha_search`
+- Before renaming entities, check all consumers (automations, scripts, dashboards, templates) — use `mcp__home-assistant__ha_search`
 - Config validation: run `ha core check` from `/config`
 - Utility meter `source` must match actual `entity_id`; verify after any rename
+
+### Working folders
+- Tools (Claude Code, git) report the real path `/homeassistant`; it is the same directory as `/config` (symlink). Refer to it as `/config`.
+- No worktrees: all sessions share one checkout at `/config` on `master`.
 
 ### ESPHome
 

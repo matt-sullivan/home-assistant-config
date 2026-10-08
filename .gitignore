@@ -1,5 +1,4 @@
 secrets.yaml
-.mcp.json
 *.log
 *.xml
 *.db*

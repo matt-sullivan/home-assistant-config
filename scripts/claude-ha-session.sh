@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # Launches or resumes a Claude Code session directly on the Home Assistant
-# host itself (the "Advanced SSH & Web Terminal" add-on container, not this
-# repo's own ESPHome devcontainer), as a window in whatever tmux session is
-# already there (one window per agent) - so it never interferes with other
-# sessions a human might have running, and joins whatever's already in use
-# instead of sprawling into one top-level tmux session per agent. Remote
-# Control is enabled, so a human or this agent can start one without tying
-# up an SSH connection, and reconnect later from claude.ai/code or the
-# Claude app.
+# host itself (the "Advanced SSH & Web Terminal" add-on container), as a
+# window in whatever tmux session is already there (one window per agent) -
+# so it never interferes with other sessions a human might have running,
+# and joins whatever's already in use instead of sprawling into one
+# top-level tmux session per agent. Remote Control is enabled, so a human or
+# this agent can start one without tying up an SSH connection, and
+# reconnect later from claude.ai/code or the Claude app.
 #
 # Mirrors vm-configs' scripts/claude-worktree.sh convention (name-based
 # subcommands), adapted for a single remote host with no per-session
@@ -32,14 +31,14 @@ DEFAULT_SESSION="main"
 usage() {
     cat <<'EOF'
 Usage:
-  scripts/claude-ha-session.sh new <name>      Start a new Claude session named <name> as a new
-                                                 window in whatever tmux session already exists on
-                                                 the Home Assistant host (creating one if none does),
-                                                 with Remote Control enabled.
-  scripts/claude-ha-session.sh resume <name>   Resume the Claude session named <name>. If its window
-                                                 is still around but idle, resumes in place; if the
-                                                 window's gone, recreates one the same way `new` would
-                                                 and resumes there instead.
+  scripts/claude-ha-session.sh new <name>
+      Start a new Claude session named <name> as a new window in whatever
+      tmux session already exists on the Home Assistant host (creating one
+      if none does), with Remote Control enabled.
+  scripts/claude-ha-session.sh resume <name>
+      Resume the Claude session named <name>. If its window is still around
+      but idle, resumes in place; if the window's gone, recreates one the
+      same way `new` would and resumes there instead.
 
 Connect from claude.ai/code or the Claude app once it reports ready.
 EOF

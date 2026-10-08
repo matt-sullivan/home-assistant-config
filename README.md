@@ -4,7 +4,7 @@
 Relies on home assistant advanced ssh server to install dependencies to allow vscode and AI agents to run.
 Use `/config` for consistency (despite other symlinks as /homeassistant, /root/config & /root/homeassistant)
 
-Has HA MCP server configured in .vscode, running scripts/ha-mcp-launch.sh but reliant on ~/.config to set HA connection credentials.
+HA MCP server (`home-assistant`) is configured in `.mcp.json`, shared by Claude Code and VS Code. It runs `scripts/ha-mcp-launch.sh`, which reads HA connection credentials from `scripts/ha-mcp.env` (not in git).
 
 Claude should be launched with `scripts/claude-ha-session.sh`. (It does ssh, tmux and cd /config, the master agent supervisor uses it.)
 

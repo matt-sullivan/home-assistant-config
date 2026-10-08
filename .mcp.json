@@ -1,6 +1,6 @@
 {
-  "servers": {
-    "Home Assistant": {
+  "mcpServers": {
+    "home-assistant": {
       "command": "./scripts/ha-mcp-launch.sh"
     }
   }

@@ -3,7 +3,7 @@
         "packages/**": false
     },
     "chat.tools.terminal.autoApprove": {
-        "/^cd /root/homeassistant && ha core check$/": {
+        "/^cd /config && ha core check$/": {
             "approve": true,
             "matchCommandLine": true
         },
