@@ -1,0 +1,29 @@
+# Session notes
+
+- Groups reload is required after editing `groups.yaml`; an earlier missed reload left renamed lights out of the running group.
+- Scheduler edits via `scheduler.add`/`scheduler.edit` are written to `.storage/scheduler.storage` several seconds later; check entity attributes (`timeslots`, `next_trigger`) for immediate verification.
+- `area_entities('toy_room')` omits the disabled `light.emily_bed`, so no explicit exclusion is needed.
+- 2026-10-09: light bar was turned off manually at 02:00, so the overnight light-bar check is still unverified; mode changed to `daytime` at 05:46 as scheduled.
+- 2026-10-09 history check (23:30 → 21:37):
+  - Verified: schedules set `daytime` 05:46, `evening` 17:22, `bedtime` 21:00; Emily door at 01:59 and 05:38 (bedtime) turned on bathroom + TV; bedtime timeout turned both off at 02:10 (10 min); one-hour timeout: TV 05:38→06:39, bathroom 06:21→07:22, laundry 10:56→11:57, 12:03→13:04, 13:18→14:19, 17:59→19:00 (evening), Emily main 06:00→07:00, 07:26→08:27, 14:04→15:05, 15:14→16:15 (daytime); no early or wrong-mode turn-offs; light bar on 19:00 (evening) and still on in `bedtime`; makeup never turned off; no automation/template errors in system log.
+  - Partially verified: no bedroom turn-off in evening/bedtime (light bar only; other Emily lights unavailable); 21:00 and morning schedules set mode outside pause (sleep script not run); makeup never turned off (sign unavailable all afternoon).
+  - Unverified: all pause items; evening door opening (none occurred); light bar overnight (turned off by Google Assistant at 02:00); `light.internal_stairs` (not used).
+  - Emily's rgb/white strips, reading light, heart and sign have been unavailable since the 12:01 power loss.
+  - Laundry light was turned off at 11:57 while apparently occupied (switched back on at 12:00); consider whether one hour suits the laundry.
+- 2026-10-17 history check (10-10 → 10-17):
+  - Verified: mode transitions every day (daytime ~05:38–05:45, evening ~17:23–17:26, bedtime 21:00); light bar turned off by the one-hour timeout at the 10-10 05:45 daytime transition; Emily door openings in `evening` (10-11 19:03, 10-12 19:02 and 20:51, 10-15 18:08, 10-16 17:27) turned on no lights; bedtime door openings turned on bathroom + TV and the bedtime timeout turned them off ~10 min later.
+  - The 10-16 17:37 bathroom turn-off after 14 min was the FrontDoorButton1-LeavingHome automation, not a timeout.
+  - `light.internal_stairs` has no state changes since 10-09; check it reports state.
+  - Pool room TV and downstairs bathroom lights go unavailable frequently (several times a day on 10-11 and 10-13).
+  - HA logbook queries over long windows returned truncated results; use history for multi-day checks.
+- 2026-10-17 section A (`pause_until_changed`, set 08:16):
+  - Verified: bedtime, daytime and evening schedules (`scheduler.run_action`, conditions applied) left the mode unchanged; Emily door opening 08:16:57 turned on no lights; laundry, Emily main and spare bedroom lights stayed on 08:16→09:21 (>1h); sleep script at 09:21 skipped the mode selection (trace: condition false) and still ran its scene and music.
+  - Partial items remaining: evening schedule from `pause_until_tomorrow`/`bedtime`; bedroom lights in `evening`/`bedtime` beyond the light bar.
+- 2026-10-17 section B (`pause_until_tomorrow`, set 10:52):
+  - Verified: bedtime and evening schedules left the mode unchanged; Emily door openings 10:53:57 and 10:54:14 turned on no lights; laundry and spare bedroom (on since ~08:16) stayed on; sleep script at 10:54 skipped the mode step (trace) and ran its scene and music; daytime schedule set `daytime` at 10:55:10 and the one-hour timeout immediately turned off laundry, spare bedroom and light bar (on since 09:21).
+  - Emily main was turned on at 10:17 by an unknown source.
+- 2026-10-17 bedtime tests (manual mode changes from 11:07):
+  - Verified: sleep script in `evening` set `bedtime` 11:07:32; evening schedule in `bedtime` left the mode unchanged; bedtime timeout turned off `light.internal_stairs` at 11:13:00 (on 11:02:48); Emily main and light bar stayed on through `bedtime` and after the return to `daytime` at 11:21.
+  - Remaining: `light.internal_stairs` one-hour timeout in `daytime`/`evening`.
+  - Per user: Emily's rgb/white strips, reading2, heart and sign are unused; don't test or remove them.
+- 2026-10-17 internal stairs one-hour test: on 12:23:48, turned off by the one-hour timeout at 13:24:00 in `daytime`. HA recorded a brief off → on → off bounce within 0.7 s at turn-off (ESPHome device behaviour; final state off).

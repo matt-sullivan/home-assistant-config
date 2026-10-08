@@ -2,25 +2,35 @@ input_select:
   downstairs_mode:
     name: Downstairs Mode
     options:
-      - normal
+      - daytime
+      - evening
       - bedtime
-      - pause
+      - pause_until_tomorrow
+      - pause_until_changed
 
 automation:
+  # One-hour timeout; light selection per mode is in
+  # custom_templates/downstairs_lights.jinja.
   - id: downstairs_lights_normal_timeout
-    alias: Downstairs lights normal timeout
-    description: Turn off managed downstairs lights after one hour in normal mode.
+    alias: Downstairs lights one-hour timeout
+    description: Turn off managed downstairs lights after one hour in daytime or evening mode, and bedroom lights in daytime mode.
     triggers:
       - trigger: template
         value_template: >-
-          {{ is_state('input_select.downstairs_mode', 'normal') and
-             expand('group.downstairs_managed_lights')
+          {%- from 'downstairs_lights.jinja' import macro_one_hour_lights %}
+          {%- set one_hour_lights = macro_one_hour_lights | as_function %}
+          {%- set mode = states('input_select.downstairs_mode') %}
+          {{ mode in ['daytime', 'evening'] and
+             expand(one_hour_lights(mode))
              | selectattr('state', 'eq', 'on')
              | selectattr('last_changed', 'lt', now() - timedelta(hours=1))
              | list | count > 0 }}
     actions:
       - repeat:
-          for_each: "{{ expand('group.downstairs_managed_lights') | map(attribute='entity_id') | list }}"
+          for_each: >-
+            {%- from 'downstairs_lights.jinja' import macro_one_hour_lights %}
+            {%- set one_hour_lights = macro_one_hour_lights | as_function %}
+            {{ one_hour_lights(states('input_select.downstairs_mode')) }}
           sequence:
             - if:
                 - condition: template

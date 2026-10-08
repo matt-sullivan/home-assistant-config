@@ -37,7 +37,8 @@ downstairs_managed_lights:
     - light.pool_room_landing
     - light.pool_room_tv
     - light.downstairs_hallway
-    - light.emily_lights_emily_main
+    - light.internal_stairs
+    - light.spare_bedroom_spare_bedroom_light
     - light.outside_downstairs_deck_lights_deck
     - light.outside_downstairs_deck_lights_garden
     - light.outside_downstairs_deck_lights_pool

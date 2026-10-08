@@ -11,13 +11,19 @@ Claude should be launched with `scripts/claude-ha-session.sh`. (It does ssh, tmu
 # Design / Wiki
 ## Downstairs Light Management
 
-The `input_select.downstairs_mode` helper controls automatic downstairs light timeouts:
+`input_select.downstairs_mode` drives automatic light timeouts (`packages/common/downstairs_light_management.yaml`):
 
-- `normal` turns managed lights off after one hour.
-- `bedtime` turns managed lights off after ten minutes and enables Emily's door lighting.
-- `pause` disables automatic timeouts.
+| Mode | Rarely-occupied lights | Emily's bedroom lights |
+|---|---|---|
+| `daytime` | off after 1 h | off after 1 h |
+| `evening` | off after 1 h | left on |
+| `bedtime` | off after 10 min; Emily's door turns on bathroom + pool table TV lights | left on |
+| `pause_until_tomorrow` / `pause_until_changed` | left on | left on |
 
-Scheduler entries set `bedtime` at 21:00 and `normal` at 06:00. The Emily makeup light is excluded because its device automation restores power shortly after it is turned off.
+- Rarely-occupied lights are `group.downstairs_managed_lights`; reload groups after editing it, or the running group keeps old members.
+- Bedroom lights are every light in the `toy_room` area except `light.emily_makeup` and `light.emily_sign` (their state is unreliable and an automation turns them back on). Selection is the macro in `custom_templates/downstairs_lights.jinja`; run `homeassistant.reload_custom_templates` after editing it.
+- Scheduler entries (stored in `.storage`, not git): `evening` at sunset −30 min (only from `daytime`), `bedtime` at 21:00 (skips both pauses), `daytime` at sunrise +30 min (skips `pause_until_changed`). Emily's sleep script sets `bedtime` unless paused.
+- `pause_until_tomorrow` ends at the next morning transition; `pause_until_changed` only ends when changed manually (use for house sitters).
 
 ## Pool Pump Schedule
 

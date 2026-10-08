@@ -1,0 +1,11 @@
+{# Lights the downstairs one-hour timeout manages in the given mode:
+   rarely-occupied lights in daytime and evening, plus bedroom lights
+   (Emily's area, except makeup and sign) in daytime only. #}
+{% macro macro_one_hour_lights(mode, returns) -%}
+  {%- set lights = expand('group.downstairs_managed_lights') | map(attribute='entity_id') | list -%}
+  {%- if mode == 'daytime' -%}
+    {%- set lights = lights + (area_entities('toy_room') | select('match', 'light[.]')
+        | reject('in', ['light.emily_makeup', 'light.emily_sign']) | list) -%}
+  {%- endif -%}
+  {%- do returns(lights) -%}
+{%- endmacro %}
