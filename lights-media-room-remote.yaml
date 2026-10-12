@@ -1,0 +1,26 @@
+substitutions:
+  device_name: lights-media-room-remote
+  friendly_name: "Media Room Remote"
+  hotspot_ssid: "Media Room Remote"
+  light_name: "Light"
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu: !include packages/bk7231t-wb3s.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
+  reboot_common: !include packages/reboot-common.yaml
+  switches: !include packages/lights-6951ha.yaml
+
+# TEMPORARY bench test: button LED rewired to P7 (Q_L gate, 22 ohm removed), see docs/deta-695xha-hardware.md
+output:
+  - platform: libretiny_pwm
+    id: button_led_pwm
+    pin: P7
+    frequency: 1000 Hz
+
+light:
+  - platform: monochromatic
+    id: button_led
+    name: "Button LED Test"
+    output: button_led_pwm
+    restore_mode: ALWAYS_OFF

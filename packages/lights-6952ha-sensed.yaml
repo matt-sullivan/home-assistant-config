@@ -6,6 +6,9 @@
 # Button LEDs on 2-way hardware follow the sense circuit, not the relay.
 # Shared logic duplicated in lights-6951ha.yaml (1-gang variant) - keep in step.
 substitutions:
+  # Power sense pins: WB3S P8/P9; CB3S (ESPHome docs "series 2", BK7231N) P7/P8
+  sense_1_pin: P8
+  sense_2_pin: P9
   light_1_name: "Light 1"
   light_2_name: "Light 2"
 
@@ -133,7 +136,7 @@ binary_sensor:
   - platform: gpio
     id: sense_raw_1
     pin:
-      number: P8
+      number: ${sense_1_pin}
       mode: INPUT_PULLUP
       inverted: true
     internal: true
@@ -142,7 +145,7 @@ binary_sensor:
   - platform: gpio
     id: sense_raw_2
     pin:
-      number: P9
+      number: ${sense_2_pin}
       mode: INPUT_PULLUP
       inverted: true
     internal: true

@@ -2,18 +2,20 @@ substitutions:
   device_name: hallway-stairs
   friendly_name: Hallway Stairs
   hotspot_ssid: "Hallway Stairs Hotspot"
-  # No lamp connected: remote button for pool room Landing (button LED follows the sense
-  # circuit, so it may not show Landing's state)
-  light_1_name: "Landing Remote"
-  light_1_press_only: true
+  # CB3S logic board; sense inputs observed only
+  sense_1_pin: P7
+  sense_2_pin: P8
   # Internal stairs lamp (2-way with pooltable-stairs ch1, which reports its state).
-  # P9 sense on this unit toggles continuously, so it's unsensed and hidden from HA.
-  light_2_name: "Internal Stair Light"
-  light_2_internal: true
+  # Hidden from HA (pooltable-stairs ch1 reports it); its sense only drives the ch1 LED.
+  light_1_name: "Internal Stair Light"
+  light_1_internal: true
+  # No lamp connected: remote button for pool room Landing
+  light_2_name: "Landing Remote"
+  light_2_press_only: true
 
 packages:
   common_base: !include packages/common-base.yaml
-  mcu: !include packages/bk7231t-wb3s.yaml
+  mcu: !include packages/bk7231n-cb3s.yaml
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   switches: !include packages/lights-6952ha-unsensed.yaml
@@ -22,5 +24,37 @@ packages:
     file: packages/udp-link-remote.yaml
     vars:
       link: landing
-      light_id: light_1
-      button_id: button_1
+      light_id: light_2
+      button_id: button_2
+
+# Button LEDs rewired from the sense circuit to GPIOs: ch1 (top) P21 (pos 12),
+# ch2 (bottom) P9 (pos 10, PWM). See docs/deta-695xha-hardware.md
+output:
+  - platform: gpio
+    id: button_led_1
+    pin: P21
+  - platform: libretiny_pwm
+    id: button_led_2
+    pin: P9
+    frequency: 1000 Hz
+
+# ch1 LED shows the stairs lamp's sensed state (either switch of the 2-way)
+binary_sensor:
+  - id: !extend power_status_1
+    trigger_on_initial_state: true
+    on_state:
+      - if:
+          condition:
+            lambda: "return x;"
+          then:
+            - output.turn_on: button_led_1
+          else:
+            - output.turn_off: button_led_1
+
+light:
+  # ch2 LED shows Landing's mirrored state
+  - id: !extend light_2
+    on_turn_on:
+      - output.turn_on: button_led_2
+    on_turn_off:
+      - output.turn_off: button_led_2

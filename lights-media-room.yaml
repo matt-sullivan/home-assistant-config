@@ -1,0 +1,13 @@
+substitutions:
+  device_name: lights-media-room
+  friendly_name: "Media Room Lights"
+  hotspot_ssid: "Media Room Lights"
+  light_1_name: "Light 1"
+  light_2_name: "Light 2"
+
+packages:
+  common_base: !include packages/common-base.yaml
+  mcu: !include packages/bk7231t-wb3s.yaml
+  wifi: !include packages/wifi-outside-and-hall.yaml
+  reboot_common: !include packages/reboot-common.yaml
+  switches: !include packages/lights-6952ha-unsensed.yaml
