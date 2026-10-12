@@ -48,7 +48,7 @@ RUN apt-get update && \
       ccache build-essential libusb-1.0-0 libcairo2 libmagic1t64 \
       patch iputils-ping nano tmux && \
     pip install --break-system-packages --no-cache-dir \
-      esphome esphome-device-builder && \
+      esphome esphome-device-builder uv && \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/* && \
