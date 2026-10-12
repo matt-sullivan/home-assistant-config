@@ -3,6 +3,10 @@
 # status_led_pin, relay_light_pin, fan_light_button_pin, fan_power_button_pin,
 # fan_speed_button_pin, relay_fan_1_pin, relay_fan_2_pin, relay_fan_3_pin
 
+substitutions:
+  # Press-only: light button doesn't toggle its own relay (powers no lamp; see udp-link-remote.yaml)
+  light_press_only: false
+
 # The relays control the fan speed by switching the capacitance in series with the fan.
 # Each relay is an independent (parallel) path from live to the fan
 #   relay 1: 2x 1uF in parallel (2uF)
@@ -77,7 +81,12 @@ binary_sensor:
       mode: INPUT
       inverted: True
     on_click:
-      - light.toggle: light1
+      # Press-only: don't toggle (udp-link-remote extends on_press)
+      - if:
+          condition:
+            lambda: "return ${ 'false' if light_press_only else 'true' };"
+          then:
+            - light.toggle: light1
     on_multi_click:
       - timing:
           - on for at least 1s

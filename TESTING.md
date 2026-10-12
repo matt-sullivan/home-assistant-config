@@ -8,3 +8,9 @@ Maintain a list of devices and features that need to be tested physically after 
 - [x] hallway-stairs: Power Status 1 Edges stays 0 with the stairs lamp steady (ch1 sense parts now on the stairs travellers)
 - [ ] lights-media-room (old hallway WB3S board), once installed: both lights switch from buttons and HA
 - [ ] lights-media-room: Power Status 2 Edges - counting would mean the old hallway ch2 sense fault is on this logic board
+- [x] lights-downstairs-deck: Pool button toggles Dining Room Fan Pool Light
+- [x] lights-downstairs-deck: ch3 LED follows Pool Light when switched at dining and from HA
+- [x] lights-downstairs-deck: no Pool entity in HA
+- [x] lights-downstairs-deck: Yard still switches from its button and HA
+- [x] lights-lounge-fan-2: light button toggles deck Yard; its LED follows Yard (press here, at deck, and from HA)
+- [x] lights-lounge-fan-1: Pool Light still switches from its own button and HA

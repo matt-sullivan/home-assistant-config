@@ -1,9 +1,11 @@
 substitutions:
   device_name: lights-lounge-fan-2
-  friendly_name: "Lounge Fan 2"
-  hotspot_ssid: "Lounge Fan 2"
-  light_name: "Pool Light"
-  fan_name: "Lounge Fan 2"
+  friendly_name: "Living Room Fan"
+  hotspot_ssid: "Living Room Fan"
+  # Powers no lamp: remote button for the yard lamp on lights-downstairs-deck; its LED mirrors that lamp
+  light_name: "Yard Remote"
+  light_press_only: true
+  fan_name: ""
 
 packages:
   common_base: !include packages/common-base.yaml
@@ -11,3 +13,10 @@ packages:
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights_and_fan: !include packages/lights-6914ha-series3.yaml
+  # Remote button for lights-downstairs-deck Yard
+  link_remote: !include
+    file: packages/udp-link-remote.yaml
+    vars:
+      link: yard-light
+      light_id: light1
+      button_id: fan_light_button

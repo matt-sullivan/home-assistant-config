@@ -1,9 +1,9 @@
 substitutions:
   device_name: lights-lounge-fan-1
-  friendly_name: "Lounge Fan 1"
-  hotspot_ssid: "Lounge Fan 1"
-  light_name: "Deck Light"
-  fan_name: "Lounge Fan 1"
+  friendly_name: "Dining Room Fan"
+  hotspot_ssid: "Dining Room Fan"
+  light_name: "Pool Light"
+  fan_name: ""
 
 packages:
   common_base: !include packages/common-base.yaml
@@ -11,3 +11,9 @@ packages:
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights_and_fan: !include packages/lights-6914ha-series3.yaml
+  # Target for the "pool-light" remote button(s)
+  link_target: !include
+    file: packages/udp-link-target.yaml
+    vars:
+      link: pool-light
+      light_id: light1

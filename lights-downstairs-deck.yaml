@@ -4,7 +4,9 @@ substitutions:
   hotspot_ssid: "Downstairs Deck Lights"
   light_1_name: "Deck"
   light_2_name: "Garden"
-  light_3_name: "Pool"
+  # Powers no lamp: remote button for the pool lamp on lights-lounge-fan-1; relay/LED mirror that lamp
+  light_3_name: "Pool Remote"
+  light_3_press_only: true
   light_4_name: "Yard"
 
 packages:
@@ -13,3 +15,21 @@ packages:
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   lights: !include packages/lights-6904ha-series3.yaml
+  # Remote button for lights-lounge-fan-1 Pool Light
+  link_remote: !include
+    file: packages/udp-link-remote.yaml
+    vars:
+      link: pool-light
+      light_id: light_3
+      button_id: button_input_3
+  # Target for the "yard-light" remote button(s)
+  link_target: !include
+    file: packages/udp-link-target.yaml
+    vars:
+      link: yard-light
+      light_id: light_4
+
+light:
+  # Not exposed to HA: the pool lamp's entity is on lights-lounge-fan-1
+  - id: !extend light_3
+    internal: true
