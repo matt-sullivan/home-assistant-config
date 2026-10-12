@@ -1,0 +1,23 @@
+# Session notes
+
+- `ha core check` passed; automations reloaded with all four `Limit * Air Con` instances `on` and no errors in the system log.
+- Startup template rendered: true at current uptime (~3 days), false for a 3-minute uptime and when the uptime sensor is missing.
+- State condition with `entity_id: []`, `match: any` evaluates false (via condition eval). A temporary blueprint instance with no `door_sensors` loaded `on` with no errors and was then deleted.
+- Generic `state` triggers/conditions were kept rather than 2026.7 purpose-specific `door.*` blocks: the design relies on empty `entity_id` lists, which is verified for generic state blocks only.
+- Live test, Sara office, door open since 18:29:30:
+  - In fan only, the door trigger fired at 18:34:30. The door condition passed at the trigger instant, the climate condition failed (`fan_only`), and there was no shutoff.
+  - Switched to cool at 18:52:29; the climate trigger fired at 18:57:30, notified parents and turned the unit off. Restored to fan only afterwards.
+- Live test, Sara office, door open: off → cool at 19:06:38 with 18° requested. It was clamped to 21° (the minimum cool temperature) and turned off at 19:11:39. Every trace was state-triggered. Restored to fan only.
+- Live test, parents, door open: off → dry at 19:08:23. It turned off at 19:13:23 and notified parents ("Parents Door"). The unit was left off, as before the test.
+- Restart test at 09:16:46 UTC: uptime 09:17:31, started 09:18:16 (45s). Entity states were re-stamped at 09:17:35–42, before automations attached, so the state triggers missed them.
+  - Parents (cool, door open) was still cooling 1 minute after startup. The startup template fired at 09:28:00, then it turned off and notified.
+  - Sara (fan only, door open): the startup trigger fired at 09:28:00, the climate condition failed, and the unit kept running.
+- Door closed within 5 min while cooling:
+  - Sara: cool from 09:45:56 UTC, door open 09:48:00–09:50:06. The climate trigger fired at 09:50:56, the door condition failed (`off`), and the unit kept cooling.
+  - Parents: cool from 09:46:15, door open 09:48:13–09:50:16. The climate trigger fired at 09:51:15, the door condition failed, and the unit kept cooling.
+  - Sara's mode change heat_cool → cool restarted the 5-minute timer (it counted from cool at 09:45:56, not heat_cool at 09:45:50). The spec allows this.
+- Door opened while cooling, via the door trigger path: Sara cooling, door opened at 09:53:12 UTC. The door trigger fired at 09:58:12, both conditions passed, it notified ("Sara Office Door") and turned off at 09:58:13.
+- Restart, then door opened: parents cooling with the door closed; restarted, uptime 10:37:30 UTC. The door opened at 10:45:27.
+  - The startup trigger fired at 10:48:00 and the door condition failed (door open less than 5 min).
+  - The door trigger fired at 10:50:27, notified and turned the unit off.
+  - The test was run with the door opened ~8 min after startup instead of the 4 min in the task: at 4 min the door trigger fires before the startup trigger, so the startup trigger's condition is never exercised.
