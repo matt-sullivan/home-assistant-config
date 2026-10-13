@@ -11,7 +11,7 @@ packages:
   reboot_common: !include packages/reboot-common.yaml
   switches: !include packages/lights-6951ha.yaml
 
-# TEMPORARY bench test: button LED rewired to P7 (Q_L gate, 22 ohm removed), see docs/deta-695xha-hardware.md
+# Button LED rewired to P7 (Q_L gate, 22 ohm removed), see docs/deta-695xha-hardware.md
 output:
   - platform: libretiny_pwm
     id: button_led_pwm
@@ -21,6 +21,10 @@ output:
 light:
   - platform: monochromatic
     id: button_led
-    name: "Button LED Test"
+    name: "Button LED"
+    internal: true
     output: button_led_pwm
     restore_mode: ALWAYS_OFF
+  # Not exposed to HA: the lamps' entities are on lights-media-room
+  - id: !extend light_1
+    internal: true
