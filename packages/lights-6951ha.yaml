@@ -5,6 +5,10 @@
 # Logic duplicated from lights-6952ha-sensed.yaml (2-gang variant) - keep in step.
 substitutions:
   light_name: "Light"
+  # Relay fixed: the button and light never switch the relay (a group remote whose
+  # relay must stay put in the 2-way circuit; see lights-media-room-remote.yaml)
+  relay_fixed: false
+  relay_restore_mode: RESTORE_DEFAULT_OFF
 
 status_led:
   pin:
@@ -37,7 +41,7 @@ switch:
     id: relay_1
     pin: P14
     internal: true
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ${relay_restore_mode}
 
 light:
   - platform: binary
@@ -54,7 +58,7 @@ output:
     write_action:
       - if:
           condition:
-            lambda: "return state != id(activation_status_1).state;"
+            lambda: "return ${ 'false' if relay_fixed else 'true' } && state != id(activation_status_1).state;"
           then:
             - switch.toggle: relay_1
             - script.execute: confirm_1
@@ -68,7 +72,11 @@ binary_sensor:
       mode: INPUT_PULLUP
     internal: true
     on_press:
-      - light.toggle: light_1
+      - if:
+          condition:
+            lambda: "return ${ 'false' if relay_fixed else 'true' };"
+          then:
+            - light.toggle: light_1
     # Fallback for manual reboot to reconnect to HA after wifi problems
     on_multi_click:
       - timing:

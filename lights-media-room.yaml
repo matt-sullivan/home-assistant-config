@@ -2,8 +2,10 @@ substitutions:
   device_name: lights-media-room
   friendly_name: "Media Room Lights"
   hotspot_ssid: "Media Room Lights"
-  light_1_name: "Light 1"
-  light_2_name: "Light 2"
+  # Door is 2-way with lights-media-room-remote, whose relay is pinned; Interior is 1-way.
+  # Unsensed: state = relay, so a sense fault can't break control.
+  light_1_name: "Door"
+  light_2_name: "Interior"
 
 packages:
   common_base: !include packages/common-base.yaml
@@ -11,3 +13,68 @@ packages:
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   switches: !include packages/lights-6952ha-unsensed.yaml
+  # Remote press: either lamp on -> both off, else both on
+  group: !include packages/lights-group.yaml
+  link_target: !include
+    file: packages/udp-link-target.yaml
+    vars:
+      link: media-room
+      light_id: group_light
+
+# Sense check: count lamp switches the sense didn't confirm within 1s
+# (sense fault, breaker off, lamp circuit fault, or the remote's relay moved)
+globals:
+  - id: unconfirmed_1
+    type: uint32_t
+    initial_value: "0"
+  - id: unconfirmed_2
+    type: uint32_t
+    initial_value: "0"
+
+script:
+  - id: confirm_1
+    mode: restart
+    then:
+      - delay: 1s
+      - lambda: |-
+          if (id(power_status_1).state != id(light_1).remote_values.is_on()) {
+            id(unconfirmed_1)++;
+            ESP_LOGW("diag", "Power Status 1: relay switched but sense did not follow");
+          }
+  - id: confirm_2
+    mode: restart
+    then:
+      - delay: 1s
+      - lambda: |-
+          if (id(power_status_2).state != id(light_2).remote_values.is_on()) {
+            id(unconfirmed_2)++;
+            ESP_LOGW("diag", "Power Status 2: relay switched but sense did not follow");
+          }
+
+light:
+  - id: !extend light_1
+    on_turn_on:
+      - script.execute: confirm_1
+    on_turn_off:
+      - script.execute: confirm_1
+  - id: !extend light_2
+    on_turn_on:
+      - script.execute: confirm_2
+    on_turn_off:
+      - script.execute: confirm_2
+
+sensor:
+  - platform: template
+    name: "Power Status 1 Unconfirmed Switches"
+    entity_category: diagnostic
+    state_class: total_increasing
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: "return id(unconfirmed_1);"
+  - platform: template
+    name: "Power Status 2 Unconfirmed Switches"
+    entity_category: diagnostic
+    state_class: total_increasing
+    accuracy_decimals: 0
+    update_interval: 10s
+    lambda: "return id(unconfirmed_2);"

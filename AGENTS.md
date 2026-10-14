@@ -42,6 +42,8 @@ Device-specific details (pin maps, wiring quirks) live in the package headers. G
   - HA only picks up a changed `entity_category` after the device's ESPHome config entry is reloaded.
   - `http_request` isn't supported on BK72xx; raw `udp` is.
   - Jinja expressions in substitutions/vars (e.g. `${ not x }`) need unquoted YAML booleans.
+  - A light's restored state is written to its output on the first loop, after `on_boot` (even priority -100) has run. A template output that acts on writes must ignore that first write.
+  - Relays drop during a reboot until the restore runs, so lamps flash briefly; firmware can't avoid it.
 
 ## OpenSpec
 

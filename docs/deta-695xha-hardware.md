@@ -123,6 +123,13 @@ EL357N pin3 (emitter)   ─► GND ;  cap across pins 3–4
   - Ch1 sense on the same mains board is now clean. So the fault was in the ch2 sense path, on either the old WB3S logic board (now in the media room) or this mains board's ch2. [confirmed]
 - General risk: in the "agree" state the unused traveller is held only through 2.4 MΩ. Cable capacitance on long runs (~50–100 pF/m, i.e. a few MΩ at 50 Hz) can put tens of volts across the sense and make it marginal. [speculation]
 
+## Media room (6952HA, WB3S logic board from the hallway)
+
+- Door (ch1) is 2-way with the Media Room Remote (6951HA). The remote's relay is pinned with `relay_fixed: true` and `relay_restore_mode: ALWAYS_ON`, the position where Door's state equals the media room's relay. Interior (ch2) is 1-way.
+- `lights-media-room.yaml` is unsensed (`packages/lights-6952ha-unsensed.yaml`), with a sense check that counts switches the sense doesn't confirm ("Power Status N Unconfirmed Switches"). Remote presses go over UDP to `packages/lights-group.yaml`: either lamp on → both off, else both on.
+- Design and decisions: `openspec/changes/archive/2026-10-17-media-room-group-remote/`; behaviour: `openspec/specs/light-group-remote/spec.md`.
+- Ch2 sense reads cleanly on this wiring so far, so the hallway ch2 fault is either on the hallway mains board or intermittent; the Unconfirmed Switches and Edges counters watch for it.
+
 ## Button LED firmware-control mod
 
 1. Lift the sense-side end of Q_L's 22 Ω resistor.

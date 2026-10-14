@@ -1,0 +1,66 @@
+# Internal group light over a 2-gang switch's light_1 and light_2: on = either lamp on.
+# Turning it off turns both off; turning it on turns both on. Use it as a udp-link-target
+# light so a remote button switches the group (either on -> both off, else both on).
+# State updates from the lamps write the same value, which the output ignores.
+globals:
+  # The first write is the light's own restore (setup queues it; the light writes it on
+  # its first loop, after on_boot), so it's ignored
+  - id: group_ready
+    type: bool
+    initial_value: "false"
+
+output:
+  - platform: template
+    type: binary
+    id: group_output
+    write_action:
+      - if:
+          condition:
+            lambda: |-
+              if (!id(group_ready)) {
+                id(group_ready) = true;
+                return false;
+              }
+              return state != (id(light_1).remote_values.is_on() || id(light_2).remote_values.is_on());
+          then:
+            - light.control:
+                id: light_1
+                state: !lambda "return state;"
+            - light.control:
+                id: light_2
+                state: !lambda "return state;"
+
+light:
+  - platform: binary
+    id: group_light
+    name: "Group"
+    internal: true
+    output: group_output
+    restore_mode: ALWAYS_OFF
+  - id: !extend light_1
+    on_turn_on:
+      - script.execute: group_update
+    on_turn_off:
+      - script.execute: group_update
+  - id: !extend light_2
+    on_turn_on:
+      - script.execute: group_update
+    on_turn_off:
+      - script.execute: group_update
+
+script:
+  # Coalesces the two lamp changes of one group write, so the group (and its
+  # STATE broadcast) doesn't flip back on between them
+  - id: group_update
+    mode: restart
+    then:
+      - delay: 10ms
+      - light.control:
+          id: group_light
+          state: !lambda "return id(light_1).remote_values.is_on() || id(light_2).remote_values.is_on();"
+
+esphome:
+  on_boot:
+    - priority: -100
+      then:
+        - script.execute: group_update

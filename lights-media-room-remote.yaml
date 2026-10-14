@@ -3,6 +3,10 @@ substitutions:
   friendly_name: "Media Room Remote"
   hotspot_ssid: "Media Room Remote"
   light_name: "Light"
+  # 2-way with lights-media-room Door, but the relay stays put so the media room's
+  # relays give both lamps' state. ALWAYS_OFF/ON: whichever makes Door match its relay.
+  relay_fixed: true
+  relay_restore_mode: ALWAYS_ON
 
 packages:
   common_base: !include packages/common-base.yaml
@@ -10,6 +14,14 @@ packages:
   wifi: !include packages/wifi-outside-and-hall.yaml
   reboot_common: !include packages/reboot-common.yaml
   switches: !include packages/lights-6951ha.yaml
+  # Press toggles the media room group (either on -> both off, else both on);
+  # its STATE (either on) drives the button LED
+  link_remote: !include
+    file: packages/udp-link-remote.yaml
+    vars:
+      link: media-room
+      light_id: button_led
+      button_id: button_1
 
 # Button LED rewired to P7 (Q_L gate, 22 ohm removed), see docs/deta-695xha-hardware.md
 output:
