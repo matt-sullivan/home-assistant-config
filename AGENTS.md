@@ -97,3 +97,12 @@ Tags `ghcr.io/matt-sullivan/esphome` as both `latest` (what gets deployed) and `
 ## Servers
 
 - Do not modify any live server's configuration as part of development work (e.g. `agent-srv`, `frigate-srv3`) - they're managed as IaC and are rebuilt, not hand-edited, when something needs to change. Building/running/testing the `docker/` container itself is fine (that's inherently ephemeral/rebuildable); host-level changes (packages, firewall rules, system config) are not, even via passwordless `sudo` - ask first.
+
+## Writing Style
+- Write documents in the present tense, as current state.
+- A new reader needs what is true now, not how it got there.
+- History belongs in git, PR descriptions, changelogs, ADRs and decision records, spec archives, and logs.
+- A log is a record that is explicitly dated or append-only; everything else (READMEs, docs, specs, runbooks, code comments) is not one.
+- Code comments say why the code is this way now, not how it got here.
+- When a past claim turns out wrong, replace it.
+- Do not narrate the correction ("was X, now Y", "previously", "earlier claim disproved", dated investigation notes).
