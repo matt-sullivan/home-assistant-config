@@ -254,7 +254,11 @@ emily_sleep_time:
             entity_id: media_player.emilys_bedroom_speaker_ma
         - action: music_assistant.play_media
           data:
-            media_id: apple_music--heYPEpYU://playlist/p.rXAJLo5hM1WvLa6
+            # Apple playlist called "Emily Sleep Songs" https://music.apple.com/library/playlist/p.rXAJLo5hM1WvLa6
+            # media_id: apple_music--heYPEpYU://playlist/p.rXAJLo5hM1WvLa6
+            # Spotify playlist called "Fav songs"
+            # https://open.spotify.com/playlist/0PHCFWfqdBVfNn8XIhQDjC
+            media_id: spotify--Dh4cL7cf://playlist/0PHCFWfqdBVfNn8XIhQDjC
             enqueue: replace
           target:
             entity_id: media_player.emilys_bedroom_speaker_ma
