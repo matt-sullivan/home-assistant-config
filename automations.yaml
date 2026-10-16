@@ -45,13 +45,20 @@
     alias: Garage closed
     entity_id: cover.garage_door
     state: closed
-  - condition: template
-    alias: Phone connected to car
-    value_template: '{{state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
-      ''connected_paired_devices'') | contains(''B8:9F:09:62:F7:7F (BMW 93379)'')
-      or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'', ''connected_paired_devices'')
-      | contains(''00:02:5B:BE:23:C0 (MattMazda)'') or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
-      ''connected_paired_devices'') | contains(''00:0A:30:92:D6:C7 (Mazda)'')}}'
+  - condition: or
+    alias: Phone in car
+    conditions:
+    - condition: state
+      alias: Android Auto running
+      entity_id: binary_sensor.matt_pixel_8_pro_android_auto
+      state: 'on'
+    - condition: template
+      alias: Phone connected to car
+      value_template: '{{state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
+        ''connected_paired_devices'') | contains(''B8:9F:09:62:F7:7F (BMW 93379)'')
+        or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'', ''connected_paired_devices'')
+        | contains(''00:02:5B:BE:23:C0 (MattMazda)'') or state_attr(''sensor.matt_pixel_8_pro_bluetooth_connection'',
+        ''connected_paired_devices'') | contains(''00:0A:30:92:D6:C7 (Mazda)'')}}'
   action:
   - service: cover.stop_cover
     target:
