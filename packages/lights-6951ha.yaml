@@ -51,7 +51,8 @@ light:
 
 output:
   # Toggle the relay only when the requested state differs from the sensed state,
-  # so on/off commands never act as toggles.
+  # so on/off commands never act as toggles. A command arriving within the sense
+  # lag (~150ms on, ~500ms off) of the previous one sees a stale state and is lost.
   - platform: template
     type: binary
     id: filter_1
@@ -103,6 +104,9 @@ binary_sensor:
     lambda: "return id(sense_raw_1).state;"
     filters:
       - delayed_on_off: 30ms
+      # Report the first change at once, then hold until steady: the sense
+      # input can bounce >30ms on its slow turn-off edge
+      - settle: 500ms
     trigger_on_initial_state: true
     on_state:
       - light.control:

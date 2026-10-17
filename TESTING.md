@@ -2,6 +2,8 @@
 Maintain a list of devices and features that need to be tested physically after devices are flashed
 
 ## Test Items
+- [ ] pooltable-stairs: Internal Stairs Light turned off from HA reports a single off (no on/off bounce), even when Power Status 1 Edges shows >1
+- [ ] pooltable-stairs: flicking the hallway-stairs top switch twice within ~0.5s ends with the entity matching the lamp
 - [x] hallway-stairs (CB3S board, stairs rewired to ch1): bottom (ch2) LED follows Landing state (press here, at pool room, and from HA)
 - [x] hallway-stairs: bottom press toggles Landing; top press toggles internal stairs lamp, pooltable-stairs ch1 reports it
 - [x] hallway-stairs: top (ch1) LED follows the sensed stairs lamp state, from either switch

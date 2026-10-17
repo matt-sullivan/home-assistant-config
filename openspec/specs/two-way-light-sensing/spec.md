@@ -16,6 +16,10 @@ A power-sensed light SHALL report the lamp's sensed on/off state, including chan
 - **WHEN** the device boots while the lamp is powered via the remote switch
 - **THEN** the light entity SHALL report on once the sensor settles
 
+#### Scenario: Sense input bounces while settling
+- **WHEN** the sensed state changes and the input bounces within 500 ms
+- **THEN** the light entity SHALL report the first change once and the final state once steady, with no intermediate states
+
 ### Requirement: Idempotent on/off
 A power-sensed light SHALL switch the lamp only when the commanded state differs from the sensed state; on and off commands SHALL never act as toggles.
 
