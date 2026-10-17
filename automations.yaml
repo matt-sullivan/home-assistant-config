@@ -32,15 +32,28 @@
       message: Matt is at {{states('device_tracker.matt_pixel_8_pro')}} at {{now().strftime("%H:%M")}}
 - id: open_garage_matt
   alias: Open garage when Matt drives home
+  mode: single
+  max_exceeded: silent
+  trace:
+    stored_traces: 20
   trigger:
+  - platform: zone
+    entity_id: device_tracker.matt_pixel_8_pro
+    zone: zone.homestreet1
+    event: enter
+  - platform: zone
+    entity_id: device_tracker.matt_pixel_8_pro
+    zone: zone.homestreet2
+    event: enter
   - platform: state
     entity_id: device_tracker.matt_pixel_8_pro
     from: not_home
-    to:
-    - home
-    - HomeStreet1
-    - HomeStreet2
+    to: home
   condition:
+  - condition: template
+    alias: Arriving from away
+    value_template: '{{ trigger.from_state is not none and trigger.from_state.state
+      == ''not_home'' }}'
   - condition: state
     alias: Garage closed
     entity_id: cover.garage_door
@@ -68,16 +81,28 @@
       message: Matt arrived home, opening garage at {{now().strftime("%H:%M")}}
 - id: open_garage_sara
   alias: Open garage when Sara drives home
+  mode: single
+  max_exceeded: silent
+  trace:
+    stored_traces: 20
   trigger:
+  - platform: zone
+    entity_id: device_tracker.saras_iphone_16
+    zone: zone.homestreet1
+    event: enter
+  - platform: zone
+    entity_id: device_tracker.saras_iphone_16
+    zone: zone.homestreet2
+    event: enter
   - platform: state
-    entity_id:
-    - device_tracker.saras_iphone_16
+    entity_id: device_tracker.saras_iphone_16
     from: not_home
-    to:
-    - home
-    - HomeStreet1
-    - HomeStreet2
+    to: home
   condition:
+  - condition: template
+    alias: Arriving from away
+    value_template: '{{ trigger.from_state is not none and trigger.from_state.state
+      == ''not_home'' }}'
   - condition: state
     alias: Garage closed
     entity_id: cover.garage_door

@@ -2,6 +2,9 @@
 default_config:
 
 homeassistant:
+  latitude: -27.533923
+  longitude: 153.078319
+  radius: 85
   customize: !include customize.yaml
   packages: !include_dir_named packages
 
@@ -98,24 +101,21 @@ person:
       - device_tracker.saras_iphone_16
 
 zone:
-  - name: Home
-    latitude: -27.534078
-    longitude: 153.078125
-    radius: 65
-    icon: mdi:home
   - name: HomeStreet1
-    latitude: -27.533366
-    longitude: 153.077895
-    radius: 40
+    latitude: -27.533429
+    longitude: 153.078067
+    radius: 48
+    passive: true
     # Move to Clausen st intersection?
     # latitude: -27.533006348077777
     # longitude: 153.0776193737984
     # radius: 60
     icon: mdi:home-minus
   - name: HomeStreet2
-    latitude: -27.534767
-    longitude: 153.078987
-    radius: 65
+    latitude: -27.534613
+    longitude: 153.078958
+    radius: 70
+    passive: true
     icon: mdi:home-minus
 
 
