@@ -29,7 +29,7 @@ In both garage automations:
 - Template condition `{{ trigger.from_state.state == 'not_home' }}`, so departures and drift at home don't count.
 - Keep the garage `closed` and in-car conditions. The `closed` condition also stops a later `home` trigger re-sending `cover.stop_cover` to an opening door.
 - `max_exceeded: silent`, since one update can fire a zone enter and the `home` state trigger together.
-- `trace: stored_traces: 20`, so the runs blocked by conditions (drift at home, departures, arrivals on foot) don't push arrival traces out of the default 5.
+- `trace: stored_traces: 100`, so the runs blocked by conditions (drift at home, departures, arrivals on foot) don't push arrival traces out of the default 5; a busy day uses ~20, and 100 traces cost ~0.5 MB per automation.
 
 - **Alternative:** a native state condition instead of the template — rejected because no native condition reads the trigger's from-state.
 
@@ -49,6 +49,6 @@ On Matt's phone, enable high accuracy mode with the "only when entering zone" co
 - **Driving past, or looping back just after leaving, within GPS accuracy of a street zone's edge opens the door with nobody arriving** (2026-10-17 tests came within 8–11 m of HomeStreet2) → Accepted: those routes were deliberate limit tests and are unusual. Monitored through traces, and the zones get resized if it happens.
 - **Google geofence entry is detected late, so high accuracy starts after the street zones are reached** → Checked from Matt's tracker history on arrivals. The range can only grow ~50 m before reaching the restaurant; beyond that, an occasional miss is accepted.
 - **The phone's Home geofence and HA's Home zone disagree at home (e.g. a drifting fix), turning high accuracy on at home** → Checked through a day at home with the High accuracy mode sensor.
-- **Runs blocked by conditions still record traces (not logbook entries) for drift at home, departures and arrivals on foot** → Accepted: filtering on the previous state can only be done in a condition without extra helpers; stored traces raised to 20.
+- **Runs blocked by conditions still record traces (not logbook entries) for drift at home, departures and arrivals on foot** → Accepted: filtering on the previous state can only be done in a condition without extra helpers; stored traces raised to 100.
 - **An older iOS app version on Sara's phone not monitoring passive zones** → Opening falls back to the `home` trigger, ~11–22 s later; checked on her first arrival.
 
