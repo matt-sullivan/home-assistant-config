@@ -59,7 +59,8 @@ toby_wake_up:
         entity_id: "{{ ma_speaker }}"
       data:
         # Alarm-like song
-        media_id: spotify--ZrkegGzq://track/5GUuLf8s5KOEVYUzKx0PpQ
+        # media_id: spotify--ZrkegGzq://track/5GUuLf8s5KOEVYUzKx0PpQ
+        media_id: filesystem_local--zUigPAdx://track/universfield-digital-alarm-clock-151927.mp3
         media_type: track
         enqueue: replace
     - action: media_player.repeat_set
@@ -329,7 +330,8 @@ emily_wake_up:
         entity_id: "{{ ma_speaker }}"
       data:
         # Alarm-like song
-        media_id: spotify--Dh4cL7cf://track/5GUuLf8s5KOEVYUzKx0PpQ
+        # media_id: spotify--ZrkegGzq://track/5GUuLf8s5KOEVYUzKx0PpQ
+        media_id: filesystem_local--zUigPAdx://track/universfield-digital-alarm-clock-151927.mp3
         media_type: track
         enqueue: replace
     - action: media_player.repeat_set
