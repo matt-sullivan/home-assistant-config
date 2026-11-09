@@ -94,8 +94,8 @@ views:
         entities:
           - entity: light.kitchen
             name: Kitchen
-          - entity: light.lounge
-            name: Lounge
+          - entity: light.living_room
+            name: Living Room
           - light.dining
           - entity: light.hallway_main
             name: Hallway
