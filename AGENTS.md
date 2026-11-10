@@ -72,7 +72,12 @@ File and directory structure follows standard home assistant layout. Config is t
 
 - `ui-lovelace.yaml` — main dashboard
 - `ui-lovelace-emily.yaml`, `ui-lovelace-toby.yaml`, `ui-lovelace-pool.yaml` — per-user/feature dashboards. The pool is no longer used.
-- Dashboard resources managed via `packages/common/dashboard.yaml`
+- `ui-lovelace-kitchen.yaml` — kitchen wall tablet dashboard (`kitchen-display`). Shared `navbar-card` template on every view. The `call` view's `voip-stack-card` has `show_on_ring: true`: it keeps the Kitchen phone online on every view and opens `call` when it rings.
+- Dashboard resources are in storage mode (Settings → Dashboards → Resources): HACS and VoIP Stack register their own, with a version stamp that changes on each update. `frontend: extra_module_url` in `packages/common/dashboard.yaml` loads kiosk-mode and card-mod on every dashboard.
+
+### Kitchen tablet
+
+- Before working on the kitchen wall tablet, read README.md → Kitchen Tablet.
 
 ## Build and Validation
 

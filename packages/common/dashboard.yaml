@@ -1,6 +1,7 @@
 frontend:
   extra_module_url:
     - /hacsfiles/kiosk-mode/kiosk-mode.js
+    - /hacsfiles/lovelace-card-mod/card-mod.js
   themes:
     danger:
       primary-color: red
@@ -11,16 +12,6 @@ frontend:
 
 lovelace:
   # Include ui-lovelace.yaml as the default dashboard (with url lovelace)
-  resource_mode: yaml
-  resources:
-    - url: /hacsfiles/advanced-camera-card/advanced-camera-card.js
-      type: module
-    - url: /hacsfiles/scheduler-card/scheduler-card.js
-      type: module
-    - url: /hacsfiles/button-card/button-card.js
-      type: module
-    - url: /hacsfiles/apexcharts-card/apexcharts-card.js
-      type: module
   # Add yaml dashboards
   dashboards:
     lovelace:
@@ -47,4 +38,10 @@ lovelace:
       icon: mdi:pool
       show_in_sidebar: false
       filename: "ui-lovelace-pool.yaml"
+    kitchen-display:
+      mode: yaml
+      title: Kitchen
+      icon: mdi:tablet-dashboard
+      show_in_sidebar: false
+      filename: ui-lovelace-kitchen.yaml
  

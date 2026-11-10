@@ -1,0 +1,228 @@
+# Screen brightness levels, set from the UI without editing the automation.
+input_number:
+  kitchen_tablet_brightness_day:
+    name: Kitchen tablet brightness day
+    icon: mdi:brightness-7
+    min: 1
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  kitchen_tablet_brightness_evening:
+    name: Kitchen tablet brightness evening
+    icon: mdi:brightness-5
+    min: 1
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  kitchen_tablet_brightness_night:
+    name: Kitchen tablet brightness night
+    icon: mdi:brightness-3
+    min: 1
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+
+automation:
+  # Views are switched with Kiosk Satellite's view select (no frontend reload).
+  - id: kitchen_display_garage_view
+    alias: Kitchen display garage view
+    description: Show the garage view while the garage opens, and go back to home when it closes, unless a call is active.
+    triggers:
+      - trigger: garage_door.opened
+        target:
+          entity_id: cover.garage_door
+        id: opened
+      - trigger: garage_door.closed
+        target:
+          entity_id: cover.garage_door
+        id: closed
+    conditions:
+      - condition: state
+        entity_id: sensor.home_call_state
+        state:
+          - offline
+          - idle
+    actions:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: opened
+            sequence:
+              - action: select.select_option
+                target:
+                  entity_id: select.kitchen_tablet_dashboard_view
+                data:
+                  option: kitchen-display/garage
+          - conditions:
+              - condition: trigger
+                id: closed
+              - "{{ states('sensor.kitchen_tablet_current_page').endswith('/kitchen-display/garage') }}"
+            sequence:
+              - action: select.select_option
+                target:
+                  entity_id: select.kitchen_tablet_dashboard_view
+                data:
+                  option: kitchen-display/home
+    mode: queued
+    max: 5
+
+  - id: kitchen_display_idle_home
+    alias: Kitchen display idle return to home
+    description: Return the tablet to the home view after 2 minutes without a touch, except during a call or while the open garage is shown.
+    triggers:
+      - trigger: state
+        entity_id: sensor.kitchen_tablet_last_interaction
+        to: ~
+        for:
+          minutes: 2
+      - trigger: state
+        entity_id: sensor.kitchen_tablet_current_page
+        to: ~
+        for:
+          minutes: 2
+    conditions:
+      - "{{ not states('sensor.kitchen_tablet_current_page').endswith('/kitchen-display/home') }}"
+      - "{{ now() - (states('sensor.kitchen_tablet_last_interaction') | as_datetime(now())) >= timedelta(minutes=2) }}"
+      - condition: state
+        entity_id: sensor.home_call_state
+        state:
+          - offline
+          - idle
+      - not:
+          - and:
+              - condition: state
+                entity_id: cover.garage_door
+                state:
+                  - opening
+                  - open
+                  - closing
+              - "{{ states('sensor.kitchen_tablet_current_page').endswith('/kitchen-display/garage') }}"
+    actions:
+      # Switching the view dismisses the night screensaver; put it back.
+      - variables:
+          screensaver_was_active: "{{ is_state('switch.kitchen_tablet_screensaver_active', 'on') }}"
+      - action: select.select_option
+        target:
+          entity_id: select.kitchen_tablet_dashboard_view
+        data:
+          option: kitchen-display/home
+      - if:
+          - "{{ screensaver_was_active }}"
+        then:
+          - delay:
+              seconds: 2
+          - action: switch.turn_on
+            target:
+              entity_id: switch.kitchen_tablet_screensaver_active
+    mode: single
+    max_exceeded: silent
+
+  - id: kitchen_tablet_brightness
+    alias: Kitchen tablet brightness
+    description: Set the tablet screen to the day level while the sun is up, the evening level after sunset while the kitchen light is on, and the night level after sunset with it off.
+    triggers:
+      # The sun.sun state, not the sun event: at the event, sun.sun hasn't changed yet.
+      - trigger: state
+        entity_id: sun.sun
+        to:
+          - above_horizon
+          - below_horizon
+      - trigger: state
+        entity_id: light.kitchen
+        to:
+          - "on"
+          - "off"
+      - trigger: state
+        entity_id:
+          - input_number.kitchen_tablet_brightness_day
+          - input_number.kitchen_tablet_brightness_evening
+          - input_number.kitchen_tablet_brightness_night
+      # Reapply after the kiosk app or HA restarts.
+      - trigger: state
+        entity_id: light.kitchen_tablet_screen
+        from: unavailable
+        to: "on"
+      - trigger: homeassistant
+        event: start
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: sun.sun
+                state: above_horizon
+            sequence:
+              - action: light.turn_on
+                target:
+                  entity_id: light.kitchen_tablet_screen
+                data:
+                  brightness_pct: "{{ states('input_number.kitchen_tablet_brightness_day') | int(100) }}"
+          - conditions:
+              - condition: state
+                entity_id: light.kitchen
+                state: "on"
+            sequence:
+              - action: light.turn_on
+                target:
+                  entity_id: light.kitchen_tablet_screen
+                data:
+                  brightness_pct: "{{ states('input_number.kitchen_tablet_brightness_evening') | int(50) }}"
+        default:
+          - action: light.turn_on
+            target:
+              entity_id: light.kitchen_tablet_screen
+            data:
+              brightness_pct: "{{ states('input_number.kitchen_tablet_brightness_night') | int(1) }}"
+    mode: restart
+
+  # Kiosk Satellite's black screensaver (backlight at Android's minimum, touch
+  # still live) rather than turning the display off: a really-off screen
+  # ignores touch, and a suspend drops Wi-Fi.
+  - id: kitchen_tablet_night_screensaver
+    alias: Kitchen tablet night screensaver
+    description: Enable the tablet's black screensaver, after 1 minute without a touch, while the sun is down, the kitchen light is off and no call is active; disable it, which also dismisses it, otherwise.
+    triggers:
+      - trigger: state
+        entity_id: sun.sun
+        to:
+          - above_horizon
+          - below_horizon
+      - trigger: state
+        entity_id: light.kitchen
+        to:
+          - "on"
+          - "off"
+      - trigger: state
+        entity_id: sensor.home_call_state
+        to: ~
+      - trigger: state
+        entity_id: switch.kitchen_tablet_screensaver
+        from: unavailable
+      - trigger: homeassistant
+        event: start
+    actions:
+      - if:
+          - condition: state
+            entity_id: sun.sun
+            state: below_horizon
+          - condition: state
+            entity_id: light.kitchen
+            state: "off"
+          - condition: state
+            entity_id: sensor.home_call_state
+            state:
+              - offline
+              - idle
+        then:
+          - action: number.set_value
+            target:
+              entity_id: number.kitchen_tablet_screensaver_timeout
+            data:
+              value: 60
+          - action: switch.turn_on
+            target:
+              entity_id: switch.kitchen_tablet_screensaver
+        else:
+          - action: switch.turn_off
+            target:
+              entity_id: switch.kitchen_tablet_screensaver
+    mode: restart

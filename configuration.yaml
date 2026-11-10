@@ -31,7 +31,6 @@ logger:
     custom_components.spotcast: info
     zeroconf: info
     tuya_iot: info
-    route53: info
     # minimal zigbee debugging for blinds
     # zigpy: debug
     # zhaquirks: debug
@@ -118,14 +117,6 @@ zone:
     passive: true
     icon: mdi:home-minus
 
-
-route53:
-  aws_access_key_id: !secret aws_access_key_id
-  aws_secret_access_key: !secret aws_access_key
-  zone: ZMSGFDQENTCZY
-  domain: matt-sullivan.id.au
-  records:
-    - ha
 
 input_boolean:
   music_assistant_no_spotify:

@@ -33,3 +33,29 @@ Scheduler entries "Pool Pump On" (10:00) and "Pool Pump Off" (16:00) start `scri
 - Tuya can accept a command without delivering it, so success is checked by the switch state, not the command result.
 - The Tuya SDK drops an identical command sent to the same device within 10 s.
 - During an internet outage, retries and the phone notification both fail.
+
+## Kitchen Tablet
+
+- Samsung SM-T580 on unofficial LineageOS 24, running the Kiosk Satellite app, signed in as the non-admin `kitchen` HA user. It's an ESPHome-API device with `*.kitchen_tablet_*` entities and remote admin on port 2324. Wireless debugging is on, but its port changes after every reboot or adbd restart, and a reboot can turn it off. `adb root` (Rooted debugging) restarts adbd, so the port changes again. adb works from the HA host or the tablet-video-leak-dev container (adb server port 5038).
+- Loads `https://ha.mattnet.xyz/kitchen-display/home`: Caddy on frigate-srv3 (192.168.3.9) serves HTTPS and proxies to HA. HA trusts it as a proxy, and the name has an AAAA record only.
+- Views are switched by `select.kitchen_tablet_dashboard_view`. The automations in `packages/common/kitchen_display.yaml` handle the garage, the 2-minute idle return to home (which also ends the call view), and screen brightness by time of day, with levels in `input_number.kitchen_tablet_brightness_day`, `_evening` and `_night`. At night with the kitchen light off, Kiosk Satellite's black screensaver starts after 1 minute without a touch. The display isn't turned off, because the touchscreen has no tap-to-wake and a suspend drops Wi-Fi.
+- Live video uses the Generic Camera entities `camera.<name>_540p` (Frigate go2rtc restreams at 960×540 H.264, 10 fps). The 4K HEVC main streams exhaust the tablet's video memory. Keep it to two live streams at most: the hardware decoder allows four instances.
+- VoIP Stack runs the `release-test` branch of the fork `matt-sullivan/esphome-intercom` (commit `184f5f91`: 2026.11.0 plus `show_on_ring`, auto-answer in WebViews, the encoder fallback and resubscribing after an HA restart), copied into `custom_components/voip_stack`. Don't update it through HACS, which would overwrite it. After changing its files, restart HA: VoIP Stack then re-registers its resource stamped with the newest file time, which the card passes on to its imports, so the tablet fetches the new JS.
+- Runs LineageOS 24.0-20261108 or later, which fixes the gralloc dma-buf fd leak that crashed the kiosk app after hours of video (upstream issue #5). Update with `gtaxlwifi-los24-install.zip` in Settings → System → Updater → ⋮ → Local update; data and Google apps are kept. Nothing needs reapplying after a reboot.
+- Never `pm disable-user` persistent system packages on the tablet. Disabling `com.android.bluetooth` crash-looped `system_server`, and recovery needed a rescue script added to the system partition from recovery. Details are in `openspec/changes/archive/2026-11-11-kitchen-family-dashboard/session-notes.md`.
+
+### Power
+
+Needs a 2 A+ USB charger with the plug firmly seated. The tablet sets a 1.65 A input limit when it detects a wall charger; a weaker charger or a loose plug can't supply that, and the charger chip draws only what the supply holds up to (STATUS1 reg 0x08 bit 0 set, in debugfs regmap `4-0049`).
+
+Draw on battery, home page:
+
+| HA brightness (Android /255) | Draw |
+|---|---|
+| 1% (13) | 1.4 W |
+| 25% (71) | 2.3 W |
+| 50% (133) | 2.9 W |
+| 75% (194) | 3.3 W |
+| 100% (255) | 4.3 W |
+
+Delivered with the U-shaped cable: Apple 2 A about 6.9 W (the tablet's limit; +0.67 A into the battery at 100%), ZTE 1 A and a smaller Apple about 5 W (+0.15 A at 100%), Heymix 65 W USB-A port about 4.3 W (about 2.8 W when not fully seated), so the Heymix drains the battery at full brightness.

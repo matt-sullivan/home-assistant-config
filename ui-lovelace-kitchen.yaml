@@ -1,0 +1,187 @@
+title: Kitchen
+kiosk_mode:
+  user_settings:
+    - users:
+        - kitchen
+      kiosk: true
+navbar-templates:
+  kitchen:
+    desktop:
+      position: left
+      mode: docked
+      show_labels: true
+    routes:
+      - url: /kitchen-display/home
+        icon: mdi:calendar-week
+        label: Home
+      - url: /kitchen-display/controls
+        icon: mdi:tune-variant
+        label: Controls
+      - url: /kitchen-display/garage
+        icon: mdi:garage
+        label: Garage
+      - url: /kitchen-display/cameras
+        icon: mdi:cctv
+        label: Cameras
+      - url: /kitchen-display/shopping
+        icon: mdi:cart
+        label: Shopping
+      - url: /kitchen-display/call
+        icon: mdi:phone
+        label: Call
+      - icon: mdi:microphone
+        label: Assist
+        tap_action:
+          action: assist
+views:
+  - title: Home
+    path: home
+    type: panel
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:navbar-card
+            template: kitchen
+          - type: custom:week-planner-card
+            days: 7
+            startingDay: today
+            showLegend: true
+            dayFormat: "'<span class=\"text\">'cccc'</span>'"
+            texts:
+              fullDay: ""
+            weather:
+              entity: weather.home
+              showCondition: true
+            columns:
+              small: 7
+              medium: 7
+              large: 7
+            calendars:
+              - entity: calendar.matt
+                name: Matt
+                color: "#1a8fe3"
+              - entity: calendar.sara
+                name: Sara
+                color: "#d0508a"
+              - entity: calendar.kids
+                name: Kids
+                color: "#e6c229"
+              - entity: calendar.meals
+                name: Meals
+                color: "#4caf50"
+                icon: mdi:silverware-fork-knife
+
+  - title: Controls
+    path: controls
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: kitchen
+          - type: tile
+            entity: cover.garage_door
+            features:
+              - type: cover-open-close
+          - type: tile
+            entity: input_select.downstairs_mode
+            features:
+              - type: select-options
+          - type: shortcut
+            label: Leaving Home
+            icon: mdi:exit-run
+            tap_action:
+              action: perform-action
+              perform_action: script.leaving_home
+              confirmation:
+                text: Turn everything off and open the garage?
+
+  - title: Garage
+    path: garage
+    type: panel
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:navbar-card
+            template: kitchen
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: picture-entity
+                entity: camera.footpath_540p
+                camera_view: live
+              - type: picture-entity
+                entity: camera.frontyard_540p
+                camera_view: live
+          - type: tile
+            entity: cover.garage_door
+            features:
+              - type: cover-open-close
+
+  - title: Cameras
+    path: cameras
+    type: panel
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:navbar-card
+            template: kitchen
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: picture-entity
+                entity: camera.frontyard
+                camera_view: auto
+                tap_action:
+                  action: more-info
+                  entity: camera.frontyard_540p
+              - type: picture-entity
+                entity: camera.footpath
+                camera_view: auto
+                tap_action:
+                  action: more-info
+                  entity: camera.footpath_540p
+              - type: picture-entity
+                entity: camera.upstairs
+                camera_view: auto
+                tap_action:
+                  action: more-info
+                  entity: camera.upstairs_540p
+              - type: picture-entity
+                entity: camera.downstairs
+                camera_view: auto
+                tap_action:
+                  action: more-info
+                  entity: camera.downstairs_540p
+
+  - title: Shopping
+    path: shopping
+    type: sections
+    max_columns: 1
+    sections:
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: kitchen
+          - type: todo-list
+            entity: todo.shopping_list
+
+  - title: Call
+    path: call
+    type: panel
+    cards:
+      - type: vertical-stack
+        # Stretch the phone card to the view height, so video fills the screen.
+        card_mod:
+          style: |
+            #root > hui-card:last-child { flex: 1 1 auto; min-height: 0; }
+        cards:
+          - type: custom:navbar-card
+            template: kitchen
+          - type: custom:voip-stack-card
+            mode: ha_softphone
+            device_id: f289e956da3048719cf781989d3dc79f
+            show_on_ring: true

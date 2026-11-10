@@ -77,6 +77,9 @@ views:
           - input_number.emily_alarm_end_volume
           - input_number.aircon_max_heat_temp
           - input_number.aircon_min_cool_temp
+          - input_number.kitchen_tablet_brightness_day
+          - input_number.kitchen_tablet_brightness_evening
+          - input_number.kitchen_tablet_brightness_night
   - title: Parents
     cards:
       - title: Parents Bedroom
