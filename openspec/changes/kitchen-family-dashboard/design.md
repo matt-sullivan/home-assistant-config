@@ -94,6 +94,17 @@ The tablet stops charging at about 80% using LineageOS charging control (Setting
 - **Alternative:** smart plug switched by an HA automation — rejected to avoid another device and an HA dependency for charging.
 - **Alternative:** permanent charging to 100% — rejected because of battery swelling.
 
+### Screen brightness by time of day
+An automation in `packages/common/kitchen_display.yaml` sets `light.kitchen_tablet_screen` (`brightness_pct`) from three `input_number` helpers in the same package: `kitchen_tablet_brightness_day` (100%) while the sun is up, `kitchen_tablet_brightness_evening` (50%) after sunset while `light.kitchen` is on, and `kitchen_tablet_brightness_night` (1%) after sunset with it off. 1% is the lowest Kiosk Satellite sets from HA (backlight 13/255); Android's own slider goes down to 1/255. It runs at sunrise and sunset, when `light.kitchen` or a level changes, when the screen entity comes back and when HA starts.
+- **Alternative:** brightness by presence — no kitchen presence sensor exists, and the tablet camera's motion detection costs CPU, RAM and power. Revisit if a mmWave sensor is added.
+- **Alternative:** Kiosk Satellite's adaptive brightness — rejected because it follows room light, not chosen levels per time of day.
+- **Alternative:** brighten on touch at night — not needed.
+
+### Dark screen at night
+`kitchen_tablet_night_screensaver` turns on `switch.kitchen_tablet_screensaver` (mode Black, screensaver brightness 0, `number.kitchen_tablet_screensaver_timeout` 60 s) while the sun is down, `light.kitchen` is off and `sensor.home_call_state` is `offline` or `idle`, and turns it off otherwise. Turning it off dismisses an active screensaver. The screensaver shows black at Android's minimum backlight (10/255); the display, touch and the app's wake lock stay on, so a touch dismisses it. A view change from `select.kitchen_tablet_dashboard_view` also dismisses it (the garage view), so the idle return to home turns it back on with `switch.kitchen_tablet_screensaver_active` when it was active. Brightness changes from HA don't dismiss it.
+- **Alternative:** turning the display off — rejected: the touchscreen driver (`stmfts`) has no tap-to-wake and Android ignores touches while non-interactive, and if the tablet suspends, Wi-Fi disconnects (no WoWLAN on the QCA9377 firmware).
+- **Alternative:** backlight 0 through root sysfs — Android rewrites it on its next brightness change.
+
 ## Risks
 
 - **LineageOS 24.0 unstable, or its single developer stops** → it keeps working as installed; LineageOS 19.1 is the fallback, then stock with Odin and cut video.

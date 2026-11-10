@@ -40,13 +40,15 @@
 - [x] 5.5 Add the shared navbar template (Home, Controls, Garage, Cameras, Shopping, Call, Assist) to every view; verify: one tap reaches each view from each other view
 - [x] 5.6 Group check: on the tablet the planner is readable from across the kitchen, scrolling and view changes are responsive (manual)
 
-## 6. Calls and automatic navigation
+## 6. Calls and automations
 
 - [x] 6.1 Set the Kitchen phone `auto_answer: true`, `send_video: true` with `voip_stack.set_ha_softphone_settings`; verify: settings shown on the device — on, 2026-11-07
 - [x] 6.2 Add `packages/common/kitchen_display.yaml` automations switching views with `select.kitchen_tablet_dashboard_view`: garage opening → `garage`, garage closed → `home`; verify: `ha core check` passes, automations load, and selecting the already-selected view still switches the tablet
 - [x] 6.3 Add the idle return-to-home automation to `packages/common/kitchen_display.yaml`; verify: tablet returns to `home` after 2 minutes untouched — controls → home after 2 min, 2026-10-26
 - [x] 6.4 Switch to `show_on_ring`: install the fork's `release-test` VoIP Stack into `custom_components/voip_stack` (not through HACS) and bump the resource `?v=`, set `show_on_ring: true` on the `call` card, remove the hidden phone cards and the call-view automation; verify: phone `idle` on every view and `offline` on another dashboard, a ring opens `call` from any view, navigating away during a ring isn't overridden, auto-answer with video works after a kiosk app restart — passed with `768cd16a`, 2026-11-06 (session notes)
 - [ ] 6.5 Install the `release-test` version with the earlier software-encoder switch the same way and record its commit in `AGENTS.md`; verify: auto-answer after a kiosk app restart, and video from the tablet has no multi-second delay at the start of a call
+- [x] 6.6 Add the screen brightness helpers (`input_number.kitchen_tablet_brightness_day`, `_evening`, `_night`, set to 100/50/1%) and automation to `packages/common/kitchen_display.yaml`; verify: `ha core check` passes and changing a level sets the screen — day level 50% gave screen brightness 128/255, 2026-11-07
+- [x] 6.7 Add the night screensaver automation to `packages/common/kitchen_display.yaml` and restore it after the idle return to home; verify: `ha core check` passes, the screensaver starts after 1 minute (backlight 10/255), turning the switch off or switching the view dismisses it, a brightness change doesn't, and the idle return to home leaves it active — passed 2026-11-08
 
 ## 7. Assist
 
@@ -77,6 +79,8 @@
 - [ ] 9.15 Existing access unchanged: Existing HTTP URL, TTS to a speaker (manual)
 - [ ] 9.16 Certificate renewal: tablet still loads without warning after Caddy's first renewal (deferred)
 - [ ] 9.17 Battery: battery level in HA stays at or below ~80% over a week on charge (deferred)
+- [ ] 9.18 Screen brightness by time of day: Evening, Bedtime (manual)
+- [ ] 9.19 Dark screen at night: Asleep, Wake on touch, Lights on, Call at night (manual); the tablet stays online overnight (`binary_sensor.kitchen_tablet_connectivity`, IPv6 default route)
 
 ## 10. Wrap-up
 
