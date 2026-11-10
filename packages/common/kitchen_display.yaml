@@ -1,0 +1,83 @@
+automation:
+  # Views are switched with Kiosk Satellite's view select (no frontend reload).
+  - id: kitchen_display_garage_view
+    alias: Kitchen display garage view
+    description: Show the garage view while the garage opens, and go back to home when it closes, unless a call is active.
+    triggers:
+      - trigger: garage_door.opened
+        target:
+          entity_id: cover.garage_door
+        id: opened
+      - trigger: garage_door.closed
+        target:
+          entity_id: cover.garage_door
+        id: closed
+    conditions:
+      - condition: state
+        entity_id: sensor.home_call_state
+        state:
+          - offline
+          - idle
+    actions:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: opened
+            sequence:
+              - action: select.select_option
+                target:
+                  entity_id: select.kitchen_tablet_dashboard_view
+                data:
+                  option: kitchen-display/garage
+          - conditions:
+              - condition: trigger
+                id: closed
+              - "{{ states('sensor.kitchen_tablet_current_page').endswith('/kitchen-display/garage') }}"
+            sequence:
+              - action: select.select_option
+                target:
+                  entity_id: select.kitchen_tablet_dashboard_view
+                data:
+                  option: kitchen-display/home
+    mode: queued
+    max: 5
+
+  - id: kitchen_display_idle_home
+    alias: Kitchen display idle return to home
+    description: Return the tablet to the home view after 2 minutes without a touch, except during a call or while the open garage is shown.
+    triggers:
+      - trigger: state
+        entity_id: sensor.kitchen_tablet_last_interaction
+        to: ~
+        for:
+          minutes: 2
+      - trigger: state
+        entity_id: sensor.kitchen_tablet_current_page
+        to: ~
+        for:
+          minutes: 2
+    conditions:
+      - "{{ not states('sensor.kitchen_tablet_current_page').endswith('/kitchen-display/home') }}"
+      - "{{ now() - (states('sensor.kitchen_tablet_last_interaction') | as_datetime(now())) >= timedelta(minutes=2) }}"
+      - condition: state
+        entity_id: sensor.home_call_state
+        state:
+          - offline
+          - idle
+      - not:
+          - and:
+              - condition: state
+                entity_id: cover.garage_door
+                state:
+                  - opening
+                  - open
+                  - closing
+              - "{{ states('sensor.kitchen_tablet_current_page').endswith('/kitchen-display/garage') }}"
+    actions:
+      - action: select.select_option
+        target:
+          entity_id: select.kitchen_tablet_dashboard_view
+        data:
+          option: kitchen-display/home
+    mode: single
+    max_exceeded: silent

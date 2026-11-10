@@ -7,10 +7,10 @@ Shows the family's events, the kids' weekly routine and the meal plan together, 
 ## ADDED Requirements
 
 ### Requirement: Week planner
-The kitchen dashboard's home view SHALL show the current week, a column per day, with events from the shared family calendar, the kids' routine calendar and the meals calendar. Each calendar's events SHALL be distinguishable at a glance.
+The kitchen dashboard's home view SHALL show the current week, a column per day, with events from Matt's and Sara's calendars, the kids' routine calendar and the meals calendar. Each calendar's events SHALL be distinguishable at a glance.
 
-#### Scenario: Routine and family event on the same day
-- **WHEN** Thursday has Emily's sport, Toby's tutoring and a family event
+#### Scenario: Routine and parent event on the same day
+- **WHEN** Thursday has Emily's sport, Toby's tutoring and an event in Sara's calendar
 - **THEN** Thursday's column shows all three, each marked by its calendar
 
 #### Scenario: Tonight's dinner

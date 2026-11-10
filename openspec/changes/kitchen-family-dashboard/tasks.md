@@ -2,59 +2,61 @@
 
 ## 1. Local HTTPS
 
-- [ ] 1.1 Add a DHCP reservation in UniFi for HA at 192.168.3.5 (manual); verify: reservation listed in UniFi
-- [ ] 1.2 Add AAAA record `ha.mattnet.xyz` → Caddy's IPv6 in Route 53 (manual); verify: `getent ahosts ha.mattnet.xyz` returns Caddy's IPv6
-- [ ] 1.3 Add `ha.mattnet.xyz` site to Caddy on frigate-srv3 proxying to `192.168.3.5:8123` (manual); verify: Caddy logs show a certificate issued
-- [ ] 1.4 Add `http:` with `use_x_forwarded_for: true` and `trusted_proxies: [192.168.3.9]` to `configuration.yaml`, then restart HA; verify: `ha core check` passes and HA starts
-- [ ] 1.5 Group check: `https://ha.mattnet.xyz` loads and logs in with no certificate warning from an IPv6 device; `http://homeassistant:8123` and Nabu Casa still work; TTS to `media_player.kitchen_speaker_2` plays (manual)
+- [x] 1.1 Add a DHCP reservation in UniFi for HA at 192.168.3.5 (manual); verify: reservation listed in UniFi
+- [x] 1.2 Add AAAA record `ha.mattnet.xyz` → Caddy's IPv6 in Route 53 (manual); verify: `getent ahosts ha.mattnet.xyz` returns Caddy's IPv6 — not needed: covered by existing `*.mattnet.xyz` wildcard
+- [x] 1.3 Add `ha.mattnet.xyz` site to Caddy on frigate-srv3 proxying to `192.168.3.5:8123` (manual); verify: Caddy logs show a certificate issued
+- [x] 1.4 In Settings → System → Network → HTTP server, enable `use_x_forwarded_for` and add trusted proxy `192.168.3.9`, restart if prompted (manual); verify: no reverse-proxy errors in the HA log when Caddy forwards a request — confirmed 2026-10-24
+- [x] 1.5 Group check: `https://ha.mattnet.xyz` loads and logs in with no certificate warning from an IPv6 device; `http://homeassistant:8123` and Nabu Casa still work; TTS to `media_player.kitchen_speaker_2` plays (manual) — HTTPS, HTTP and Nabu Casa pass; TTS **SKIPPED** (user, 2026-10-24): HTTP access unchanged, low risk
 
 ## 2. Tablet OS and kiosk app
 
-- [ ] 2.1 Create the `kitchen` HA user (non-admin, local only) and its long-lived token; verify: user logs in at `https://ha.mattnet.xyz`
-- [ ] 2.2 Flash LineageOS 24.0 and MindTheGapps for Android 17 on the SM-T580 per the repo's `docs/INSTALL.md`, update Android System WebView from Play (manual); verify: WebView version is current
-- [ ] 2.3 Check front camera, microphone and two-way video on a WebRTC test page (manual); verify: all work, otherwise fall back per design
-- [ ] 2.4 Set charging to stop at ~80% (charging control, or the kernel charge threshold at boot) (manual); verify: battery holds at ~80% on charge, otherwise fall back per design
+- [x] 2.1 Create the `kitchen` HA user (non-admin) and its long-lived token; verify: user logs in at `https://ha.mattnet.xyz` — local-only blocked via Caddy (client seen as public IPv6), remote login allowed
+- [x] 2.2 Flash LineageOS 24.0 and MindTheGapps for Android 17 on the SM-T580 per the repo's `docs/INSTALL.md` (manual); verify: Developer options → WebView implementation shows a current version — 155.0.8059.39, 2026-10-24
+- [x] 2.3 Check front camera, microphone and two-way video on a WebRTC test page (manual); verify: all work, otherwise fall back per design — work; mic needs gain 79 and autoplay must be allowed (session notes)
+- [x] 2.4 Set charging to stop at ~80% (charging control, or the kernel charge threshold at boot) (manual); verify: battery holds at ~80% on charge, otherwise fall back per design — LineageOS charging control at 75%; needs a DCP wall charger (a 500 mA SDP port gives no net charge, session notes)
 - [ ] 2.5 Install Kiosk Satellite, start URL `https://ha.mattnet.xyz/kitchen-display/home`, sign in as `kitchen`, set admin PIN, boot start and lockdown (manual); verify: tablet reboots straight into the start URL
-- [ ] 2.6 Add the Kiosk Satellite device in HA; verify: its screen and battery entities appear
-- [ ] 2.7 Install Browser Mod (HACS), register the tablet's browser as `kitchen`; verify: `browser_mod.navigate` from Developer Tools changes the tablet's page
-- [ ] 2.8 Spike: on the tablet, a test view with `voip-stack-card` (Kitchen phone) makes a video call to the Videophone while Kiosk Satellite's wake word is on (manual); verify: two-way audio/video and the wake word still responds after the call. If not, switch to Fully Kiosk PLUS + Voice Satellite card and repeat
+- [x] 2.6 Add the Kiosk Satellite device in HA; verify: its screen and battery entities appear — "Kitchen Tablet" (ESPHome), entities `*.kitchen_tablet_*`
+- [x] 2.7 Spike: on the tablet, a test view with `voip-stack-card` (Kitchen phone) makes a video call to the Videophone while Kiosk Satellite's wake word is on (manual); verify: two-way audio/video and the wake word still responds after the call. If not, switch to Fully Kiosk PLUS + Voice Satellite card and repeat — passed with Kiosk Satellite; auto-answer fails separately (session notes)
 
 ## 3. Calendars
 
-- [ ] 3.1 Create shared Google calendars "Kids" and "Meals" (Matt and Sara) and enter the weekly routine from the printed table as recurring events (manual); verify: visible on Matt's and Sara's phones
-- [ ] 3.2 Add the Google Calendar integration (Matt's account) with the family, Kids and Meals calendars; verify: three `calendar.*` entities with upcoming events
-- [ ] 3.3 Group check: an event added on a phone appears in its `calendar.*` entity within ~15 minutes
+- [x] 3.1 Create shared Google calendars "Kids" and "Meals" (Matt and Sara) and enter the weekly routine from the printed table as recurring events (manual); verify: visible on Matt's and Sara's phones (verified on Matt's phone; Sara's skipped by choice)
+- [x] 3.2 Add the Google Calendar integration (Matt's account) with Matt's, Sara's, Kids and Meals calendars, entity IDs per design; verify: four entities with upcoming events
+- [x] 3.3 Group check: an event added on a phone appears in its `calendar.*` entity within ~15 minutes
 
 ## 4. Shopping list
 
-- [ ] 4.1 Create a dedicated Google account and share the Keep "Shopping" note with it (manual); verify: note visible in that account
-- [ ] 4.2 Install Google Keep Sync (HACS), log in as the dedicated account, select only "Shopping", set pull interval to 5 minutes, name the entity "Shopping List"; verify: `todo` entity lists current Keep items
-- [ ] 4.3 Expose the Shopping List entity to Assist; verify: `ha_get_entity_exposure` shows it exposed
-- [ ] 4.4 Group check: item added in HA appears in Keep on a phone; item ticked in Keep shows done in HA within 5 minutes; "add eggs to the shopping list" typed into Assist adds it to Keep; adding via Google Home still works
+- [x] 4.1 Create a dedicated Google account and share the Keep "Shopping" note with it (manual); verify: note visible in that account
+- [x] 4.2 Install Google Keep Sync (HACS), log in as the dedicated account, select only "Shopping", set pull interval to 5 minutes, name the entity "Shopping List" with ID `todo.shopping_list` (used by the dashboard); verify: `todo` entity lists current Keep items
+- [x] 4.3 Expose the Shopping List entity to Assist; verify: `ha_get_entity_exposure` shows it exposed
+- [ ] 4.4 Group check: item added in HA appears in Keep on a phone; item ticked in Keep shows done in HA within 5 minutes; "add eggs to the shopping list" typed into Assist adds it to Keep; adding via Google Home still works (FAILED 2026-10-26: Google Home adding was already broken before this change; other checks pass)
 
 ## 5. Dashboard
 
-- [ ] 5.1 Install `week-planner-card` and `navbar-card` (HACS) and add both to the resources in `packages/common/dashboard.yaml`; verify: `ha core check` passes
-- [ ] 5.2 Register YAML dashboard `kitchen-display` (`ui-lovelace-kitchen.yaml`, not in sidebar) with kiosk-mode on for the `kitchen` user; verify: dashboard opens with no header or sidebar as `kitchen`
-- [ ] 5.3 Build the `home` view: week planner (Kids, Meals, family calendars, colours, legend, 7 days from today) and side column (garage tile, downstairs mode, Leaving Home shortcut with confirmation, `voip-stack-card` for the Kitchen phone, weather); verify: renders on the tablet
-- [ ] 5.4 Build `garage`, `cameras`, `shopping` and `call` views per design; verify: each renders with live data
-- [ ] 5.5 Add the shared navbar include to every view (Home, Cameras, Shopping, Call, Assist); verify: one tap reaches each view from each other view
-- [ ] 5.6 Group check: on the tablet the planner is readable from across the kitchen, scrolling and view changes are responsive (manual)
+- [x] 5.1 Install `week-planner-card` and `navbar-card` (HACS, manual) and add both to the resources in `packages/common/dashboard.yaml`; verify: `ha core check` passes
+- [x] 5.2 Register YAML dashboard `kitchen-display` (`ui-lovelace-kitchen.yaml`, not in sidebar) with kiosk-mode on for the `kitchen` user; verify: dashboard opens with no header or sidebar as `kitchen`
+- [x] 5.3 Build the `home` view: full-width week planner (Matt, Sara, Kids, Meals calendars per design); verify: renders on the tablet
+- [x] 5.4 Build `controls` (garage tile, downstairs mode, Leaving Home shortcut with confirmation), `garage`, `cameras`, `shopping` and `call` views per design; verify: each renders with live data
+- [x] 5.5 Add the shared navbar template (Home, Controls, Garage, Cameras, Shopping, Call, Assist) to every view; verify: one tap reaches each view from each other view
+- [x] 5.6 Group check: on the tablet the planner is readable from across the kitchen, scrolling and view changes are responsive (manual)
 
 ## 6. Calls and automatic navigation
 
-- [ ] 6.1 Set the Kitchen phone `auto_answer: true`, `send_video: true` with `voip_stack.set_ha_softphone_settings`; verify: settings shown on the device
-- [ ] 6.2 Add `packages/common/kitchen_display.yaml` automations: garage opening → `garage` view, garage closed → `home`; call ringing/in_call → `call` view, idle → `history.back()`; verify: `ha core check` passes and automations load
-- [ ] 6.3 Set the kiosk app's idle timeout to return to the start URL after 2 minutes; verify: tablet returns to `home` after 2 minutes untouched
+- [x] 6.1 Set the Kitchen phone `auto_answer: true`, `send_video: true` with `voip_stack.set_ha_softphone_settings`; verify: settings shown on the device — on, 2026-11-07
+- [x] 6.2 Add `packages/common/kitchen_display.yaml` automations switching views with `select.kitchen_tablet_dashboard_view`: garage opening → `garage`, garage closed → `home`; verify: `ha core check` passes, automations load, and selecting the already-selected view still switches the tablet
+- [x] 6.3 Add the idle return-to-home automation to `packages/common/kitchen_display.yaml`; verify: tablet returns to `home` after 2 minutes untouched — controls → home after 2 min, 2026-10-26
+- [x] 6.4 Switch to `show_on_ring`: install the fork's `release-test` VoIP Stack into `custom_components/voip_stack` (not through HACS) and bump the resource `?v=`, set `show_on_ring: true` on the `call` card, remove the hidden phone cards and the call-view automation; verify: phone `idle` on every view and `offline` on another dashboard, a ring opens `call` from any view, navigating away during a ring isn't overridden, auto-answer with video works after a kiosk app restart — passed with `768cd16a`, 2026-11-06 (session notes)
+- [ ] 6.5 Install the `release-test` version with the earlier software-encoder switch the same way and record its commit in `AGENTS.md`; verify: auto-answer after a kiosk app restart, and video from the tablet has no multi-second delay at the start of a call
 
 ## 7. Assist
 
-- [ ] 7.1 Enable the Kiosk Satellite voice satellite with the preferred pipeline and a wake word distinct from the Videophone's "Alexa"; verify: `assist_satellite` entity for the tablet is idle
+- [x] 7.1 Enable the Kiosk Satellite voice satellite with the preferred pipeline and a wake word distinct from the Videophone's "Alexa"; verify: `assist_satellite` entity for the tablet is idle
 
 ## 8. Remove Route 53 IPv4 updater
 
-- [ ] 8.1 Remove `route53:` and its logger entry from `configuration.yaml` and its secrets from `secrets.yaml`, then restart HA; verify: `ha core check` passes, no `route53` entities or log entries
-- [ ] 8.2 Delete the `ha` A record in Route 53 and revoke the IAM key if unused elsewhere (manual); verify: `getent ahosts ha.matt-sullivan.id.au` returns only the IPv6 address
+- [x] 8.1 Remove `route53:` and its logger entry from `configuration.yaml`, then restart HA; verify: `ha core check` passes, no `route53` entities or log entries
+- [x] 8.2 Delete the `ha` A record in Route 53 (manual); verify: `getent ahosts ha.matt-sullivan.id.au` returns only the IPv6 address
+- [x] 8.3 Revoke the IAM key if unused elsewhere and remove its secrets from `secrets.yaml` (manual) — skipped
 
 ## 9. Final verification
 
@@ -63,11 +65,11 @@
 - [ ] 9.3 Locked to the dashboard: Kid tries to exit (manual)
 - [ ] 9.4 Navigation always available: Switch view (manual)
 - [ ] 9.5 Return to home view: Left on another view (manual)
-- [ ] 9.6 Home status: Garage open on the home view, Open the garage; Leaving Home shortcut asks for confirmation (manual)
+- [ ] 9.6 Home controls: Garage open on the controls view, Open the garage; Leaving Home shortcut asks for confirmation (manual)
 - [ ] 9.7 Open Garage View: Garage opens (manual)
 - [ ] 9.8 Home Cameras: Check cameras (manual)
 - [ ] 9.9 Hands-free Assist: Voice command, Tap to talk (manual)
-- [ ] 9.10 Week planner: Routine and family event on the same day, Tonight's dinner (manual)
+- [ ] 9.10 Week planner: Routine and parent event on the same day, Tonight's dinner (manual)
 - [ ] 9.11 Calendar edited in Google only: Event added on a phone, Tap an event (manual)
 - [ ] 9.12 Shopping list: Ask Assist by voice, Add on the tablet, Tick off on a phone (manual)
 - [ ] 9.13 Keep remains the source of the list: Sync stopped (manual)
@@ -78,8 +80,8 @@
 
 ## 10. Wrap-up
 
-- [ ] 10.1 Update `AGENTS.md` with the kitchen dashboard, `kitchen` user, Browser Mod browser ID, and the `ha.mattnet.xyz` / Caddy dependency; verify: reviewed
-- [ ] 10.2 Remove the test view from 2.8; verify: `ha core check` passes
+- [x] 10.1 Update `AGENTS.md` with the kitchen dashboard, `kitchen` user, Kiosk Satellite device (`kitchen_tablet` entities), and the `ha.mattnet.xyz` / Caddy dependency; verify: reviewed
+- [x] 10.2 Remove the test view from 2.7; verify: `ha core check` passes
 
 ## Workflow follow-up
 

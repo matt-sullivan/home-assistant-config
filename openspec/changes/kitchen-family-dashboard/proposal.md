@@ -5,7 +5,7 @@ Turn an old Samsung tablet in the kitchen into the family's wall display. It sho
 ## Context
 
 - The family routine is printed on sheets on the wall: the kids' morning jobs, afternoon/night jobs, and a weekly table of sport, tutoring, OSHC and what goes in school bags.
-- Matt and Sara share a Google calendar for non-routine events. The kids' weekly routine isn't in any calendar, and there's no meal plan.
+- Matt and Sara each keep their own Google calendar, shared with each other, for non-routine events. The kids' weekly routine isn't in any calendar, and there's no meal plan.
 - Shopping lists are in Google Keep, used from Matt's Android phone, Sara's and Emily's iPhones, and the Google Home devices. No Google calendar or Keep list is in Home Assistant yet.
 - The tablet is a Samsung Galaxy Tab A 10.1 (SM-T580, 2016, 2 GB RAM). Its last update was Android 8.1, and Chrome stopped updating on Android 8 and 9 at version 138 (2025). It will be wall-mounted in landscape on permanent power.
 - A videophone in Emily's bedroom (Waveshare ESP32-P4, ESPHome) supports intercom calls. Its video is still being developed in ESPHome, outside this repo.
@@ -14,7 +14,7 @@ Turn an old Samsung tablet in the kitchen into the family's wall display. It sho
 
 ## Goals
 
-- From the kitchen, the family can see the week's shared events, the kids' routine and the meals together at a glance.
+- From the kitchen, the family can see Matt's and Sara's events, the kids' routine and the meals together at a glance.
 - Anyone in the kitchen can use Assist by voice without touching the tablet.
 - The kitchen and the videophone can video call each other in either direction.
 - The family can see and change the Google Keep shopping list from the tablet and add to it by asking Assist, and keep using Keep and Google Home as they do now.
@@ -25,7 +25,7 @@ Turn an old Samsung tablet in the kitchen into the family's wall display. It sho
 
 ## Approach
 
-The tablet runs a kiosk browser showing a single Home Assistant dashboard built for it: a week planner as the home view, a side column for status and calls, a few further views reached from a navigation bar that's always on screen, and pop-ups for incoming calls and Assist. The kids' routine and meals become two new shared Google calendars, and the Keep shopping list is synced into Home Assistant. The tablet reaches Home Assistant over local HTTPS through the existing Caddy reverse proxy, so the microphone and camera work, while plain HTTP stays available to everything else.
+The tablet runs a kiosk browser showing a single Home Assistant dashboard built for it: a week planner filling the home view, a controls view for the garage, downstairs mode and leaving home, a few further views reached from a navigation bar that's always on screen, and pop-ups for incoming calls and Assist. The kids' routine and meals become two new shared Google calendars, and the Keep shopping list is synced into Home Assistant. The tablet reaches Home Assistant over local HTTPS through the existing Caddy reverse proxy, so the microphone and camera work, while plain HTTP stays available to everything else.
 
 ## Trade-offs and limits
 

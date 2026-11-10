@@ -45,15 +45,15 @@ The dashboard SHALL return to its home view after a period with no touches.
 - **WHEN** someone opens the cameras view and walks away
 - **THEN** the dashboard goes back to the home view
 
-### Requirement: Home status
-The dashboard's home view SHALL include a small list of commonly used HA entities: garage door, downstairs (lights) mode, and a button to trigger the existing leaving home script.
+### Requirement: Home controls
+A separate controls view SHALL show a small list of commonly used HA entities: garage door, downstairs (lights) mode, and a button to trigger the existing leaving home script. The home view SHALL be left to the calendar.
 
-#### Scenario: Garage open on the home view
-- **WHEN** the garage door is open and someone goes back to the home view
-- **THEN** the home view shows it as open
+#### Scenario: Garage open on the controls view
+- **WHEN** the garage door is open and someone opens the controls view
+- **THEN** the controls view shows it as open
 
 #### Scenario: Open the garage
-- **WHEN** someone taps to open the closed garage door on the home view
+- **WHEN** someone taps to open the closed garage door on the controls view
 - **THEN** the door opens
 
 ### Requirement: Open Garage View
