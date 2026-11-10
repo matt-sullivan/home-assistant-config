@@ -24,13 +24,6 @@ The tablet SHALL return to the dashboard without anyone touching it after a powe
 - **WHEN** Home Assistant restarts or the network drops and returns
 - **THEN** the dashboard reconnects and shows current information
 
-### Requirement: Locked to the dashboard
-Family members SHALL NOT be able to leave the dashboard, open other apps, or change the tablet's settings from the tablet without an admin PIN.
-
-#### Scenario: Kid tries to exit
-- **WHEN** someone presses home, back or swipes from the screen edges
-- **THEN** the dashboard stays on screen
-
 ### Requirement: Navigation always available
 Every view of the dashboard SHALL have controls on screen to reach the other views, start a call and start Assist.
 

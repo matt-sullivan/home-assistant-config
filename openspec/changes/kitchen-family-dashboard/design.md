@@ -26,7 +26,7 @@ The tablet runs the unofficial LineageOS 24.0 with MindTheGapps, so the kiosk ap
 - **Alternative:** no Play services — rejected because Play keeps the kiosk app and Google apps updated.
 
 ### Kiosk Satellite as kiosk app, Fully Kiosk PLUS as fallback
-Kiosk Satellite provides the full-screen lockdown, boot start, the HA device (screen, battery sensor) and a native Voice Satellite with on-device wake word. It's chosen if, on the tablet, the dashboard's `voip-stack-card` gets camera and microphone access while the wake word is listening. Otherwise use Fully Kiosk Browser with a PLUS licence (~€9) plus the Voice Satellite integration (HACS) for in-page wake word.
+Kiosk Satellite provides the full-screen kiosk, boot start, the HA device (screen, battery sensor) and a native Voice Satellite with on-device wake word. It's chosen if, on the tablet, the dashboard's `voip-stack-card` gets camera and microphone access while the wake word is listening. Otherwise use Fully Kiosk Browser with a PLUS licence (~€9) plus the Voice Satellite integration (HACS) for in-page wake word.
 - **Alternative:** HA Companion app — rejected because it can't lock the tablet to the dashboard.
 - **Alternative:** wake word processed on the HA server (openWakeWord app) — not needed; both options detect on the tablet, and streaming audio continuously costs more. Revisit only if on-device detection is too slow on the tablet.
 
@@ -113,7 +113,7 @@ An automation in `packages/common/kitchen_display.yaml` sets `light.kitchen_tabl
 - **Kiosk Satellite's wake word and the call card can't share the microphone** → fall back to Fully Kiosk PLUS with the Voice Satellite card; if the same conflict appears there, pause the wake word during calls.
 - **Keep edit lost when edited in Keep and on the tablet between pulls** → 5-minute pull interval makes it rare. Accepted.
 - **Google master token revoked or expires** → the integration raises a repair; the list keeps working in Keep and Google Home.
-- **The ROM's gralloc leaks a dma-buf fd per decoded video frame** → a patched library is bind-mounted after every reboot, until a fixed ROM; no scheduled restart unless another leak is found.
+- **A ROM leak crashes the kiosk app after long video** → the ROM must be 24.0-20261108 or later (gralloc fd leak fixed); no scheduled restart unless another leak is found.
 - **`show_on_ring` isn't accepted upstream** → keep running the fork, installed by hand rather than through HACS; or restore the hidden phone cards and call-view automation from git history.
 - **Fallback to Fully Kiosk** → navigation needs Browser Mod, since Fully has no view select.
 - **ISP changes the IPv6 prefix** → the tablet loses HTTPS until the AAAA record is updated; Nabu Casa URL works as a temporary start URL.
