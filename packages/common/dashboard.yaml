@@ -12,22 +12,6 @@ frontend:
 
 lovelace:
   # Include ui-lovelace.yaml as the default dashboard (with url lovelace)
-  resource_mode: yaml
-  resources:
-    - url: /hacsfiles/advanced-camera-card/advanced-camera-card.js
-      type: module
-    - url: /hacsfiles/scheduler-card/scheduler-card.js
-      type: module
-    - url: /hacsfiles/button-card/button-card.js
-      type: module
-    - url: /hacsfiles/apexcharts-card/apexcharts-card.js
-      type: module
-    - url: /voip-stack/voip-stack-card.js?v=2026.11.0-release-test.1
-      type: module
-    - url: /hacsfiles/week-planner-card/week-planner-card.js
-      type: module
-    - url: /hacsfiles/lovelace-navbar-card/navbar-card.js
-      type: module
   # Add yaml dashboards
   dashboards:
     lovelace:
