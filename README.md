@@ -42,7 +42,7 @@ Scheduler entries "Pool Pump On" (10:00) and "Pool Pump Off" (16:00) start `scri
 - Live video uses the Generic Camera entities `camera.<name>_540p` (Frigate go2rtc restreams at 960×540 H.264, 10 fps). The 4K HEVC main streams exhaust the tablet's video memory. Keep it to two live streams at most: the hardware decoder allows four instances.
 - VoIP Stack runs the `release-test` branch of the fork `matt-sullivan/esphome-intercom` (commit `184f5f91`: 2026.11.0 plus `show_on_ring`, auto-answer in WebViews, the encoder fallback and resubscribing after an HA restart), copied into `custom_components/voip_stack`. Don't update it through HACS, which would overwrite it. After changing its files, restart HA: VoIP Stack then re-registers its resource stamped with the newest file time, which the card passes on to its imports, so the tablet fetches the new JS.
 - Runs LineageOS 24.0-20261108 or later, which fixes the gralloc dma-buf fd leak that crashed the kiosk app after hours of video (upstream issue #5). Update with `gtaxlwifi-los24-install.zip` in Settings → System → Updater → ⋮ → Local update; data and Google apps are kept. Nothing needs reapplying after a reboot.
-- Never `pm disable-user` persistent system packages on the tablet. Disabling `com.android.bluetooth` crash-looped `system_server`, and recovery needed a rescue script added to the system partition from recovery. Details are in the change's session notes.
+- Never `pm disable-user` persistent system packages on the tablet. Disabling `com.android.bluetooth` crash-looped `system_server`, and recovery needed a rescue script added to the system partition from recovery. Details are in `openspec/changes/archive/2026-11-11-kitchen-family-dashboard/session-notes.md`.
 
 ### Power
 
