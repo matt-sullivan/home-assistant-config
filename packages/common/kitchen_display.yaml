@@ -22,6 +22,79 @@ input_number:
     step: 1
     unit_of_measurement: "%"
 
+# Upcoming events the week planner dims because they follow their usual pattern
+# (openspec family-calendar: Weekly events dimmed, Regular reminders dimmed).
+# An event's key is calendar|date|HH:MM|title (HH:MM empty for all-day).
+template:
+  - triggers:
+      - trigger: time_pattern
+        minutes: "/15"
+    actions:
+      - action: calendar.get_events
+        target:
+          entity_id: [calendar.matt, calendar.sara, calendar.kids]
+        data:
+          start_date_time: "{{ (today_at() - timedelta(days=70)).isoformat() }}"
+          duration: {days: 77}
+        response_variable: cal
+      - variables:
+          repeats: >-
+            {%- set ns = namespace(keys=[], out=[]) -%}
+            {%- for c, r in cal.items() -%}
+              {%- for e in r.events -%}
+                {%- set ns.keys = ns.keys + [c ~ '|' ~ e.start[:10] ~ '|' ~ e.start[11:16] ~ '|' ~ e.summary] -%}
+              {%- endfor -%}
+            {%- endfor -%}
+            {%- set today = now().date().isoformat() -%}
+            {%- for c, r in cal.items() -%}
+              {%- for e in r.events if e.start[:10] >= today -%}
+                {%- set d = strptime(e.start[:10], '%Y-%m-%d') -%}
+                {%- set t = e.start[11:16] -%}
+                {%- set base = '|' ~ t ~ '|' ~ e.summary -%}
+                {%- set h = namespace() -%}
+                {%- set h.d7 = (c ~ '|' ~ (d - timedelta(days=7)).strftime('%Y-%m-%d') ~ base) in ns.keys -%}
+                {%- set h.d14 = (c ~ '|' ~ (d - timedelta(days=14)).strftime('%Y-%m-%d') ~ base) in ns.keys -%}
+                {%- set h.d21 = (c ~ '|' ~ (d - timedelta(days=21)).strftime('%Y-%m-%d') ~ base) in ns.keys -%}
+                {%- set h.d28 = (c ~ '|' ~ (d - timedelta(days=28)).strftime('%Y-%m-%d') ~ base) in ns.keys -%}
+                {%- set weekly = h.d7 and (h.d14 or h.d21 or h.d28) -%}
+                {%- set tagged = (e.description | default('', true)) is search('#reminderonly(?![\\w-])', ignorecase=True) -%}
+                {%- set not_weekly = not h.d7 and not h.d21 -%}
+                {%- set fortnightly = tagged and not_weekly and h.d14 and h.d28 -%}
+                {%- set ns3 = namespace(months=0) -%}
+                {%- if tagged and not_weekly and not fortnightly -%}
+                  {%- set wk = (d.day - 1) // 7 -%}
+                  {%- for back in [1, 2] -%}
+                    {%- set mi = d.year * 12 + d.month - 1 - back -%}
+                    {%- set y = mi // 12 -%}
+                    {%- set m = mi % 12 + 1 -%}
+                    {%- set first = strptime('%04d-%02d-01' | format(y, m), '%Y-%m-%d') -%}
+                    {%- set same_day = '%04d-%02d-%02d' | format(y, m, d.day) -%}
+                    {%- set same_wd = '%04d-%02d-%02d' | format(y, m, 1 + (d.weekday() - first.weekday()) % 7 + 7 * wk) -%}
+                    {%- if (c ~ '|' ~ same_day ~ base) in ns.keys or (c ~ '|' ~ same_wd ~ base) in ns.keys -%}
+                      {%- set ns3.months = ns3.months + 1 -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+                {%- if weekly or fortnightly or ns3.months == 2 -%}
+                  {%- set ns.out = ns.out + [{
+                        'calendar': c,
+                        'weekday': d.strftime('%A') | lower,
+                        'summary': e.summary,
+                        'hour': (t[:2] | int) if t else none,
+                        'minute': t[3:5] if t else none,
+                        'all_day': not t}] -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+            {{ ns.out }}
+    sensor:
+      - name: Kitchen calendar repeats
+        unique_id: kitchen_calendar_repeats
+        icon: mdi:calendar-sync
+        state: "{{ repeats | count }}"
+        attributes:
+          repeats: "{{ repeats }}"
+
 automation:
   # Views are switched with Kiosk Satellite's view select (no frontend reload).
   - id: kitchen_display_garage_view

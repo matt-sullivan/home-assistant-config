@@ -43,6 +43,14 @@ views:
           - type: custom:navbar-card
             template: kitchen
           - type: custom:week-planner-card
+            # Dim events that follow their usual pattern (sensor in kitchen_display.yaml).
+            card_mod:
+              style: |
+                {%- for r in state_attr('sensor.kitchen_calendar_repeats', 'repeats') or [] %}
+                {%- set s = r.summary | replace('\\', '\\\\') | replace('"', '\\"') %}
+                .day.{{ r.weekday }} .event{{ '.fullday' if r.all_day else '' }}[data-entity="{{ r.calendar }}"][data-summary="{{ s }}"]
+                {%- if not r.all_day %}[data-start-hour="{{ r.hour }}"][data-start-minute="{{ r.minute }}"]{% endif %} { opacity: 0.45; }
+                {%- endfor %}
             days: 7
             startingDay: today
             showLegend: true
